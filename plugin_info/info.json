@@ -1,0 +1,35 @@
+{
+  "id": "netatmoPublicData",
+  "name": "Netatmo OpenData",
+  "description": "Display your favorite weather stations (owned or public) from Netatmo",
+  "version": "1.0",
+  "licence": "AGPL",
+  "author": "Jim005",
+  "require": "3.2",
+  "category": "weather",
+  "hasDependency": false,
+  "hasOwnDeamon": false,
+  "maxDependancyInstallTime": 0,
+  "changelog": "https://jim005.github.io/jeedom-netatmoPublicData/#language#/changelog",
+  "documentation": "https://jim005.github.io/jeedom-netatmoPublicData/#language#/",
+  "link": {
+    "forum": "https://community.jeedom.com/c/plugins/weather/88"
+  },
+  "language": [
+    "fr_FR",
+    "en_US",
+    "de_DE",
+    "sp_SP",
+    "ru_RU",
+    "id_ID",
+    "it_IT"
+  ],
+  "compatibility": [
+    "miniplus",
+    "smart",
+    "rpi",
+    "docker",
+    "diy",
+    "mobile"
+  ]
+}
