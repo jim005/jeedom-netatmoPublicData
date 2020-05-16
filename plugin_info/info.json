@@ -1,7 +1,7 @@
 {
   "id": "netatmoPublicData",
   "name": "Netatmo OpenData",
-  "description": "Récupèrer les données de vos stations météos Netatmo de votre choix et gratuitement. Vos voisins ont une station Netatmo ? <br /> \uD83E\uDD29 Ce plugin est fait pour vous ! \n<br/>  English : Display your favorite weather stations (owned or public) from Netatmo, for free ! \n",
+  "description": "Récupèrer les données de vos stations météos Netatmo de votre choix et gratuitement. Vos voisins ont une station Netatmo ? <br /> 😃 Ce plugin est fait pour vous ! \n<br/>  English : Display your favorite weather stations (owned or public) from Netatmo, for free ! \n",
   "version": "1.0",
   "licence": "AGPL",
   "author": "Jim005",
