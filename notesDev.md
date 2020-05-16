@@ -14,7 +14,7 @@ managed as sub-module on GitHub.
 
 ## Market 
 
-Récupèrer les données des stations météos Netatmo de votre choix et gratuitement. Vos voisins ont une station Netatmo ? 🤩 Ce plugin est fait pour vous ! 
+Récupèrer les données de vos stations météos Netatmo de votre choix et gratuitement. Vos voisins ont une station Netatmo ? 🤩 Ce plugin est fait pour vous ! 
 
 Pour chaque station météo de votre choix : 
 -	Température
