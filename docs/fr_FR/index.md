@@ -42,10 +42,10 @@ For this you must create your application (free): https://dev.netatmo.com/apps/c
 #Example
 
 ## Dashboard (Widget natif v4)
-![](../../plugin_info/screenshot/NetatmoOpenData_dashboard_widget.png)
+![](../screenshot/NetatmoOpenData_dashboard_widget.png)
 
 ## Equipments
-![](../../plugin_info/screenshot/NetatmoOpenData_equipment.png)
+![](../screenshot/NetatmoOpenData_equipment.png)
 
 ## Commands
-![](../../plugin_info/screenshot/NetatmoOpenData_command.png)
+![](../screenshot/NetatmoOpenData_command.png)
