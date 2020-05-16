@@ -1,3 +1,0 @@
-[submodule "3rdparty/Netatmo-API-PHP"]
-	path = 3rdparty/Netatmo-API-PHP
-	url = https://github.com/Netatmo/Netatmo-API-PHP.git
