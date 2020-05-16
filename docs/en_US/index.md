@@ -47,10 +47,10 @@ Pour cela vous devez créer votre application (gratuit) : https://dev.netatmo.co
 #Exemple
 
 ## Dashboard (Widget natif v4)
-![](../../plugin_info/screenshot/NetatmoOpenData_dashboard_widget.png)
+![](../screenshot/NetatmoOpenData_dashboard_widget.png)
 
 ## Equipements
-![](../../plugin_info/screenshot/NetatmoOpenData_equipment.png)
+![](../screenshot/NetatmoOpenData_equipment.png)
 
 ## Commandes
-![](../../plugin_info/screenshot/NetatmoOpenData_command.png)
+![](../screenshot/NetatmoOpenData_command.png)
