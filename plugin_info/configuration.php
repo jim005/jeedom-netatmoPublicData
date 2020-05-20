@@ -54,40 +54,6 @@ if (!isConnect()) {
             </div>
         </div>
 
-
-        <div class="form-group">
-            <label class="col-sm-2 control-label" for="npd_btn_sync">{{Synchroniser}}</label>
-            <div class="col-lg-2">
-                <button class="btn btn-warning" type="submit" id="npd_btn_sync">{{Synchroniser mes stations
-                    favorites}}
-                </button>
-            </div>
-        </div>
-
     </fieldset>
 </form>
 
-
-<script>
-    $('#npd_btn_sync').on('click', function (e) {
-        e.preventDefault();
-        $('#div_alert').showAlert({message: '{{Please wait...}}', level: 'warning'});
-        $.ajax({
-            type: "POST",
-            url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
-            data: {
-                action: "syncWithNetatmo",
-            },
-            dataType: 'json',
-            error: function (request, status, error) {
-                handleAjaxError(request, status, error);
-            },
-            success: function (data) {
-                if (data.state != 'ok') {
-                    $('#div_alert').showAlert({message: data.result, level: 'danger'});
-                    return;
-                }
-                $('#div_alert').showAlert({message: '{{Synchronisation réussie}}', level: 'success'});
-            }
-        });
-    });

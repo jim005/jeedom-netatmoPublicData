@@ -53,3 +53,31 @@ function addCmdToTable(_cmd) {
     }
     jeedom.cmd.changeType($('#table_cmd tbody tr').last(), init(_cmd.subType));
 }
+
+
+$('.npd_btn_sync').on('click', function (e) {
+    e.preventDefault();
+    $('#div_alert').showAlert({message: '{{Synchronisation en cours}}', level: 'warning'});
+    $.ajax({
+        type: "POST",
+        url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
+        data: {
+            action: "syncWithNetatmo",
+        },
+        dataType: 'json',
+        global: false,
+        error: function (request, status, error) {
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            $('#div_alert').showAlert({message: '{{Synchronisation réussie}}', level: 'success'});
+            setTimeout(function () {
+                location.reload();
+            }, 2000);
+        }
+    });
+});
