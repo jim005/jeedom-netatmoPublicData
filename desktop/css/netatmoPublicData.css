@@ -1,0 +1,13 @@
+:root {
+    --ntd_color: rgb(169, 52, 206);
+}
+
+body[data-page="netatmoPublicData"] .logoPrimary,
+body[data-page="netatmoPublicData"] .logoSecondary,
+body[data-page="netatmoPublicData"] .logoSecondary > span {
+    color: var(--ntd_color);
+}
+
+body[data-page="netatmoPublicData"] .eqLogicThumbnailDisplay p a {
+    color: var(--ntd_color) !important;
+}

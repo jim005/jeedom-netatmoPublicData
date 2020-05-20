@@ -17,12 +17,7 @@
   },
   "language": [
     "fr_FR",
-    "en_US",
-    "de_DE",
-    "sp_SP",
-    "ru_RU",
-    "id_ID",
-    "it_IT"
+    "en_US"
   ],
   "compatibility": [
     "miniplus",
@@ -30,6 +25,7 @@
     "rpi",
     "docker",
     "diy",
-    "mobile"
+    "mobile",
+    "v4"
   ]
 }

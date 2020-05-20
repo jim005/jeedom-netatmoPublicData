@@ -20,8 +20,8 @@
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
 if (!class_exists('netatmoApi')) {
-    define('__ROOT__', dirname(dirname(__FILE__)));
-    require_once(__ROOT__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
+    define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
+    require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
 }
 
 /**
@@ -86,7 +86,7 @@ class netatmoPublicData extends eqLogic
             $tokens = $client->getAccessToken();
         } catch (Netatmo\Exceptions\NAClientException $ex) {
             log::add('netatmoPublicData', 'error', print_r("An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE));
-            handleError("An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE);
+//            handleError("An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE);
         }
 
         //Retrieve user's Weather Stations Information
@@ -98,7 +98,7 @@ class netatmoPublicData extends eqLogic
             return $data;
         } catch (Netatmo\Exceptions\NAClientException $ex) {
             log::add('netatmoPublicData', 'error', print_r("Netatmo webservice : An error occured while retrieving data: " . $ex->getMessage() . "\n", TRUE));
-            handleError("An error occured while retrieving data: " . $ex->getMessage() . "\n", TRUE);
+//            handleError("An error occured while retrieving data: " . $ex->getMessage() . "\n", TRUE);
         }
 
     }

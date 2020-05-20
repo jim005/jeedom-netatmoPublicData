@@ -9,10 +9,17 @@ sendVarToJS('eqType', $plugin->getId());
 $eqLogics = eqLogic::byType($plugin->getId());
 
 
-?><div class="row row-overflow">
+?>
+    <div class="row row-overflow">
         <div class="col-xs-12 eqLogicThumbnailDisplay">
             <legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
             <div class="eqLogicThumbnailContainer">
+
+                <div class="cursor eqLogicAction logoPrimary npd_btn_sync">
+                    <i class="fas fa-sync-alt"></i>
+                    <br>
+                    <span>{{Synchronisation}}</span>
+                </div>
 
                 <div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
                     <i class="fas fa-wrench"></i>
@@ -21,10 +28,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 </div>
             </div>
             <legend><i class="fas fa-table"></i> {{Mes stations météo Netatmo "favorites"}}</legend>
-            <p>{{Pour ajouter / supprimer des stations, gérer vos favoris sur <a href="https://weathermap.netatmo.com/"
-                                                                               target="_blank"
-                                                                               rel="nofollow noopener noreferrer">weathermap.netatmo.com</a>,
-                puis Configuration => Synchroniser mes stations favorites.}}</p>
+            <p>{{Pour ajouter / supprimer des stations, veuillez gérer vos favoris sur <a
+                        href="https://weathermap.netatmo.com/"
+                        target="_blank"
+                        rel="nofollow noopener noreferrer">https://weathermap.netatmo.com</a>,
+                puis lancez la <a href="#" class="npd_btn_sync">Synchronisation</a> ( de mes stations favorites ).}}</p>
             <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic"/>
             <div class="eqLogicThumbnailContainer">
                 <?php
@@ -137,5 +145,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
         </div>
     </div>
 
+<?php include_file('desktop', 'netatmoPublicData', 'css', 'netatmoPublicData'); ?>
 <?php include_file('desktop', 'netatmoPublicData', 'js', 'netatmoPublicData'); ?>
 <?php include_file('core', 'plugin.template', 'js'); ?>
