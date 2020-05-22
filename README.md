@@ -7,4 +7,4 @@ Display your favorite weather stations (owned or public) from Netatmo inside Jee
 
 ### Market
 
-Install it for free from the [Jeedom Market](https://www.jeedom.com/market/index.php?v=d&p=market&type=plugin&&name=netatmoPublicData)
+Install it for free from the [Jeedom Market](https://market.jeedom.com/index.php?v=d&p=market_display&id=4008)

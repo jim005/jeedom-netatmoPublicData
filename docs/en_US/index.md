@@ -7,50 +7,46 @@ title: Jeedom | Plugin Netatmo OpenData
 # Description
 This plugin retrieve weather reports from Netatmo stations. From favorite weather stations in your (free) Netatmo account. Creation and management on https://weathermap.netatmo.com
 
+
 # Configuration
+Once the plugin is installed, you need to fill in your Netatmo connection information:
 
-Une fois le plugin installé, il vous faut renseigner vos informations deconnexion Netatmo :
+- Client ID: your client ID (see configuration section)
+- Secret client: your secret client (see configuration section)
+- Username: username of your netatmo account
+- Password: password for your Netatmo account
 
-- Client ID : votre client ID (voir partie configuration)
-- Client secret : votre client secret (voir partie configuration)
-- Nom d’utilisateur : nom d’utilisateur de votre compte netatmo
-- Mot de passe : mot de passe de votre compte Netatmo
+Synchronize: allows you to synchronize Jeedom with your Netamo account to automatically discover your "favorite" Netamo stations, to you or to your neighbors. To do after having saved the previous parameters.
 
-Synchroniser : permet de synchroniser Jeedom avec votre compte Netamo pour découvrir automatiquement vos stations "favorites" Netamo, à vous ou à de vos voisins. A faire après avoir sauvegardé les paramètres précedent.
+### Retrieving connection information
+To integrate your Welcome, you must have a `client_id` and a` client_secret` generated on the site http://dev.netatmo.com.
 
-### Recupération des informations de connexion
-
-Pour intégrer votre Welcome, vous devez posséder un `client_id` et un `client_secret` généré sur le site http://dev.netatmo.com. 
-
-Pour cela vous devez créer votre application (gratuit) : https://dev.netatmo.com/apps/createanapp#form
+For this you must create your application (free): https://dev.netatmo.com/apps/createanapp#form
 
 
 ![](../screenshot/netatmo_clientid.png)
 
 # FAQ
--   Est-ce que le plugin s'appuie sur des API tiers ?
+- Does the plugin rely on third-party APIs?
+> Yes, the plugin uses the Netatmo APIs to retrieve data from your favorite weather stations
 
->Oui, le plugin utilise les API de Netatmo pour récupérer les données de vos stations météo favorites
+- When data is updated ?
+> Every 15 minutes, by the Jeon Cron task.
 
--   Quel est le délai de mise à jour ? 
-> Toutes les 15 minutes, par la tâche Cron Jeedom. 
-
-
-- Où puis-je gérer (ajouter / supprimer) des stations météos ? 
-> Uniquement depuis https://weathermap.netatmo.com . Une fois connecté, vous pouvez mettre des stations dans vos *favoris*. Lancer une synchronisation, et les équipements sont crées (actif + visible). 
+- Where can I manage (add / delete) weather stations?
+> Only from https://weathermap.netatmo.com. Once connected, you can put stations in your * favorites *. Start synchronization, and the devices are created (active + visible).
 
 
-- Si je supprime une station météo de mes favoris, que se fasse t-il ? 
-> L'équipement est *désactivé*, mais reste présent dans Jeedom. Vous pouvez le supprimer manuellement.   
+- If I delete a weather station from my favorites, what happens?
+> The equipment is * deactivated *, but remains present in Jeedom. You can delete it manually.
 
-
-#Exemple
+# Example
 
 ## Dashboard (Widget natif v4)
 ![](../screenshot/NetatmoOpenData_dashboard_widget.png)
 
-## Equipements
+## Equipments
 ![](../screenshot/NetatmoOpenData_equipment.png)
 
-## Commandes
+## Commands
 ![](../screenshot/NetatmoOpenData_command.png)
