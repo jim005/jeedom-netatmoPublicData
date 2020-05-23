@@ -32,7 +32,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
                         href="https://weathermap.netatmo.com/"
                         target="_blank"
                         rel="nofollow noopener noreferrer">https://weathermap.netatmo.com</a>,
-                puis lancez la <a href="#" class="npd_btn_sync">Synchronisation</a> ( de mes stations favorites ).}}</p>
+                puis lancez la <a href="#" class="npd_btn_sync">Synchronisation</a> ( de vos stations favorites ).}}</p>
             <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic"/>
             <div class="eqLogicThumbnailContainer">
                 <?php
@@ -126,13 +126,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
                     </form>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="commandtab">
-                    <a class="btn btn-success btn-sm cmdAction pull-left" data-action="add" style="margin-top:5px;"><i
-                                class="fa fa-plus-circle"></i> {{Commandes}}</a><br/><br/>
                     <table id="table_cmd" class="table table-bordered table-condensed">
                         <thead>
                         <tr>
                             <th>{{Nom}}</th>
-                            <th>{{Type}}</th>
+                            <th style="width: 250px;">{{Paramètres}}</th>
                             <th>{{Action}}</th>
                         </tr>
                         </thead>
