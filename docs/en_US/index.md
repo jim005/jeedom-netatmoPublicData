@@ -40,6 +40,9 @@ For this you must create your application (free): https://dev.netatmo.com/apps/c
 - If I delete a weather station from my favorites, what happens?
 > The equipment is * deactivated *, but remains present in Jeedom. You can delete it manually.
 
+- Why equipment's name has 'star' ( * ) as prefix ? 
+> Just to highlight that this name come from Netatmo. You could rename it, it won't be override on the next synchronisation.  
+
 # Example
 
 ## Dashboard (Widget natif v4)

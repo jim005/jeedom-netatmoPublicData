@@ -43,6 +43,9 @@ Pour cela vous devez créer votre application (gratuit) : https://dev.netatmo.co
 - Si je supprime une station météo de mes favoris, que se passe-t-il ? 
 > L'équipement est *désactivé*, mais reste présent dans Jeedom. Vous pouvez le supprimer manuellement.   
 
+- Pourquoi il y une "étoile" * en préfix du nom de la station ?  
+> Afin d'indiquer que c'est le nom depuis Netatmo. Vous pouvez renommer vos équipements, le nom ne sera pas altérer lors de la prochaine synchronisation.   
+
 
 # Exemple
 
