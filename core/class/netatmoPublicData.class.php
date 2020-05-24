@@ -34,7 +34,7 @@ class netatmoPublicData extends eqLogic
 
 
     /**
-     * Netatmo data
+     * Variables
      *
      */
     public static $_netatmoData = null;
@@ -397,8 +397,15 @@ class netatmoPublicData extends eqLogic
 
         $NetatmoInfo->setUnite($unite);
         $NetatmoInfo->setGeneric_type($setGeneric_type);
+
+        // For V3, don't use new widgets
+        if ((float)getVersion(null) < 4 and in_array($template_dashboard, array('rain', 'HygroThermographe', 'compass'))) {
+            $template_dashboard = 'tile';
+            $template_mobile = 'tile';
+        }
         $NetatmoInfo->setTemplate('dashboard', $template_dashboard);
         $NetatmoInfo->setTemplate('mobile', $template_mobile);
+
         if ($forceReturnLineBefore) {
             $NetatmoInfo->setDisplay('forceReturnLineBefore', '1');
         }
