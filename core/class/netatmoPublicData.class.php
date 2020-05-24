@@ -179,7 +179,7 @@ class netatmoPublicData extends eqLogic
                         if (in_array("Rain", $module['data_type'])) {
                             self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '1100', 'mn');
                             self::createCmdCustom($eqLogic, $device, "Pluie (depuis 1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '1100', 'mn');
-                            self::createCmdCustom($eqLogic, $device, "Pluie (Aujourd'hui", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '1100', 'mn');
+                            self::createCmdCustom($eqLogic, $device, "Pluie (Journée)", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '1100', 'mn');
                         }
                         // Wind Command
                         if (in_array("Wind", $module['data_type'])) {
