@@ -303,9 +303,8 @@ class netatmoPublicData extends eqLogic
                 && $device['dashboard_data']['Pressure'] > 0
             ) { // security
 
-                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure'], $device['dashboard_data']['time_utc']);
-                log::add('netatmoPublicData', 'debug', " - Update value => Pressure (module : " . $device['_id'] . ") = " . $device['dashboard_data']['Pressure']);
-
+                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure']);
+//                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure'], $device['dashboard_data']['time_utc']);
             }
 
 
@@ -325,7 +324,8 @@ class netatmoPublicData extends eqLogic
                             && is_numeric($module['dashboard_data']['Temperature'])
                         ) {
 
-                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature']); // Update value
+//                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature'], $module['dashboard_data']['time_utc']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Temperature (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Temperature']);
 
                         }
@@ -336,7 +336,7 @@ class netatmoPublicData extends eqLogic
                             && is_numeric($module['dashboard_data']['Humidity'])
                             && $module['dashboard_data']['Humidity'] > 0) {  // security
 
-                            $this->checkAndUpdateCmd('humidity', $module['dashboard_data']['Humidity'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('humidity', $module['dashboard_data']['Humidity']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Humidity (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Humidity']);
 
                         }
@@ -346,13 +346,13 @@ class netatmoPublicData extends eqLogic
                             && $module['reachable'] == true
                             && is_numeric($module['dashboard_data']['Rain'])) {  // security
 
-                            $this->checkAndUpdateCmd('rain', $module['dashboard_data']['Rain'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('rain', $module['dashboard_data']['Rain']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Rain (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Rain']);
 
-                            $this->checkAndUpdateCmd('sum_rain_1', $module['dashboard_data']['sum_rain_1'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('sum_rain_1', $module['dashboard_data']['sum_rain_1']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => sum_rain_1 (module : " . $module['_id'] . ") = " . $module['dashboard_data']['sum_rain_1']);
 
-                            $this->checkAndUpdateCmd('sum_rain_24', $module['dashboard_data']['sum_rain_24'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('sum_rain_24', $module['dashboard_data']['sum_rain_24']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => sum_rain_24 (module : " . $module['_id'] . ") = " . $module['dashboard_data']['sum_rain_24']);
 
                         }
@@ -362,16 +362,16 @@ class netatmoPublicData extends eqLogic
                             && $module['reachable'] == true
                             && $module['dashboard_data']['WindStrength'] > 0) {  // security
 
-                            $this->checkAndUpdateCmd('windstrength', $module['dashboard_data']['WindStrength'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('windstrength', $module['dashboard_data']['WindStrength']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => WindStrength (module : " . $module['_id'] . ") = " . $module['dashboard_data']['WindStrength']);
 
-                            $this->checkAndUpdateCmd('windangle', $module['dashboard_data']['WindAngle'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('windangle', $module['dashboard_data']['WindAngle']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => WindAngle (module : " . $module['_id'] . ") = " . $module['dashboard_data']['WindAngle']);
 
-                            $this->checkAndUpdateCmd('guststrength', $module['dashboard_data']['GustStrength'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('guststrength', $module['dashboard_data']['GustStrength']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => GustStrength (module : " . $module['_id'] . ") = " . $module['dashboard_data']['GustStrength']);
 
-                            $this->checkAndUpdateCmd('gustangle', $module['dashboard_data']['GustAngle'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('gustangle', $module['dashboard_data']['GustAngle']); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => GustAngle (module : " . $module['_id'] . ") = " . $module['dashboard_data']['GustAngle']);
 
 

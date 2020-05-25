@@ -1,4 +1,4 @@
-#Changelog : Netatmo OpenData
+# Changelog : Netatmo OpenData
 
 ## 24 may 2020
 - Adjust widget size on creation
