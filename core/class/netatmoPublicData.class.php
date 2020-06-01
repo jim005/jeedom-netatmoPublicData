@@ -92,7 +92,7 @@ class netatmoPublicData extends eqLogic
         try {
             //retrieve all stations belonging to the user, and also his favorite ones
             $data = $client->getData(NULL, TRUE);
-            log::add('netatmoPublicData', 'info', "Fetch Netatamo API to get new data");
+            log::add('netatmoPublicData', 'info', "FETCH Netatamo API to get new data");
             log::add('netatmoPublicData', 'debug', print_r($client, true));
             return $data;
         } catch (Netatmo\Exceptions\NAClientException $ex) {
@@ -290,10 +290,11 @@ class netatmoPublicData extends eqLogic
 
             // If Equipment LogicialId ($this...) is not in $device, move to the next one !
             if ($device['_id'] != $this->getLogicalId()) {
+                log::add('netatmoPublicData', 'debug', "SKIP this value, 'cause : " . $device['_id']  . " !=  "  . $this->getLogicalId());
                 continue;
             }
 
-            log::add('netatmoPublicData', 'info', "Update values for Equipment : " . $this->getName() . " (LogicalID : " . $this->getLogicalId());
+            log::add('netatmoPublicData', 'info', "Update values for Equipment : " . $this->getName() . " ( LogicalID : " . $this->getLogicalId() . " )");
 
 
             //Pressure (from the main station)
@@ -482,6 +483,7 @@ class netatmoPublicDataCmd extends cmd
     {
         // If 'click' on 'refresh' command
         if ($this->getLogicalId() == 'refresh') {
+            log::add('netatmoPublicData', 'debug', "Call 'refresh' command for this object " . print_r($this, true));
             $this->getEqLogic()->updateNetatmoPublicData();
         }
         return false;
