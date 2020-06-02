@@ -117,6 +117,13 @@ class netatmoPublicData extends eqLogic
         $npd_equipment_favorite_logicalId = array();
         foreach (self::$_netatmoData['devices'] as $device) { //array multi scope
 
+
+            // Security : manage only NAMain station type
+            if (!in_array($device['type'], array('NAMain'))) {
+                log::add('netatmoPublicData', 'debug', "SKIP : this device " . $device['_id'] . " has not the type NAMain  (but :  " . $device['type'] . " )");
+                continue;
+            }
+
             // Stored LogicalID for later use
             $npd_equipment_favorite_logicalId[] = $device['_id'];
 
@@ -126,7 +133,7 @@ class netatmoPublicData extends eqLogic
             // Unknown Equipment ==> new station
             if (!is_object($eqLogic) || $eqLogic->getLogicalId() != $device['_id']) {
                 $eqLogic = new netatmoPublicData();
-                $eqLogic->setName($device['station_name'] . " *");
+                $eqLogic->setName($device['station_name'] . " ( " . $device['_id'] . " ) *");
                 $eqLogic->setIsVisible(1);
             }
 
@@ -162,6 +169,14 @@ class netatmoPublicData extends eqLogic
             // For each-sub modules
             if (is_array($device['modules'])) {
                 foreach ($device['modules'] as $module) {
+
+                    // Security : manage only few module type
+                    if (!in_array($module['type'], array('NAModule1', 'NAModule2', 'NAModule3'))) {
+                        log::add('netatmoPublicData', 'debug', "SKIP : this module " . $module['_id'] . " has not the type excepted  (but :  " . $module['type'] . " )");
+                        continue;
+                    }
+
+
                     if (is_array($module['data_type'])) {
                         // // Temperature Command
                         if (in_array("Temperature", $module['data_type'])) {
@@ -290,7 +305,7 @@ class netatmoPublicData extends eqLogic
 
             // If Equipment LogicialId ($this...) is not in $device, move to the next one !
             if ($device['_id'] != $this->getLogicalId()) {
-                log::add('netatmoPublicData', 'debug', "SKIP this value, 'cause : " . $device['_id']  . " !=  "  . $this->getLogicalId());
+                log::add('netatmoPublicData', 'debug', "SKIP this value, 'cause : " . $device['_id'] . " !=  " . $this->getLogicalId());
                 continue;
             }
 
