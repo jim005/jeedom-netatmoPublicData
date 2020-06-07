@@ -28,28 +28,37 @@ Pour cela vous devez créer votre application (gratuit) : https://dev.netatmo.co
 ![](../screenshot/netatmo_clientid.png)
 
 # FAQ
--   Est-ce que le plugin s'appuie sur des API tiers ?
+- Est-ce que le plugin s'appuie sur des API tiers ?
 
 >Oui, le plugin utilise les API de Netatmo pour récupérer les données de vos stations météo favorites
 
--   Quel est le délai de mise à jour ? 
+- Quel est le délai de mise à jour ? 
 > Toutes les 15 minutes, par la tâche Cron Jeedom. 
 
 
 - Où puis-je gérer (ajouter / supprimer) des stations météos ? 
-> Uniquement depuis https://weathermap.netatmo.com . Une fois connecté, vous pouvez mettre des stations dans vos *favoris*. Lancer une synchronisation, et les équipements sont crées (actif + visible). 
-
+> Uniquement depuis https://weathermap.netatmo.com . Une fois connecté, vous pouvez mettre des stations dans vos *favoris*. 
+>Lancer une synchronisation, et les équipements sont crées (actif + visible). 
 
 - Si je supprime une station météo de mes favoris, que se passe-t-il ? 
 > L'équipement est *désactivé*, mais reste présent dans Jeedom. Vous pouvez le supprimer manuellement.   
 
 - Pourquoi il y une "étoile" * en préfix du nom de la station ?  
-> Afin d'indiquer que c'est le nom depuis Netatmo. Vous pouvez renommer vos équipements, le nom ne sera pas altérer lors de la prochaine synchronisation.   
+> Afin d'indiquer que c'est le nom depuis Netatmo. Vous pouvez renommer vos équipements, 
+>le nom ne sera pas altérer lors de la prochaine synchronisation.   
 
+- Vous avez un bug JS 'Uncaught TypeError: cmd.find(…).delay(…).animate is not a function' ? 
+> Ce plugin utilise le widget Rain (natif à Jeedom v4). Mais certains autres plugins rentrent en conflit avec ce nouveau widget. 
+> Solution : mettre à jour vos plugins (ex : 'horlogehtc', etc.)
+
+- Les données ne remontent pas automatiquement ? Malgrès l'activation du cron15
+> Il y a un conflit (de chargement de dépendance technique) avec d'autres plugins comme NetatmoPro. 
+> Solution : mettre à jour vos plugins (ex : 'NetatmoPro', etc.). 
+ 
 
 # Exemple
 
-## Dashboard (Widget natif v4)
+## Dashboard (Widgets natifs v4)
 ![](../screenshot/NetatmoOpenData_dashboard_widget.png)
 
 ## Equipements
