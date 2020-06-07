@@ -19,10 +19,10 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
-if (!class_exists('netatmoApi')) {
-    define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
-    require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
-}
+
+define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
+require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
+
 
 /**
  * Class netatmoPublicData
@@ -313,15 +313,18 @@ class netatmoPublicData extends eqLogic
 
 
             //Pressure (from the main station)
+            log::add('netatmoPublicData', 'debug', ' -- start device [Main]', $this->getLogicalId());
             if (!empty($device['dashboard_data']['Pressure'])
                 && $device['reachable'] == true
                 && is_float($device['dashboard_data']['Pressure'])
                 && $device['dashboard_data']['Pressure'] > 0
             ) { // security
 
-                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure']);
-//                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure'], $device['dashboard_data']['time_utc']);
+                $collectDate = date('Y-m-d H:i:s', $device['dashboard_data']['time_utc']);
+                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure'], $collectDate);
+                log::add('netatmoPublicData', 'info', " - Update value => Pressure (module : " . $device['_id'] . ") = " . $device['dashboard_data']['Pressure']);
             }
+            log::add('netatmoPublicData', 'debug', ' -- end device [Main]', $this->getLogicalId());
 
 
             // For each-sub modules
@@ -329,10 +332,11 @@ class netatmoPublicData extends eqLogic
 
                 foreach ($device['modules'] as $module) {
 
-                    log::add('netatmoPublicData', 'debug', ' -- start device[module]', $this->getLogicalId());
+                    log::add('netatmoPublicData', 'debug', ' -- start device [module]', $this->getLogicalId());
 
-                    if (is_array($module['data_type'])) {  // security
+                    if (is_array($module['data_type']) && is_array($module['dashboard_data'])) {  // security
 
+                        $collectDate = date('Y-m-d H:i:s', $module['dashboard_data']['time_utc']);
 
                         // Temperature Command
                         if (in_array("Temperature", $module['data_type'])
@@ -340,8 +344,7 @@ class netatmoPublicData extends eqLogic
                             && is_numeric($module['dashboard_data']['Temperature'])
                         ) {
 
-                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature']); // Update value
-//                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Temperature (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Temperature']);
 
                         }
@@ -352,7 +355,7 @@ class netatmoPublicData extends eqLogic
                             && is_numeric($module['dashboard_data']['Humidity'])
                             && $module['dashboard_data']['Humidity'] > 0) {  // security
 
-                            $this->checkAndUpdateCmd('humidity', $module['dashboard_data']['Humidity']); // Update value
+                            $this->checkAndUpdateCmd('humidity', $module['dashboard_data']['Humidity'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Humidity (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Humidity']);
 
                         }
@@ -362,13 +365,13 @@ class netatmoPublicData extends eqLogic
                             && $module['reachable'] == true
                             && is_numeric($module['dashboard_data']['Rain'])) {  // security
 
-                            $this->checkAndUpdateCmd('rain', $module['dashboard_data']['Rain']); // Update value
+                            $this->checkAndUpdateCmd('rain', $module['dashboard_data']['Rain'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Rain (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Rain']);
 
-                            $this->checkAndUpdateCmd('sum_rain_1', $module['dashboard_data']['sum_rain_1']); // Update value
+                            $this->checkAndUpdateCmd('sum_rain_1', $module['dashboard_data']['sum_rain_1'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => sum_rain_1 (module : " . $module['_id'] . ") = " . $module['dashboard_data']['sum_rain_1']);
 
-                            $this->checkAndUpdateCmd('sum_rain_24', $module['dashboard_data']['sum_rain_24']); // Update value
+                            $this->checkAndUpdateCmd('sum_rain_24', $module['dashboard_data']['sum_rain_24'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => sum_rain_24 (module : " . $module['_id'] . ") = " . $module['dashboard_data']['sum_rain_24']);
 
                         }
@@ -378,22 +381,21 @@ class netatmoPublicData extends eqLogic
                             && $module['reachable'] == true
                             && $module['dashboard_data']['WindStrength'] > 0) {  // security
 
-                            $this->checkAndUpdateCmd('windstrength', $module['dashboard_data']['WindStrength']); // Update value
+                            $this->checkAndUpdateCmd('windstrength', $module['dashboard_data']['WindStrength'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => WindStrength (module : " . $module['_id'] . ") = " . $module['dashboard_data']['WindStrength']);
 
-                            $this->checkAndUpdateCmd('windangle', $module['dashboard_data']['WindAngle']); // Update value
+                            $this->checkAndUpdateCmd('windangle', $module['dashboard_data']['WindAngle'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => WindAngle (module : " . $module['_id'] . ") = " . $module['dashboard_data']['WindAngle']);
 
-                            $this->checkAndUpdateCmd('guststrength', $module['dashboard_data']['GustStrength']); // Update value
+                            $this->checkAndUpdateCmd('guststrength', $module['dashboard_data']['GustStrength'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => GustStrength (module : " . $module['_id'] . ") = " . $module['dashboard_data']['GustStrength']);
 
-                            $this->checkAndUpdateCmd('gustangle', $module['dashboard_data']['GustAngle']); // Update value
+                            $this->checkAndUpdateCmd('gustangle', $module['dashboard_data']['GustAngle'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => GustAngle (module : " . $module['_id'] . ") = " . $module['dashboard_data']['GustAngle']);
-
 
                         }
                     }
-                    log::add('netatmoPublicData', 'debug', ' -- end device[module]', $this->getLogicalId());
+                    log::add('netatmoPublicData', 'debug', ' -- end device [module]', $this->getLogicalId());
                 }
             }
         }
