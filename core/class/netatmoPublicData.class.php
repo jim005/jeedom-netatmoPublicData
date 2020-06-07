@@ -106,7 +106,7 @@ class netatmoPublicData extends eqLogic
      *
      * @throws Exception
      */
-    public static function syncWithNetatmo()
+    public static function createEquipmentsAndCommands()
     {
 
         log::add('netatmoPublicData', 'debug', __FUNCTION__);
@@ -286,7 +286,7 @@ class netatmoPublicData extends eqLogic
     /**
      * Update all commands values with Netatmo latest values.
      */
-    public function updateNetatmoPublicData()
+    public function updateValues()
     {
 
 
@@ -501,7 +501,7 @@ class netatmoPublicDataCmd extends cmd
         // If 'click' on 'refresh' command
         if ($this->getLogicalId() == 'refresh') {
             log::add('netatmoPublicData', 'debug', "Call 'refresh' command for this object " . print_r($this, true));
-            $this->getEqLogic()->updateNetatmoPublicData();
+            $this->getEqLogic()->updateValues();
         }
         return false;
     }

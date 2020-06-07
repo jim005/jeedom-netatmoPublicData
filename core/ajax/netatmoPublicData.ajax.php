@@ -27,13 +27,13 @@ try {
     ajax::init();
 
     // From button on Configuration page
-    if (init('action') == 'syncWithNetatmo') {
+    if (init('action') == 'createEquipmentsAndCommands') {
 
         //@@todo : ajouter un message d'attente en JS, bg ora
 
 
         // Get data from Netatmo : create equipment.
-        netatmoPublicData::syncWithNetatmo();
+        netatmoPublicData::createEquipmentsAndCommands();
 
         // Run task cron : get sensor's value
         netatmoPublicData::cron15();
