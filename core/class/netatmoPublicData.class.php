@@ -296,9 +296,9 @@ class netatmoPublicData extends eqLogic
         }
 
         // security
-//        if (is_array(self::$_client['devices'])) {   // security
-//            return;
-//        }
+        if (!is_array(self::$_netatmoData['devices'])) {   // security
+            return;
+        }
 
         // Loop over Netatmo's data
         foreach (self::$_netatmoData['devices'] as $device) {
