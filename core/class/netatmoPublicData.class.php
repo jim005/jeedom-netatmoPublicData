@@ -135,6 +135,8 @@ class netatmoPublicData extends eqLogic
                 $eqLogic = new netatmoPublicData();
                 $eqLogic->setName($device['station_name'] . " ( " . $device['_id'] . " ) *");
                 $eqLogic->setIsVisible(1);
+
+                $new_equipment = true;
             }
 
             $eqLogic->setIsEnable(1);
@@ -149,8 +151,6 @@ class netatmoPublicData extends eqLogic
             $eqLogic->save();
 
             log::add('netatmoPublicData', 'debug', "Equipment : " . $device['station_name'] . " (LogicalID : " . $device['_id'] . ") created !");
-
-            $eqLogic = self::byId($eqLogic->getId());
 
             // Create Commands : "refresh"
             self::createCmdRefresh($eqLogic);
@@ -226,35 +226,37 @@ class netatmoPublicData extends eqLogic
              * 3 lines => height : 352px
              * 4 lines => height : 452px
              */
-            if ((float)getVersion(null) < 4) {
-                $eqLogic->setDisplay('width', '392px');
-                switch ($widget_line) {
-                    case 1:
-                        $eqLogic->setDisplay('height', '92px');
-                        break;
-                    case 3:
-                        $eqLogic->setDisplay('height', '232px');
-                        break;
-                    default:
-                        $eqLogic->setDisplay('height', '272px');
-                }
-            } else {
-                log::add('netatmoPublicData', 'debug', " JE suis en v4");
+            if ($new_equipment) {
 
-                $eqLogic->setDisplay('width', '312px');
-                switch ($widget_line) {
-                    case 1:
-                        log::add('netatmoPublicData', 'debug', " JE suis en v4 Case 1");
-                        $eqLogic->setDisplay('height', '152px');
-                        break;
-                    case 3:
-                        $eqLogic->setDisplay('height', '352px');
-                        log::add('netatmoPublicData', 'debug', " JE suis en v4 Case 3");
-                        break;
-                    default:
-                        $eqLogic->setDisplay('height', '452px');
-                        log::add('netatmoPublicData', 'debug', " JE suis en v4 Case DEFAUTL");
+                if ((float)getVersion(null) < 4) {
+                    log::add('netatmoPublicData', 'debug', "Jeedom v3  ( < v4 )");
+                    $eqLogic->setDisplay('width', '392px');
+                    switch ($widget_line) {
+                        case 1:
+                            $eqLogic->setDisplay('height', '92px');
+                            break;
+                        case 3:
+                            $eqLogic->setDisplay('height', '232px');
+                            break;
+                        default:
+                            $eqLogic->setDisplay('height', '272px');
+                    }
+                } else {
+                    log::add('netatmoPublicData', 'debug', "Jeedom v4 ( >= v4 )");
+                    $eqLogic->setDisplay('width', '312px');
+                    switch ($widget_line) {
+                        case 1:
+                            $eqLogic->setDisplay('height', '152px');
+                            break;
+                        case 3:
+                            $eqLogic->setDisplay('height', '352px');
+                            break;
+                        default:
+                            $eqLogic->setDisplay('height', '452px');
+                    }
                 }
+
+                $eqLogic->save();
             }
         }
 
@@ -407,8 +409,7 @@ class netatmoPublicData extends eqLogic
      * @param $eqLogic
      * @throws Exception
      */
-    public
-    static function createCmdRefresh($eqLogic)
+    public static function createCmdRefresh($eqLogic)
     {
         // Refresh
         $NetatmoInfo = $eqLogic->getCmd(null, 'refresh');
@@ -443,6 +444,25 @@ class netatmoPublicData extends eqLogic
         $NetatmoInfo = $eqLogic->getCmd(null, $logicalId);
         if (!is_object($NetatmoInfo)) {
             $NetatmoInfo = new netatmoPublicDataCmd();
+            $NetatmoInfo->setConfiguration('historyPurge', '-1 month');
+
+            $NetatmoInfo->setIsVisible(true);
+            $NetatmoInfo->setIsHistorized(true);
+
+            // For V3, don't use new widgets
+            if ((float)getVersion(null) < 4 and in_array($template_dashboard, array('rain', 'HygroThermographe', 'compass'))) {
+                $template_dashboard = 'tile';
+                $template_mobile = 'tile';
+            }
+            $NetatmoInfo->setTemplate('dashboard', $template_dashboard);
+            $NetatmoInfo->setTemplate('mobile', $template_mobile);
+
+            if ($forceReturnLineBefore) {
+                $NetatmoInfo->setDisplay('forceReturnLineBefore', '1');
+            }
+            if ($template_dashboard == "HygroThermographe") {
+                $NetatmoInfo->setDisplay('parameters', array('scale' => '0.5'));
+            }
         }
         $NetatmoInfo->setName(__($name, __FILE__));
         $NetatmoInfo->setLogicalId($logicalId);
@@ -452,31 +472,14 @@ class netatmoPublicData extends eqLogic
         $NetatmoInfo->setConfiguration('type', $device['type']);
         $NetatmoInfo->setConfiguration('maxValue', $maxValue);
         $NetatmoInfo->setConfiguration('minValue', $minValue);
-        $NetatmoInfo->setConfiguration('historyPurge', '-1 month');
 
         $NetatmoInfo->setOrder($order);
         $NetatmoInfo->setType('info');
         $NetatmoInfo->setSubType('numeric');
-        $NetatmoInfo->setIsVisible(true);
-        $NetatmoInfo->setIsHistorized(true);
 
         $NetatmoInfo->setUnite($unite);
         $NetatmoInfo->setGeneric_type($setGeneric_type);
 
-        // For V3, don't use new widgets
-        if ((float)getVersion(null) < 4 and in_array($template_dashboard, array('rain', 'HygroThermographe', 'compass'))) {
-            $template_dashboard = 'tile';
-            $template_mobile = 'tile';
-        }
-        $NetatmoInfo->setTemplate('dashboard', $template_dashboard);
-        $NetatmoInfo->setTemplate('mobile', $template_mobile);
-
-        if ($forceReturnLineBefore) {
-            $NetatmoInfo->setDisplay('forceReturnLineBefore', '1');
-        }
-        if ($template_dashboard == "HygroThermographe") {
-            $NetatmoInfo->setDisplay('parameters', array('scale' => '0.5'));
-        }
         $NetatmoInfo->save();
 
         log::add('netatmoPublicData', 'debug', " - Command : " . $NetatmoInfo->getId() . " " . $name . " created !");
