@@ -401,6 +401,9 @@ class netatmoPublicData extends eqLogic
                 }
             }
         }
+
+        // Update Widget
+        $this->refreshWidget();
     }
 
     /**
