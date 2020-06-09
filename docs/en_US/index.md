@@ -36,12 +36,20 @@ For this you must create your application (free): https://dev.netatmo.com/apps/c
 - Where can I manage (add / delete) weather stations?
 > Only from https://weathermap.netatmo.com. Once connected, you can put stations in your * favorites *. Start synchronization, and the devices are created (active + visible).
 
-
 - If I delete a weather station from my favorites, what happens?
 > The equipment is * deactivated *, but remains present in Jeedom. You can delete it manually.
 
 - Why equipment's name has 'star' ( * ) as prefix ? 
 > Just to highlight that this name come from Netatmo. You could rename it, it won't be override on the next synchronisation.  
+
+- You've got a JS error like 'Uncaught TypeError: cmd.find(…).delay(…).animate is not a function' ? 
+> This plugin use new widget from Jeedom v4. But some others plugins create conflict with those widget. 
+> Please, update yours plugins, developers have fixed it. (eg : horlogehtc )
+
+- Data are not updated, even with cron15 enabled ?
+> There are some technical background conflict with others plugins.
+> Please, update yours plugins, developers have fixed it (eg : NetatmoPro ) 
+ 
 
 # Example
 

@@ -19,10 +19,10 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
-if (!class_exists('netatmoApi')) {
-    define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
-    require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
-}
+
+define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
+require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
+
 
 /**
  * Class netatmoPublicData
@@ -92,7 +92,7 @@ class netatmoPublicData extends eqLogic
         try {
             //retrieve all stations belonging to the user, and also his favorite ones
             $data = $client->getData(NULL, TRUE);
-            log::add('netatmoPublicData', 'info', "Fetch Netatamo API to get new data");
+            log::add('netatmoPublicData', 'info', "FETCH Netatamo API to get new data");
             log::add('netatmoPublicData', 'debug', print_r($client, true));
             return $data;
         } catch (Netatmo\Exceptions\NAClientException $ex) {
@@ -106,7 +106,7 @@ class netatmoPublicData extends eqLogic
      *
      * @throws Exception
      */
-    public static function syncWithNetatmo()
+    public static function createEquipmentsAndCommands()
     {
 
         log::add('netatmoPublicData', 'debug', __FUNCTION__);
@@ -117,6 +117,13 @@ class netatmoPublicData extends eqLogic
         $npd_equipment_favorite_logicalId = array();
         foreach (self::$_netatmoData['devices'] as $device) { //array multi scope
 
+
+            // Security : manage only NAMain station type
+            if (!in_array($device['type'], array('NAMain'))) {
+                log::add('netatmoPublicData', 'debug', "SKIP : this device " . $device['_id'] . " has not the type NAMain  (but :  " . $device['type'] . " )");
+                continue;
+            }
+
             // Stored LogicalID for later use
             $npd_equipment_favorite_logicalId[] = $device['_id'];
 
@@ -126,8 +133,10 @@ class netatmoPublicData extends eqLogic
             // Unknown Equipment ==> new station
             if (!is_object($eqLogic) || $eqLogic->getLogicalId() != $device['_id']) {
                 $eqLogic = new netatmoPublicData();
-                $eqLogic->setName($device['station_name'] . " *");
+                $eqLogic->setName($device['station_name'] . " ( " . $device['_id'] . " ) *");
                 $eqLogic->setIsVisible(1);
+
+                $new_equipment = true;
             }
 
             $eqLogic->setIsEnable(1);
@@ -142,8 +151,6 @@ class netatmoPublicData extends eqLogic
             $eqLogic->save();
 
             log::add('netatmoPublicData', 'debug', "Equipment : " . $device['station_name'] . " (LogicalID : " . $device['_id'] . ") created !");
-
-            $eqLogic = self::byId($eqLogic->getId());
 
             // Create Commands : "refresh"
             self::createCmdRefresh($eqLogic);
@@ -162,6 +169,14 @@ class netatmoPublicData extends eqLogic
             // For each-sub modules
             if (is_array($device['modules'])) {
                 foreach ($device['modules'] as $module) {
+
+                    // Security : manage only few module type
+                    if (!in_array($module['type'], array('NAModule1', 'NAModule2', 'NAModule3'))) {
+                        log::add('netatmoPublicData', 'debug', "SKIP : this module " . $module['_id'] . " has not the type excepted  (but :  " . $module['type'] . " )");
+                        continue;
+                    }
+
+
                     if (is_array($module['data_type'])) {
                         // // Temperature Command
                         if (in_array("Temperature", $module['data_type'])) {
@@ -186,9 +201,9 @@ class netatmoPublicData extends eqLogic
                         }
                         // Rain Command
                         if (in_array("Rain", $module['data_type'])) {
-                            self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '1100', 'mn');
-                            self::createCmdCustom($eqLogic, $device, "Pluie (1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '1100', 'mn');
-                            self::createCmdCustom($eqLogic, $device, "Pluie (Journée)", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '1100', 'mn');
+                            self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '1100', 'mm');
+                            self::createCmdCustom($eqLogic, $device, "Pluie (1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '1100', 'mm');
+                            self::createCmdCustom($eqLogic, $device, "Pluie (Journée)", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '1100', 'mm');
                             $widget_line++;
                         }
                     }
@@ -211,35 +226,37 @@ class netatmoPublicData extends eqLogic
              * 3 lines => height : 352px
              * 4 lines => height : 452px
              */
-            if ((float)getVersion(null) < 4) {
-                $eqLogic->setDisplay('width', '392px');
-                switch ($widget_line) {
-                    case 1:
-                        $eqLogic->setDisplay('height', '92px');
-                        break;
-                    case 3:
-                        $eqLogic->setDisplay('height', '232px');
-                        break;
-                    default:
-                        $eqLogic->setDisplay('height', '272px');
-                }
-            } else {
-                log::add('netatmoPublicData', 'debug', " JE suis en v4");
+            if ($new_equipment) {
 
-                $eqLogic->setDisplay('width', '312px');
-                switch ($widget_line) {
-                    case 1:
-                        log::add('netatmoPublicData', 'debug', " JE suis en v4 Case 1");
-                        $eqLogic->setDisplay('height', '152px');
-                        break;
-                    case 3:
-                        $eqLogic->setDisplay('height', '352px');
-                        log::add('netatmoPublicData', 'debug', " JE suis en v4 Case 3");
-                        break;
-                    default:
-                        $eqLogic->setDisplay('height', '452px');
-                        log::add('netatmoPublicData', 'debug', " JE suis en v4 Case DEFAUTL");
+                if ((float)getVersion(null) < 4) {
+                    log::add('netatmoPublicData', 'debug', "Jeedom v3  ( < v4 )");
+                    $eqLogic->setDisplay('width', '392px');
+                    switch ($widget_line) {
+                        case 1:
+                            $eqLogic->setDisplay('height', '92px');
+                            break;
+                        case 3:
+                            $eqLogic->setDisplay('height', '232px');
+                            break;
+                        default:
+                            $eqLogic->setDisplay('height', '272px');
+                    }
+                } else {
+                    log::add('netatmoPublicData', 'debug', "Jeedom v4 ( >= v4 )");
+                    $eqLogic->setDisplay('width', '312px');
+                    switch ($widget_line) {
+                        case 1:
+                            $eqLogic->setDisplay('height', '152px');
+                            break;
+                        case 3:
+                            $eqLogic->setDisplay('height', '352px');
+                            break;
+                        default:
+                            $eqLogic->setDisplay('height', '452px');
+                    }
                 }
+
+                $eqLogic->save();
             }
         }
 
@@ -271,7 +288,7 @@ class netatmoPublicData extends eqLogic
     /**
      * Update all commands values with Netatmo latest values.
      */
-    public function updateNetatmoPublicData()
+    public function updateValues()
     {
 
 
@@ -281,31 +298,35 @@ class netatmoPublicData extends eqLogic
         }
 
         // security
-//        if (is_array(self::$_client['devices'])) {   // security
-//            return;
-//        }
+        if (!is_array(self::$_netatmoData['devices'])) {   // security
+            return;
+        }
 
         // Loop over Netatmo's data
         foreach (self::$_netatmoData['devices'] as $device) {
 
             // If Equipment LogicialId ($this...) is not in $device, move to the next one !
             if ($device['_id'] != $this->getLogicalId()) {
+                log::add('netatmoPublicData', 'debug', "SKIP this value, 'cause : " . $device['_id'] . " !=  " . $this->getLogicalId());
                 continue;
             }
 
-            log::add('netatmoPublicData', 'info', "Update values for Equipment : " . $this->getName() . " (LogicalID : " . $this->getLogicalId());
+            log::add('netatmoPublicData', 'info', "Update values for Equipment : " . $this->getName() . " ( LogicalID : " . $this->getLogicalId() . " )");
 
 
             //Pressure (from the main station)
+            log::add('netatmoPublicData', 'debug', ' -- start device [Main]', $this->getLogicalId());
             if (!empty($device['dashboard_data']['Pressure'])
                 && $device['reachable'] == true
                 && is_float($device['dashboard_data']['Pressure'])
                 && $device['dashboard_data']['Pressure'] > 0
             ) { // security
 
-                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure']);
-//                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure'], $device['dashboard_data']['time_utc']);
+                $collectDate = date('Y-m-d H:i:s', $device['dashboard_data']['time_utc']);
+                $this->checkAndUpdateCmd('pressure', $device['dashboard_data']['Pressure'], $collectDate);
+                log::add('netatmoPublicData', 'info', " - Update value => Pressure (module : " . $device['_id'] . ") = " . $device['dashboard_data']['Pressure']);
             }
+            log::add('netatmoPublicData', 'debug', ' -- end device [Main]', $this->getLogicalId());
 
 
             // For each-sub modules
@@ -313,10 +334,11 @@ class netatmoPublicData extends eqLogic
 
                 foreach ($device['modules'] as $module) {
 
-                    log::add('netatmoPublicData', 'debug', ' -- start device[module]', $this->getLogicalId());
+                    log::add('netatmoPublicData', 'debug', ' -- start device [module]', $this->getLogicalId());
 
-                    if (is_array($module['data_type'])) {  // security
+                    if (is_array($module['data_type']) && is_array($module['dashboard_data'])) {  // security
 
+                        $collectDate = date('Y-m-d H:i:s', $module['dashboard_data']['time_utc']);
 
                         // Temperature Command
                         if (in_array("Temperature", $module['data_type'])
@@ -324,8 +346,7 @@ class netatmoPublicData extends eqLogic
                             && is_numeric($module['dashboard_data']['Temperature'])
                         ) {
 
-                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature']); // Update value
-//                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature'], $module['dashboard_data']['time_utc']); // Update value
+                            $this->checkAndUpdateCmd('temperature', $module['dashboard_data']['Temperature'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Temperature (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Temperature']);
 
                         }
@@ -336,7 +357,7 @@ class netatmoPublicData extends eqLogic
                             && is_numeric($module['dashboard_data']['Humidity'])
                             && $module['dashboard_data']['Humidity'] > 0) {  // security
 
-                            $this->checkAndUpdateCmd('humidity', $module['dashboard_data']['Humidity']); // Update value
+                            $this->checkAndUpdateCmd('humidity', $module['dashboard_data']['Humidity'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Humidity (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Humidity']);
 
                         }
@@ -346,13 +367,13 @@ class netatmoPublicData extends eqLogic
                             && $module['reachable'] == true
                             && is_numeric($module['dashboard_data']['Rain'])) {  // security
 
-                            $this->checkAndUpdateCmd('rain', $module['dashboard_data']['Rain']); // Update value
+                            $this->checkAndUpdateCmd('rain', $module['dashboard_data']['Rain'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => Rain (module : " . $module['_id'] . ") = " . $module['dashboard_data']['Rain']);
 
-                            $this->checkAndUpdateCmd('sum_rain_1', $module['dashboard_data']['sum_rain_1']); // Update value
+                            $this->checkAndUpdateCmd('sum_rain_1', $module['dashboard_data']['sum_rain_1'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => sum_rain_1 (module : " . $module['_id'] . ") = " . $module['dashboard_data']['sum_rain_1']);
 
-                            $this->checkAndUpdateCmd('sum_rain_24', $module['dashboard_data']['sum_rain_24']); // Update value
+                            $this->checkAndUpdateCmd('sum_rain_24', $module['dashboard_data']['sum_rain_24'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => sum_rain_24 (module : " . $module['_id'] . ") = " . $module['dashboard_data']['sum_rain_24']);
 
                         }
@@ -362,25 +383,27 @@ class netatmoPublicData extends eqLogic
                             && $module['reachable'] == true
                             && $module['dashboard_data']['WindStrength'] > 0) {  // security
 
-                            $this->checkAndUpdateCmd('windstrength', $module['dashboard_data']['WindStrength']); // Update value
+                            $this->checkAndUpdateCmd('windstrength', $module['dashboard_data']['WindStrength'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => WindStrength (module : " . $module['_id'] . ") = " . $module['dashboard_data']['WindStrength']);
 
-                            $this->checkAndUpdateCmd('windangle', $module['dashboard_data']['WindAngle']); // Update value
+                            $this->checkAndUpdateCmd('windangle', $module['dashboard_data']['WindAngle'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => WindAngle (module : " . $module['_id'] . ") = " . $module['dashboard_data']['WindAngle']);
 
-                            $this->checkAndUpdateCmd('guststrength', $module['dashboard_data']['GustStrength']); // Update value
+                            $this->checkAndUpdateCmd('guststrength', $module['dashboard_data']['GustStrength'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => GustStrength (module : " . $module['_id'] . ") = " . $module['dashboard_data']['GustStrength']);
 
-                            $this->checkAndUpdateCmd('gustangle', $module['dashboard_data']['GustAngle']); // Update value
+                            $this->checkAndUpdateCmd('gustangle', $module['dashboard_data']['GustAngle'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => GustAngle (module : " . $module['_id'] . ") = " . $module['dashboard_data']['GustAngle']);
-
 
                         }
                     }
-                    log::add('netatmoPublicData', 'debug', ' -- end device[module]', $this->getLogicalId());
+                    log::add('netatmoPublicData', 'debug', ' -- end device [module]', $this->getLogicalId());
                 }
             }
         }
+
+        // Update Widget
+        $this->refreshWidget();
     }
 
     /**
@@ -389,8 +412,7 @@ class netatmoPublicData extends eqLogic
      * @param $eqLogic
      * @throws Exception
      */
-    public
-    static function createCmdRefresh($eqLogic)
+    public static function createCmdRefresh($eqLogic)
     {
         // Refresh
         $NetatmoInfo = $eqLogic->getCmd(null, 'refresh');
@@ -425,6 +447,25 @@ class netatmoPublicData extends eqLogic
         $NetatmoInfo = $eqLogic->getCmd(null, $logicalId);
         if (!is_object($NetatmoInfo)) {
             $NetatmoInfo = new netatmoPublicDataCmd();
+            $NetatmoInfo->setConfiguration('historyPurge', '-1 month');
+
+            $NetatmoInfo->setIsVisible(true);
+            $NetatmoInfo->setIsHistorized(true);
+
+            // For V3, don't use new widgets
+            if ((float)getVersion(null) < 4 and in_array($template_dashboard, array('rain', 'HygroThermographe', 'compass'))) {
+                $template_dashboard = 'tile';
+                $template_mobile = 'tile';
+            }
+            $NetatmoInfo->setTemplate('dashboard', $template_dashboard);
+            $NetatmoInfo->setTemplate('mobile', $template_mobile);
+
+            if ($forceReturnLineBefore) {
+                $NetatmoInfo->setDisplay('forceReturnLineBefore', '1');
+            }
+            if ($template_dashboard == "HygroThermographe") {
+                $NetatmoInfo->setDisplay('parameters', array('scale' => '0.5'));
+            }
         }
         $NetatmoInfo->setName(__($name, __FILE__));
         $NetatmoInfo->setLogicalId($logicalId);
@@ -434,31 +475,14 @@ class netatmoPublicData extends eqLogic
         $NetatmoInfo->setConfiguration('type', $device['type']);
         $NetatmoInfo->setConfiguration('maxValue', $maxValue);
         $NetatmoInfo->setConfiguration('minValue', $minValue);
-        $NetatmoInfo->setConfiguration('historyPurge', '-1 month');
 
         $NetatmoInfo->setOrder($order);
         $NetatmoInfo->setType('info');
         $NetatmoInfo->setSubType('numeric');
-        $NetatmoInfo->setIsVisible(true);
-        $NetatmoInfo->setIsHistorized(true);
 
         $NetatmoInfo->setUnite($unite);
         $NetatmoInfo->setGeneric_type($setGeneric_type);
 
-        // For V3, don't use new widgets
-        if ((float)getVersion(null) < 4 and in_array($template_dashboard, array('rain', 'HygroThermographe', 'compass'))) {
-            $template_dashboard = 'tile';
-            $template_mobile = 'tile';
-        }
-        $NetatmoInfo->setTemplate('dashboard', $template_dashboard);
-        $NetatmoInfo->setTemplate('mobile', $template_mobile);
-
-        if ($forceReturnLineBefore) {
-            $NetatmoInfo->setDisplay('forceReturnLineBefore', '1');
-        }
-        if ($template_dashboard == "HygroThermographe") {
-            $NetatmoInfo->setDisplay('parameters', array('scale' => '0.5'));
-        }
         $NetatmoInfo->save();
 
         log::add('netatmoPublicData', 'debug', " - Command : " . $NetatmoInfo->getId() . " " . $name . " created !");
@@ -482,7 +506,8 @@ class netatmoPublicDataCmd extends cmd
     {
         // If 'click' on 'refresh' command
         if ($this->getLogicalId() == 'refresh') {
-            $this->getEqLogic()->updateNetatmoPublicData();
+            log::add('netatmoPublicData', 'debug', "Call 'refresh' command for this object " . print_r($this, true));
+            $this->getEqLogic()->updateValues();
         }
         return false;
     }

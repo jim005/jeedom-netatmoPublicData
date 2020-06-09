@@ -65,7 +65,7 @@ $('.npd_btn_sync').on('click', function (e) {
         type: "POST",
         url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
         data: {
-            action: "syncWithNetatmo",
+            action: "createEquipmentsAndCommands",
         },
         dataType: 'json',
         global: false,
