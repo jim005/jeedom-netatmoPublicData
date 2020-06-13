@@ -3,8 +3,10 @@
 ### TODO list
 - Gestion des modules additionnels, type NAModule4 ( CO2, Température et Humidité )
 - Equipement virtuel moyennant les autres
-- Warning / notifications en cas de données non-disponible.
 
+
+## 13 Juin 2020  
+- Notifications dans le Centre de Message en cas de données non-disponibles
 
 ## 07 juin 2020
 - Remplacement de la date de récupération des valeurs, par celle fournis par Netatmo UTC

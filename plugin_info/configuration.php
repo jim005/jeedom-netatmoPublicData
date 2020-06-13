@@ -22,8 +22,7 @@ if (!isConnect()) {
     die();
 }
 
-?>
-<form class="form-horizontal">
+?><form class="form-horizontal">
     <fieldset>
         <div class="form-group">
             <label class="col-sm-2 control-label" for="npd_client_id"> {{Client ID}}</label>

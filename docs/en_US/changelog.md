@@ -1,5 +1,7 @@
 # Changelog : Netatmo OpenData
 
+## 13 june 2020
+- Notification in Message Center when data's is not reachable
 
 ## 07 june 2020
 - Remove management of additional module, type NAModule4 ( CO2, Température et Humidité )
