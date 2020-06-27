@@ -281,6 +281,10 @@ class netatmoPublicData extends eqLogic
             $eqLogic->setIsEnable(0);
             $eqLogic->save();
             log::add('netatmoPublicData', 'debug', 'Equipment ' . $equipmentLogicalID . ' disabled !');
+
+
+            // message::add('networks', __('Echec du ping sur : ', __FILE__) . $this->getHumanName(), '', 'pingFailed' . $this->getId());
+
         }
 
     }
@@ -316,8 +320,14 @@ class netatmoPublicData extends eqLogic
 
             //Pressure (from the main station)
             log::add('netatmoPublicData', 'debug', ' -- start device [Main]', $this->getLogicalId());
+
+            if ($device['reachable'] == false) {
+                message::add('netatmoPublicData', $this->getHumanName() . ' - device ' .  $device['type'] .  ' is not reachable !', '', $this->getId());
+                log::add('netatmoPublicData', 'debug', ' - device not reachable, SKIP', $this->getLogicalId());
+                continue;
+            }
+
             if (!empty($device['dashboard_data']['Pressure'])
-                && $device['reachable'] == true
                 && is_float($device['dashboard_data']['Pressure'])
                 && $device['dashboard_data']['Pressure'] > 0
             ) { // security
@@ -336,13 +346,18 @@ class netatmoPublicData extends eqLogic
 
                     log::add('netatmoPublicData', 'debug', ' -- start device [module]', $this->getLogicalId());
 
+                    if ($module['reachable'] == false) {
+                        message::add('netatmoPublicData', $this->getHumanName() . ' - module ' .  $module['type'] .  ' is not reachable !', '', $this->getId());
+                        log::add('netatmoPublicData', 'debug', ' - module not reachable, SKIP', $this->getLogicalId());
+                        continue;
+                    }
+
                     if (is_array($module['data_type']) && is_array($module['dashboard_data'])) {  // security
 
                         $collectDate = date('Y-m-d H:i:s', $module['dashboard_data']['time_utc']);
 
                         // Temperature Command
                         if (in_array("Temperature", $module['data_type'])
-                            && $module['reachable'] == true
                             && is_numeric($module['dashboard_data']['Temperature'])
                         ) {
 
@@ -353,7 +368,6 @@ class netatmoPublicData extends eqLogic
 
                         // Humidity Command
                         if (in_array("Humidity", $module['data_type'])
-                            && $module['reachable'] == true
                             && is_numeric($module['dashboard_data']['Humidity'])
                             && $module['dashboard_data']['Humidity'] > 0) {  // security
 
@@ -364,7 +378,6 @@ class netatmoPublicData extends eqLogic
 
                         // Rain Command
                         if (in_array("Rain", $module['data_type'])
-                            && $module['reachable'] == true
                             && is_numeric($module['dashboard_data']['Rain'])) {  // security
 
                             $this->checkAndUpdateCmd('rain', $module['dashboard_data']['Rain'], $collectDate); // Update value
@@ -380,7 +393,6 @@ class netatmoPublicData extends eqLogic
 
                         // Wind : WindStrength + WindAngle
                         if (in_array("Wind", $module['data_type'])
-                            && $module['reachable'] == true
                             && $module['dashboard_data']['WindStrength'] > 0) {  // security
 
                             $this->checkAndUpdateCmd('windstrength', $module['dashboard_data']['WindStrength'], $collectDate); // Update value
