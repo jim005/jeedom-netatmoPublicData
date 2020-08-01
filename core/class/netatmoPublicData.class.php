@@ -38,6 +38,12 @@ class netatmoPublicData extends eqLogic
      *
      */
     public static $_netatmoData = null;
+    public static $_moduleType = array(
+        "NAModule1" => "Température et Humidité",
+        "NAModule2" => "Anémomètre",
+        "NAModule3" => "Pluviomètre",
+        "NAModule4" => "CO2, Température et Humidité",
+    );
 
 
     /**
@@ -322,7 +328,7 @@ class netatmoPublicData extends eqLogic
             log::add('netatmoPublicData', 'debug', ' -- start device [Main]', $this->getLogicalId());
 
             if ($device['reachable'] == false) {
-                message::add('netatmoPublicData', $this->getHumanName() . ' - device ' .  $device['type'] .  ' is not reachable !', '', $this->getId());
+                message::add('netatmoPublicData', $this->getHumanName() . ' - device ' . $device['type'] . ' ( ' .  self::$_moduleType[$device['type']] . ' ) is not reachable !', '', $this->getId());
                 log::add('netatmoPublicData', 'debug', ' - device not reachable, SKIP', $this->getLogicalId());
                 continue;
             }
@@ -347,7 +353,7 @@ class netatmoPublicData extends eqLogic
                     log::add('netatmoPublicData', 'debug', ' -- start device [module]', $this->getLogicalId());
 
                     if ($module['reachable'] == false) {
-                        message::add('netatmoPublicData', $this->getHumanName() . ' - module ' .  $module['type'] .  ' is not reachable !', '', $this->getId());
+                        message::add('netatmoPublicData', $this->getHumanName() . ' - module ' . $module['type'] . ' ( ' .  self::$_moduleType[$device['type']] . ' ) is not reachable !', '', $this->getId());
                         log::add('netatmoPublicData', 'debug', ' - module not reachable, SKIP', $this->getLogicalId());
                         continue;
                     }
