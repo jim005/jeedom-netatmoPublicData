@@ -2,22 +2,31 @@
   "id": "netatmoPublicData",
   "name": "Netatmo OpenData",
   "description": "Vos voisins ont une station météo Netatmo dans leur jardin (et pas vous ) ? <br><strong>Récupèrer leurs données pour votre Jeedom</strong> (température, pression, pluie, vent...) et gratuitement. <br><br>Depuis la carte Netatmo, sélectionnez jusqu'à 5 stations favorites, puis elles seront visibles dans Jeedom et utilisable dans vos Scénarii, Vues, Designs, etc.  Notamment :<br>- Température<br>- Pression<br>- Vent ( Vitesse + Direction)<br>- Rafales de vent ( Vitesse + Direction)<br>- Pluie (Temps réel + sur 1h + sur la journée )<br><br><br>English : Display your favorite weather stations (owned or public) from Netatmo, for free !",
-  "version": "1.0",
+  "version": "1.2",
   "licence": "AGPL",
-  "author": "Jim005",
+  "author": [
+    "Jim005"
+  ],
   "require": "3.2",
   "category": "weather",
   "hasDependency": false,
   "hasOwnDeamon": false,
   "maxDependancyInstallTime": 0,
-  "changelog": "https://jim005.github.io/jeedom-netatmoPublicData/#language#/changelog",
-  "documentation": "https://jim005.github.io/jeedom-netatmoPublicData/#language#/",
+  "changelog": "https:\/\/jim005.github.io\/jeedom-netatmoPublicData\/#language#\/changelog",
+  "documentation": "https:\/\/jim005.github.io\/jeedom-netatmoPublicData\/#language#\/",
   "link": {
     "forum": "https://community.jeedom.com/t/pugin-netatmo-opendata-presentation/28530"
   },
   "language": [
+    "de_DE",
+    "en_US",
+    "es_ES",
     "fr_FR",
-    "en_US"
+    "id_ID",
+    "ja_JP",
+    "pt_PT",
+    "ru_RU",
+    "tr"
   ],
   "compatibility": [
     "miniplus",

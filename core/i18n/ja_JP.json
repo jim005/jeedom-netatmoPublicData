@@ -1,0 +1,40 @@
+{
+  "plugins\/netatmoPublicData\/desktop\/php\/netatmoPublicData.php": {
+    "401 - Accès non autorisé": "401-不正アクセス",
+    "Gestion": "管理",
+    "Synchronisation": "同期",
+    "Configuration": "構成",
+    "Mes stations météo Netatmo \"favorites\"": "私の「お気に入り」のNetatmoウェザーステーション",
+    "Rechercher": "探す",
+    "Configuration avancée": "高度な構成",
+    "Sauvegarder": "保存する",
+    "Supprimer": "削除する",
+    "Equipement": "装置",
+    "Commandes": "注文",
+    "Nom de l'équipement météo Netatmo": "Netatmo気象機器の名前",
+    "Objet parent": "親オブジェクト",
+    "Aucun": "番号",
+    "Catégorie": "カテゴリー",
+    "Activer": "アクティベート",
+    "Visible": "目に見える",
+    "Nom": "苗字",
+    "Paramètres": "設定",
+    "Action": "アクション",
+    "Nom de l'équipement": "機器名"
+  },
+  "plugins\/netatmoPublicData\/plugin_info\/configuration.php": {
+    "Client ID": "Client ID",
+    "Client secret": "Secret client",
+    "Nom d'utilisateur": "Username",
+    "Mot de passe": "Password"
+  },
+  "plugins\/netatmoPublicData\/desktop\/js\/netatmoPublicData.js": {
+    "Nom": "苗字",
+    "Afficher": "ピンナップ",
+    "Historiser": "履歴化",
+    "Tester": "テスト",
+    "Synchronisation en cours": "同期が進行中",
+    "Synchronisation réussie": "同期に成功"
+  }
+}
+

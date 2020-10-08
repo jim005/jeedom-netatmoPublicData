@@ -1,9 +1,7 @@
 # Changelog : Netatmo OpenData
 
-### TODO list
-- Gestion des modules additionnels, type NAModule4 ( CO2, Température et Humidité )
-- Equipement virtuel moyennant les autres
-
+## Octobre 2020
+- Ajout de traductions
 
 ## 13 Juin 2020  
 - Notifications dans le Centre de Message en cas de données non-disponibles

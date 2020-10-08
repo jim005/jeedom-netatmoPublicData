@@ -1,5 +1,8 @@
 # Changelog : Netatmo OpenData
 
+## October 2020
+- Add translations
+
 ## 13 june 2020
 - Notification in Message Center when data's is not reachable
 
