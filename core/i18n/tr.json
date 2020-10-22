@@ -1,0 +1,40 @@
+{
+  "plugins\/netatmoPublicData\/desktop\/php\/netatmoPublicData.php": {
+    "401 - Accès non autorisé": "401 - Yetkisiz Erişim",
+    "Gestion": "Yönetim",
+    "Synchronisation": "Senkronizasyon",
+    "Configuration": "Yapılandırma",
+    "Mes stations météo Netatmo \"favorites\"": "En sevdiğim Netatmo hava durumu istasyonları",
+    "Rechercher": "Arama",
+    "Configuration avancée": "Gelişmiş yapılandırma",
+    "Sauvegarder": "Kayıt etmek",
+    "Supprimer": "Kaldırmak",
+    "Equipement": "Ekipman",
+    "Commandes": "Emirler",
+    "Nom de l'équipement météo Netatmo": "Netatmo hava durumu ekipmanının adı",
+    "Objet parent": "Üst nesne",
+    "Aucun": "Hayır",
+    "Catégorie": "Kategori",
+    "Activer": "Etkinleştir",
+    "Visible": "Gözle görülür",
+    "Nom": "Soyadı",
+    "Paramètres": "Ayarlar",
+    "Action": "Aksiyon",
+    "Nom de l'équipement": "Ekipman adı"
+  },
+  "plugins\/netatmoPublicData\/plugin_info\/configuration.php": {
+    "Client ID": "Client ID",
+    "Client secret": "Secret client",
+    "Nom d'utilisateur": "Username",
+    "Mot de passe": "Password"
+  },
+  "plugins\/netatmoPublicData\/desktop\/js\/netatmoPublicData.js": {
+    "Nom": "Soyadı",
+    "Afficher": "İğnelemek",
+    "Historiser": "Tarihselleştirme",
+    "Tester": "Ölçek",
+    "Synchronisation en cours": "Senkronizasyon devam ediyor",
+    "Synchronisation réussie": "Senkronizasyon başarılı"
+  }
+}
+

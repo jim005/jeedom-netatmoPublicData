@@ -1,0 +1,40 @@
+{
+  "plugins\/netatmoPublicData\/desktop\/php\/netatmoPublicData.php": {
+    "401 - Accès non autorisé": "401 - Akses Tidak Sah",
+    "Gestion": "Pengelolaan",
+    "Synchronisation": "Sinkronisasi",
+    "Configuration": "Konfigurasi",
+    "Mes stations météo Netatmo \"favorites\"": "Stasiun cuaca Netatmo \"favorit\" saya",
+    "Rechercher": "Cari",
+    "Configuration avancée": "Konfigurasi lanjutan",
+    "Sauvegarder": "Menyimpan",
+    "Supprimer": "Menghapus",
+    "Equipement": "Peralatan",
+    "Commandes": "Pesanan",
+    "Nom de l'équipement météo Netatmo": "Nama peralatan cuaca Netatmo",
+    "Objet parent": "Objek induk",
+    "Aucun": "Tidak",
+    "Catégorie": "Kategori",
+    "Activer": "Mengaktifkan",
+    "Visible": "Terlihat",
+    "Nom": "nama keluarga",
+    "Paramètres": "Pengaturan",
+    "Action": "Tindakan",
+    "Nom de l'équipement": "Nama Peralatan"
+  },
+  "plugins\/netatmoPublicData\/plugin_info\/configuration.php": {
+    "Client ID": "Client ID",
+    "Client secret": "Secret client",
+    "Nom d'utilisateur": "Username",
+    "Mot de passe": "Password"
+  },
+  "plugins\/netatmoPublicData\/desktop\/js\/netatmoPublicData.js": {
+    "Nom": "Nama",
+    "Afficher": "Memenitikan",
+    "Historiser": "Sejarah",
+    "Tester": "Uji",
+    "Synchronisation en cours": "Sinkronisasi sedang berlangsung",
+    "Synchronisation réussie": "Sinkronisasi berhasil"
+  }
+}
+

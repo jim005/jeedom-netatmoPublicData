@@ -1,0 +1,40 @@
+{
+  "plugins\/netatmoPublicData\/desktop\/php\/netatmoPublicData.php": {
+    "401 - Accès non autorisé": "401 - Acesso não autorizado",
+    "Gestion": "Gestão",
+    "Synchronisation": "Sincronização",
+    "Configuration": "Configuração",
+    "Mes stations météo Netatmo \"favorites\"": "Minhas estações meteorológicas Netatmo \"favoritas\"",
+    "Rechercher": "Pesquisa",
+    "Configuration avancée": "Configuração avançada",
+    "Sauvegarder": "Salve",
+    "Supprimer": "Retirar",
+    "Equipement": "Equipamento",
+    "Commandes": "Pedidos",
+    "Nom de l'équipement météo Netatmo": "Nome do equipamento meteorológico Netatmo",
+    "Objet parent": "Objeto pai",
+    "Aucun": "Não",
+    "Catégorie": "Categoria",
+    "Activer": "Ativar",
+    "Visible": "Visível",
+    "Nom": "Último nome",
+    "Paramètres": "Configurações",
+    "Action": "Açao",
+    "Nom de l'équipement": "Nome do equipamento"
+  },
+  "plugins\/netatmoPublicData\/plugin_info\/configuration.php": {
+    "Client ID": "Client ID",
+    "Client secret": "Secret client",
+    "Nom d'utilisateur": "Username",
+    "Mot de passe": "Password"
+  },
+  "plugins\/netatmoPublicData\/desktop\/js\/netatmoPublicData.js": {
+    "Nom": "Último nome",
+    "Afficher": "Pôster",
+    "Historiser": "Historize",
+    "Tester": "Teste",
+    "Synchronisation en cours": "Sincronização em andamento",
+    "Synchronisation réussie": "Sincronização bem sucedida"
+  }
+}
+
