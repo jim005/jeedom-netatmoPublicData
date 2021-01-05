@@ -178,7 +178,7 @@ class netatmoPublicData extends eqLogic
                 foreach ($device['modules'] as $module) {
 
                     // Security : manage only few module type
-                    if (!in_array($module['type'], array('NAModule1', 'NAModule2', 'NAModule3'))) {
+                    if (!in_array($module['type'], array('NAModule1', 'NAModule2', 'NAModule3', 'NAModule4'))) {
                         log::add('netatmoPublicData', 'debug', "SKIP : this module " . $module['_id'] . " has not the type excepted  (but :  " . $module['type'] . " )");
                         continue;
                     }
