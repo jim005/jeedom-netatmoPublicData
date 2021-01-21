@@ -1,5 +1,8 @@
 # Changelog : Netatmo OpenData
 
+## Janvier 2021
+- Ajout du support de vos propres modules ( de type:  NAModule4 : Température and Humidité ). (Thanks to https://github.com/c4software )
+
 ## Octobre 2020
 - Ajout de traductions
 

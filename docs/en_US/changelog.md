@@ -1,5 +1,8 @@
 # Changelog : Netatmo OpenData
 
+## January 2021
+- Add support for devices owned ( type of NAModule4 : Temperature and Humidity ). (Thanks to https://github.com/c4software )
+
 ## October 2020
 - Add translations
 
