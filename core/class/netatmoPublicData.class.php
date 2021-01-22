@@ -40,10 +40,10 @@ class netatmoPublicData extends eqLogic
     public static $_netatmoData = null;
 
     public static $_moduleType = array(
-        "NAModule1" => "Température et Humidité",
-        "NAModule2" => "Anémomètre",
-        "NAModule3" => "Pluviomètre",
-        "NAModule4" => "CO2, Température et Humidité",
+        "NAModule1" => "Température et Humidité",  // Outdoor module. Max : 1.
+        "NAModule2" => "Anémomètre",  // Outdoor module. Max : 1.
+        "NAModule3" => "Pluviomètre",  // Outdoor module. Max: 1.
+        "NAModule4" => "CO2, Température et Humidité",  // Outdoor module. Max: 3.
     );
 
 
@@ -173,6 +173,16 @@ class netatmoPublicData extends eqLogic
                 $widget_line++;
 
             }
+
+            //@@todo : créer les Command pour les données Privées
+            // Pour les données "Privé" (réservé au propriétaire)
+            // valeurs en complément peuvent être récupérer
+                //        "Temperature",
+                //        "CO2",
+                //        "Humidity",
+                //        "Noise",
+
+
             // For each-sub modules
             if (is_array($device['modules'])) {
                 foreach ($device['modules'] as $module) {
@@ -182,6 +192,16 @@ class netatmoPublicData extends eqLogic
                         log::add('netatmoPublicData', 'debug', "SKIP : this module " . $module['_id'] . " has not the type excepted  (but :  " . $module['type'] . " )");
                         continue;
                     }
+
+
+
+                    //@@todo : créer les Command pour les données Privés
+                    // issue du sous-module NAModule4. Attention, il peut y avoir jusqu'à 3 de ce type de module
+                    // donnée possible
+                        //
+                        //  "Temperature",
+                        //  "CO2",
+                        //  "Humidity"
 
 
                     if (is_array($module['data_type'])) {
