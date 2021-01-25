@@ -154,6 +154,7 @@ class netatmoPublicData extends eqLogic
 
             $eqLogic->setConfiguration('type', $device['type']);
             $eqLogic->setConfiguration('_id', $device['_id']);
+            $eqLogic->setTimeout(60);
 
             $eqLogic->save();
 
@@ -228,8 +229,8 @@ class netatmoPublicData extends eqLogic
                         }
                         // Rain Command
                         if (in_array("Rain", $module['data_type'])) {
-                            self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '1100', 'mm');
-                            self::createCmdCustom($eqLogic, $device, "Pluie (1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '1100', 'mm');
+                            self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '100', 'mm');
+                            self::createCmdCustom($eqLogic, $device, "Pluie (1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '100', 'mm');
                             self::createCmdCustom($eqLogic, $device, "Pluie (Journée)", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '1100', 'mm');
                             $widget_line++;
                         }
@@ -433,6 +434,9 @@ class netatmoPublicData extends eqLogic
 
                             $this->checkAndUpdateCmd('gustangle', $module['dashboard_data']['GustAngle'], $collectDate); // Update value
                             log::add('netatmoPublicData', 'info', " - Update value => GustAngle (module : " . $module['_id'] . ") = " . $module['dashboard_data']['GustAngle']);
+
+
+                            //@@todo : si valeur est reachable == false , alors loggé NULL ou FALSE.
 
                         }
                     }
