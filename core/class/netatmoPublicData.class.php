@@ -140,7 +140,7 @@ class netatmoPublicData extends eqLogic
             // Unknown Equipment ==> new station
             if (!is_object($eqLogic) || $eqLogic->getLogicalId() != $device['_id']) {
                 $eqLogic = new netatmoPublicData();
-                $eqLogic->setName($device['station_name'] . " ( " . $device['_id'] . " ) *");
+                $eqLogic->setName($device['place']['city'] . " : " . $device['station_name'] . " ( " . $device['_id'] . " ) *");
                 $eqLogic->setIsVisible(1);
 
                 $new_equipment = true;
