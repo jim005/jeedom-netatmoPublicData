@@ -207,17 +207,17 @@ class netatmoPublicData extends eqLogic
 
                     if (is_array($module['data_type'])) {
                         // // Temperature Command
-                        if (in_array("Temperature", $module['data_type'])) {
+                        if (in_array("Temperature", $module['data_type']) and $module['reachable'] === true ) {
                             self::createCmdCustom($eqLogic, $device, "Température", "temperature", 'TEMPERATURE', 'HygroThermographe', 'tile', 2, null, '-100', '100', '°C');
                         }
                         // Humidity Command
-                        if (in_array("Humidity", $module['data_type'])) {
+                        if (in_array("Humidity", $module['data_type']) and $module['reachable'] === true ) {
 
                             self::createCmdCustom($eqLogic, $device, "Humidité", "humidity", 'HUMIDITY', 'HygroThermographe', 'tile', 2, null, '0', '100', '%');
 
                         }
                         // Wind Command
-                        if (in_array("Wind", $module['data_type'])) {
+                        if (in_array("Wind", $module['data_type']) and $module['reachable'] === true ) {
 
                             self::createCmdCustom($eqLogic, $device, 'Vitesse du vent', 'windstrength', 'WEATHER_WIND_SPEED', 'tile', 'tile', 10, 1, '0', '200', 'km/h');
                             self::createCmdCustom($eqLogic, $device, 'Direction du vent', 'windangle', 'WIND_DIRECTION', 'compass', 'compass', 11, null, '0', '360', '°');
@@ -228,7 +228,7 @@ class netatmoPublicData extends eqLogic
 
                         }
                         // Rain Command
-                        if (in_array("Rain", $module['data_type'])) {
+                        if (in_array("Rain", $module['data_type']) and $module['reachable'] === true ) {
                             self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '100', 'mm');
                             self::createCmdCustom($eqLogic, $device, "Pluie (1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '100', 'mm');
                             self::createCmdCustom($eqLogic, $device, "Pluie (Journée)", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '1100', 'mm');
@@ -375,7 +375,7 @@ class netatmoPublicData extends eqLogic
                     log::add('netatmoPublicData', 'debug', ' -- start device [module]', $this->getLogicalId());
 
                     if ($module['reachable'] == false) {
-                        message::add('netatmoPublicData', $this->getHumanName() . ' - module ' . $module['type'] . ' ( ' .  self::$_moduleType[$module['type']] . ' ) is not reachable !', '', $this->getId());
+                        message::add('netatmoPublicData', $this->getHumanName() . ' - module ' . $module['type'] . ' ( ' .  self::$_moduleType[$module['type']] . ' ' .  $module['_id'] . ' ) is not reachable !', '', $this->getId());
                         log::add('netatmoPublicData', 'debug', ' - module not reachable, SKIP', $this->getLogicalId());
                         continue;
                     }
