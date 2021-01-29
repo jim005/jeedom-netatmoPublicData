@@ -1,7 +1,15 @@
 # Changelog : Netatmo OpenData
 
+
+
 ## January 2021
-- Add support for devices owned ( type of NAModule4 : Temperature and Humidity ). (Thanks to https://github.com/c4software )
+- Decrease of message sent to 'Message center'
+- "Synchronization" button remove Commands which values not reachable any more
+- YOUR weather station can be display (lucky guys), only for public data.
+- Add Timeout of 60 min from Jeedom on each Equipment. You can see alert on this page :  Analysis >  Equipments > Equipments on alert.
+- Reformat code to update values
+
+Big Thanks to Aix-Marseille (Location : Gap. Licence Pro Internet MIW) university which lend me an Netatmo Station to optimize this plugin :  http://www.gap.univ-mrs.fr/miw/   
 
 ## October 2020
 - Add translations
