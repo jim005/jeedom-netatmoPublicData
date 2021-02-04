@@ -2,6 +2,9 @@
 
 
 
+# February 2021
+- Decrease maximum Rain value for widget display. User can customize it without impact during next "Synchronization" ( Thanks [@thienell](https://community.jeedom.com/u/thienell)
+
 ## January 2021
 - Decrease of message sent to 'Message center'
 - "Synchronization" button remove Commands which values not reachable any more
@@ -9,7 +12,7 @@
 - Add Timeout of 60 min from Jeedom on each Equipment. You can see alert on this page :  Analysis >  Equipments > Equipments on alert.
 - Reformat code to update values
 
-Big Thanks to Aix-Marseille (Location : Gap. Licence Pro Internet MIW) university which lend me an Netatmo Station to optimize this plugin :  http://www.gap.univ-mrs.fr/miw/   
+Big Thanks to [Aix-Marseille university](http://www.gap.univ-mrs.fr/miw/) (Location : Gap. Licence Pro Internet MIW)  which lend me an Netatmo Station to optimize this plugin.
 
 ## October 2020
 - Add translations

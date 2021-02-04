@@ -5,6 +5,8 @@
 - Ajustement des widgets pour V4.1
 - Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
 
+# Février 2021
+- Réduction des valeurs maximum de la Pluie, pour les widgets. Mais l'utilisateur peut changer les valeurs, sans être écrasé par les futures "Synchronisation" (Merci [@thienell](https://community.jeedom.com/u/thienell)
 
 ## Janvier 2021
 - Suppression de 90% des messages envoyés dans le Centre des Messages (ouf !)
@@ -13,7 +15,7 @@
 - Ajout d'un TimeOut natif de Jeedom de 60 min sur chaque Equipements. Vous pouvez voir les alertes dans : Analyses > Equipements > Equipements en alerte . (Exemple : votre voisin coupe le Wifi la nuit... vous n'avez pas de données pendant son sommeil).
 - Refonte de la mise à jour des données.
 
-Un grand merci à l'université d'Aix-Marseille (Campus de Gap, Licence Pro Internet MIW ) qui m'a prêté une station Netatmo pour optimiser ce plugin :  http://www.gap.univ-mrs.fr/miw/
+Un grand merci à l'[université d'Aix-Marseille](http://www.gap.univ-mrs.fr/miw/) (Campus de Gap, Licence Pro Internet MIW ) qui m'a prêté une station Netatmo pour optimiser ce plugin. 
 
 ## Octobre 2020
 - Ajout de traductions

@@ -270,9 +270,9 @@ class netatmoPublicData extends eqLogic
                             // Creating Commands
                             if ($module['reachable'] === true) {
 
-                                self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '100', 'mm');
-                                self::createCmdCustom($eqLogic, $device, "Pluie (1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '100', 'mm');
-                                self::createCmdCustom($eqLogic, $device, "Pluie (Journée)", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '1100', 'mm');
+                                self::createCmdCustom($eqLogic, $device, "Pluie", "rain", 'RAIN_CURRENT', 'rain', 'rain', 20, 1, '0', '10', 'mm');
+                                self::createCmdCustom($eqLogic, $device, "Pluie (1h)", "sum_rain_1", 'RAIN_CURRENT', 'rain', 'rain', 21, null, '0', '20', 'mm');
+                                self::createCmdCustom($eqLogic, $device, "Pluie (Journée)", "sum_rain_24", 'RAIN_CURRENT', 'rain', 'rain', 22, null, '0', '50', 'mm');
                                 $widget_line++;
 
                             } // Deleting Existing Commands useless
@@ -626,6 +626,9 @@ class netatmoPublicData extends eqLogic
             if ($template_dashboard == "HygroThermographe") {
                 $NetatmoInfo->setDisplay('parameters', array('scale' => '0.5'));
             }
+
+            // Leave user to configure to local weather condition
+            $NetatmoInfo->setConfiguration('maxValue', $maxValue);
         }
         $NetatmoInfo->setName(__($name, __FILE__));
         $NetatmoInfo->setLogicalId($logicalId);
@@ -633,7 +636,6 @@ class netatmoPublicData extends eqLogic
 
         $NetatmoInfo->setConfiguration('_id', $device['_id']);
         $NetatmoInfo->setConfiguration('type', $device['type']);
-        $NetatmoInfo->setConfiguration('maxValue', $maxValue);
         $NetatmoInfo->setConfiguration('minValue', $minValue);
 
         $NetatmoInfo->setOrder($order);
