@@ -5,7 +5,7 @@ title: Jeedom | Plugin Netatmo OpenData
 ---
 
 # Description
-This plugin retrieve weather reports from Netatmo stations. From favorite weather stations in your (free) Netatmo account. Creation and management on https://weathermap.netatmo.com
+This plugin retrieve weather reports from Netatmo stations. From favorite weather stations in your (free) Netatmo account. Creation and management on [https://weathermap.netatmo.com](https://weathermap.netatmo.com)
 
 
 # Configuration
@@ -19,9 +19,9 @@ Once the plugin is installed, you need to fill in your Netatmo connection inform
 Synchronize: allows you to synchronize Jeedom with your Netamo account to automatically discover your "favorite" Netamo stations, to you or to your neighbors. To do after having saved the previous parameters.
 
 ### Retrieving connection information
-To integrate your Welcome, you must have a `client_id` and a` client_secret` generated on the site http://dev.netatmo.com.
+To integrate your Welcome, you must have a `client_id` and a` client_secret` generated from [https://dev.netatmo.com](https://dev.netatmo.com).
 
-For this you must create your application (free): https://dev.netatmo.com/apps/createanapp#form
+For this you must create your application (free): [https://dev.netatmo.com/apps/createanapp#form](https://dev.netatmo.com/apps/createanapp#form)
 
 
 ![](../screenshot/netatmo_clientid.png)
@@ -34,7 +34,7 @@ For this you must create your application (free): https://dev.netatmo.com/apps/c
 > Every 15 minutes, by the Jeon Cron task.
 
 - Where can I manage (add / delete) weather stations?
-> Only from https://weathermap.netatmo.com. Once connected, you can put stations in your * favorites *. Start synchronization, and the devices are created (active + visible).
+> Only from [https://weathermap.netatmo.com](https://weathermap.netatmo.com). Once connected, you can put stations in your * favorites *. Start synchronization, and the devices are created (active + visible).
 
 - If I delete a weather station from my favorites, what happens?
 > The equipment is * deactivated *, but remains present in Jeedom. You can delete it manually.
@@ -54,6 +54,7 @@ For this you must create your application (free): https://dev.netatmo.com/apps/c
 # Example
 
 ## Dashboard (Widget natif v4)
+![](../screenshot/NetatmoOpenData_dashboard_widget_v2.png)
 ![](../screenshot/NetatmoOpenData_dashboard_widget.png)
 
 ## Equipments
