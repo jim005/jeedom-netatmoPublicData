@@ -551,16 +551,18 @@ class netatmoPublicData extends eqLogic
     public static function sendErrorMessage($eqLogic, $netatmo_module, $module_type)
     {
 
+        // Record message, if user didn't disabled it this notification
+        if (config::byKey('npd_log_error_weather_station', 'netatmoPublicData') != 1) {
+            $message = $eqLogic->getHumanName() . ' - module ' . self::$_moduleType[$netatmo_module['type']]
+                . ' ( ' . $netatmo_module['type'] . ' ' . $netatmo_module['_id'] . ' ) is not reachable ! '
+                . 'You could wait or consider to remove commands linked ( click on '
+                . '<a href="index.php?v=d&m=netatmoPublicData&p=netatmoPublicData">Synchronise</a>, '
+                . 'then Commands linked will be removed ).';
 
-        $message = $eqLogic->getHumanName() . ' - module ' . self::$_moduleType[$netatmo_module['type']]
-            . ' ( ' . $netatmo_module['type'] . ' ' . $netatmo_module['_id'] . ' ) is not reachable ! '
-            . 'You could wait or consider to remove commands linked ( click on '
-            . '<a href="index.php?v=d&m=netatmoPublicData&p=netatmoPublicData">Synchronise</a>, '
-            . 'then Commands linked will be removed ).';
+            message::add('netatmoPublicData', $message, '', $eqLogic->getId());
+        }
 
-        message::add('netatmoPublicData', $message, '', $eqLogic->getId());
         log::add('netatmoPublicData', 'debug', " - module $module_type not reachable, SKIP", $eqLogic->getLogicalId());
-
 
     }
 
