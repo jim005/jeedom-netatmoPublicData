@@ -26,7 +26,8 @@
     "Client ID": "Client ID",
     "Client secret": "Secret client",
     "Nom d'utilisateur": "Username",
-    "Mot de passe": "Password"
+    "Mot de passe": "Password",
+    "Désactiver les messages d'alertes lorsqu'une station est indisponible": "Disabled notification in Message Center, when an station is unreachable"
   },
   "plugins\/netatmoPublicData\/desktop\/js\/netatmoPublicData.js": {
     "Nom": "Name",
