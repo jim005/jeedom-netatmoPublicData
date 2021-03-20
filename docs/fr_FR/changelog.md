@@ -5,6 +5,9 @@
 - Ajustement des widgets pour V4.1
 - Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
 
+# Mars 2021 
+- Ajout d'une option pour supprimer l'envoi d'alerte dans le Centre de Message.
+
 # Février 2021
 - Réduction des valeurs maximum de la Pluie, pour les widgets. Mais l'utilisateur peut changer les valeurs, sans être écrasé par les futures "Synchronisation" (Merci [@thienell](https://community.jeedom.com/u/thienell)
 

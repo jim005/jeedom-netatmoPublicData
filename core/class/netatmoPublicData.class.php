@@ -555,7 +555,7 @@ class netatmoPublicData extends eqLogic
         if (config::byKey('npd_log_error_weather_station', 'netatmoPublicData') != 1) {
             $message = $eqLogic->getHumanName() . ' - module ' . self::$_moduleType[$netatmo_module['type']]
                 . ' ( ' . $netatmo_module['type'] . ' ' . $netatmo_module['_id'] . ' ) is not reachable ! '
-                . 'You could wait or consider to remove commands linked ( click on '
+                . 'You could : wait, remove those alerts on configuration page or even consider to remove commands linked ( click on '
                 . '<a href="index.php?v=d&m=netatmoPublicData&p=netatmoPublicData">Synchronise</a>, '
                 . 'then Commands linked will be removed ).';
 

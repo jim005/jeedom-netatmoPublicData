@@ -1,6 +1,7 @@
 # Changelog : Netatmo OpenData
 
-
+# March 2021 
+- Add option to remove alert Message, in Message Center. 
 
 # February 2021
 - Decrease maximum Rain value for widget display. User can customize it without impact during next "Synchronization" ( Thanks [@thienell](https://community.jeedom.com/u/thienell)
