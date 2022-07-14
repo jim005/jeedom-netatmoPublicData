@@ -1,5 +1,8 @@
 # Changelog : Netatmo OpenData
 
+# July 2022
+- UI improvement, thanks to @Salvialf ❤️
+
 # March 2021 
 - Add option to remove alert Message, in Message Center. 
 
