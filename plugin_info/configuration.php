@@ -31,39 +31,32 @@ if (!isConnect()) {
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="npd_client_id"> {{Client ID}}</label>
                 <div class="col-sm-3">
-                    <input type="text" class="configKey form-control" data-l1key="npd_client_id" id="npd_client_id"
-                           placeholder="" autocomplete="off"/>
+                    <input type="text" class="configKey form-control" data-l1key="npd_client_id" id="npd_client_id" placeholder="" autocomplete="off">
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-4  control-label" for="npd_client_secret">{{Client secret}}</label>
                 <div class="col-sm-3">
-                    <input type="text" class="configKey form-control" data-l1key="npd_client_secret"
-                           id="npd_client_secret"
-                           placeholder="" autocomplete="off"/>
+                    <input type="password" class="configKey form-control" data-l1key="npd_client_secret" id="npd_client_secret" placeholder="" autocomplete="off">
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="npd_username">{{Nom d'utilisateur}}</label>
                 <div class="col-sm-3">
-                    <input type="email" class="configKey form-control" data-l1key="npd_username" id="npd_username"
-                           placeholder="email@example.com" autocomplete="email"/>
+                    <input type="text" class="configKey form-control" data-l1key="npd_username" id="npd_username" placeholder="email@example.com" autocomplete="email">
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="npd_password">{{Mot de passe}}</label>
                 <div class="col-sm-3">
-                    <input type="password" class="configKey form-control" id="npd_password"
-                           data-l1key="npd_password"
-                           autocomplete="off"/>
+                    <input type="password" class="configKey form-control" id="npd_password" data-l1key="npd_password" autocomplete="off">
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class=" form-group">
                 <label class="col-sm-4 control-label" for="npd_log_error_weather_station">{{Désactiver les messages d'alertes lorsqu'une station est indisponible}}</label>
                 <div class="col-sm-3">
-                    <input type="checkbox" class="configKey form-control" id="npd_log_error_weather_station"
-                           data-l1key="npd_log_error_weather_station"/>
+                    <input type="checkbox" class="configKey form-control" id="npd_log_error_weather_station" data-l1key="npd_log_error_weather_station">
                 </div>
             </div>
 
