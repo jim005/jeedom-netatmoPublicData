@@ -5,6 +5,9 @@
 - Ajustement des widgets pour V4.1
 - Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
 
+# Juillet 2022
+- Amélioration de l'interface par @Salvialf ❤️
+
 # Mars 2021 
 - Ajout d'une option pour supprimer l'envoi d'alerte dans le Centre de Message.
 
