@@ -42,6 +42,24 @@ try {
         ajax::success();
     }
 
+
+    if (init('action') == 'associationAppsNetatmo') {
+        try {
+            if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
+                throw new Exception('L\'accès externe Jeedom est non défini ou invalide');
+            }
+
+            $redirectURI = 'https://api.netatmo.com/oauth2/authorize?client_id=' . config::byKey('npd_client_id', 'netatmoPublicData') . '&redirect_uri=' . network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/NARedirectURI.php' . '&scope=' . 'read_station' . '&state=' . jeedom::getApiKey('netatmoPublicData');
+
+            log::add('netatmoPublicData', 'debug', 'ajax:: redirectURI:' . var_export($redirectURI, true));
+
+            ajax::success($redirectURI);
+        } catch (Exception $e) {
+            ajax::error(displayException($e), $e->getCode());
+        }
+    }
+
+
     throw new Exception(__('Aucune methode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */
 } catch (Exception $e) {

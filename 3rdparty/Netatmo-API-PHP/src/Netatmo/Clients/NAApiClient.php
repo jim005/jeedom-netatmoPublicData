@@ -55,6 +55,27 @@ class NAApiClient
     {
         return $this->refresh_token;
     }
+    /**
+    * Returns the current access token
+    */
+    public function _getAccessToken()
+    {
+        return $this->access_token;
+    }
+    /**
+    * Returns the current refresh token
+    */
+    public function _getRefreshToken()
+    {
+        return $this->refresh_token;
+    }
+    /**
+    * Returns the current expires at
+    */
+    public function _getExpiresAt()
+    {
+        return $this->expires_at;
+    }
 
     /**
     * Sets a persistent variable.
@@ -136,6 +157,7 @@ class NAApiClient
     *   - client_secret: (optional) The application secret.
     *   - refresh_token: (optional) A stored refresh_token to use
     *   - access_token: (optional) A stored access_token to use
+    *   - expires_at: (optional) A stored expiration to use
     *   - object_cb : (optionale) An object for which func_cb method will be applied if object_cb exists
     *   - func_cb : (optional) A method called back to store tokens in its context (session for instance)
     */
@@ -150,6 +172,10 @@ class NAApiClient
         if(isset($config["refresh_token"]))
         {
             $this->refresh_token = $config["refresh_token"];
+        }
+        if(isset($config["expires_at"]))
+        {
+            $this->expires_at = $config["expires_at"];
         }
         // We must set uri first.
         $uri = array("base_uri" => BACKEND_BASE_URI, "services_uri" => BACKEND_SERVICES_URI, "access_token_uri" => BACKEND_ACCESS_TOKEN_URI, "authorize_uri" => BACKEND_AUTHORIZE_URI);
