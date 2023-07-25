@@ -28,8 +28,7 @@ Une fois le plugin installé, il vous faut renseigner vos informations de connex
 
 - Client ID : votre client ID (voir partie configuration)
 - Client secret : votre client secret (voir partie configuration)
-- Nom d’utilisateur : nom d’utilisateur de votre compte Netatmo
-- Mot de passe : mot de passe de votre compte Netatmo
+Puis cliquer sur Association Netatmo pour lier votre commpte.
 
 Synchroniser : permet de synchroniser Jeedom avec votre compte Netamo pour découvrir automatiquement vos stations "favorites" Netamo, les votres ou celles de vos voisins. A faire après avoir sauvegardé les paramètres précédents.
 
