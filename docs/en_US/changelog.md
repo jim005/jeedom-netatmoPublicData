@@ -1,5 +1,8 @@
 # Changelog : Netatmo OpenData
 
+# July 2023
+- Authentication method changed: "Association" button added. Removed password and e-mail fields. Thanks to @thanaus ❤ for his code snippets.️
+
 # July 2022
 - UI improvement, thanks to @Salvialf ❤️
 
