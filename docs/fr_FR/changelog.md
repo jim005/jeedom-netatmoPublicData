@@ -5,6 +5,9 @@
 - Ajustement des widgets pour V4.1
 - Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
 
+# Juillet 2023
+- Changement de la méthode d'authentification : ajout d'un bouton "Association". Suppression des champs mots de passe et e-mail. Merci à @thanaus ❤ pour ses morceaux de codes.️
+
 # Juillet 2022
 - Amélioration de l'interface par @Salvialf ❤️
 

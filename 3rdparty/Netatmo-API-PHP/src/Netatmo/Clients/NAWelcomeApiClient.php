@@ -110,9 +110,37 @@ class NAWelcomeApiClient extends NAApiClient
     /**
     * @brief drop webhook notifications for the current user
     */
-    public function dropWebhook()
+    public function dropWebhook($app_type = NULL)
     {
         parent::dropWebhook("app_camera");
+    }
+
+  /*
+   * @type PRIVATE & PARTNER API
+   * @param string $home_id: id of home
+   * @param string $person_id: id of person
+   * @brief Method used to set a person as "Away" or the Home as "Empty"
+   */
+    public function setPersonsAway($home_id, $person_id = NULL)
+    {
+       $params = array("home_id" => $home_id);
+       if(!is_null($person_id)) $params['person_id'] = $person_id;
+
+       return $this->api('setpersonsaway', 'POST', $params);
+    }
+
+  /*
+   * @type PRIVATE & PARTNER API
+   * @param string $home_id: id of home
+   * @param string $person_id: id of person
+   * @brief Method used to set a person or a group of person "at home"
+   */
+    public function setPersonsHome($home_id, $person_ids)
+    {
+       $params = array("home_id" => $home_id,
+                       "person_ids" => $person_ids);
+
+       return $this->api('setpersonshome', 'POST', $params);
     }
 }
 

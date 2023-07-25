@@ -28,39 +28,119 @@ if (!isConnect()) {
 
         <div class="row">
 
+
             <div class="form-group">
-                <label class="col-sm-4 control-label" for="npd_client_id"> {{Client ID}}</label>
-                <div class="col-sm-3">
-                    <input type="text" class="configKey form-control" data-l1key="npd_client_id" id="npd_client_id" placeholder="" autocomplete="off">
+                <label class="col-sm-3 control-label" for="npd_client_id"> {{Client ID}}</label>
+                <div class="col-sm-4">
+                    <input type="text" class="configKey form-control" data-l1key="npd_client_id" id="npd_client_id"
+                           placeholder="" autocomplete="off">
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4  control-label" for="npd_client_secret">{{Client secret}}</label>
-                <div class="col-sm-3">
-                    <input type="password" class="configKey form-control" data-l1key="npd_client_secret" id="npd_client_secret" placeholder="" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label" for="npd_username">{{Nom d'utilisateur}}</label>
-                <div class="col-sm-3">
-                    <input type="text" class="configKey form-control" data-l1key="npd_username" id="npd_username" placeholder="email@example.com" autocomplete="email">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label" for="npd_password">{{Mot de passe}}</label>
-                <div class="col-sm-3">
-                    <input type="password" class="configKey form-control" id="npd_password" data-l1key="npd_password" autocomplete="off">
+                <label class="col-sm-3  control-label" for="npd_client_secret">{{Client secret}}</label>
+                <div class="col-sm-4">
+                    <input type="password" class="configKey form-control" data-l1key="npd_client_secret"
+                           id="npd_client_secret" placeholder="" autocomplete="off">
                 </div>
             </div>
 
-            <div class=" form-group">
-                <label class="col-sm-4 control-label" for="npd_log_error_weather_station">{{Désactiver les messages d'alertes lorsqu'une station est indisponible}}</label>
-                <div class="col-sm-3">
-                    <input type="checkbox" class="configKey form-control" id="npd_log_error_weather_station" data-l1key="npd_log_error_weather_station">
+
+            <div class="form-group">
+                <label class="col-md-3 control-label">{{Association de votre compte Netatmo}}
+                    <sup><i class="fas fa-question-circle tooltips"
+                            title="{{Autoriser la liaison entre Jeedom et votre compte Netatmo}}"></i></sup>
+                </label>
+                <div class="col-md-2">
+                    <a class="btn btn-success form-control npd_btn_association_apps_netatmo"><i class="fas fa-link"></i>
+                        {{Association Netatmo}}</a>
                 </div>
             </div>
+
+
+            <fieldset>
+                <legend>
+                    <i class="fas fa-sliders"></i> Options
+                </legend>
+
+                <div class=" form-group">
+                    <div class="col-sm-1">
+                        <input type="checkbox" class="configKey form-control" id="npd_log_error_weather_station"
+                               data-l1key="npd_log_error_weather_station">
+                    </div>
+                    <label class="col-sm-11 control-label" for="npd_log_error_weather_station"
+                           style="text-align: left;">{{Désactiver les messages
+                        d'alertes lorsqu'une station est indisponible}}</label>
+
+
+                </div>
+
+
+            </fieldset>
+
+
+            <fieldset>
+                <legend>
+                    <i class="fas fa-bug"></i> Informations de connexion (debug)
+                </legend>
+
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="npd_client_id"> {{access_token}}</label>
+                    <div class="col-sm-6">
+                        <input type="text" disabled class="configKey form-control" data-l1key="npd_access_token"
+                               id="npd_access_token" placeholder="" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="npd_client_id"> {{refresh_token}}</label>
+                    <div class="col-sm-6">
+                        <input type="text" disabled class="configKey form-control" data-l1key="npd_refresh_token"
+                               id="npd_refresh_token" placeholder="" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="npd_client_id"> {{expires_at}}</label>
+                    <div class="col-sm-6">
+                        <input type="text" disabled class="configKey form-control" data-l1key="npd_expires_at"
+                               id="npd_expires_at" placeholder="" autocomplete="off">
+                    </div>
+                </div>
+
+            </fieldset>
 
         </div>
 
     </fieldset>
 </form>
+
+<script>
+
+
+    $('.npd_btn_association_apps_netatmo').on('click', function (e) {
+        e.preventDefault();
+        $('#div_alert').showAlert({message: '{{Association en cours}}', level: 'warning'});
+        $.ajax({
+            type: "POST",
+            url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
+            data: {
+                action: "associationAppsNetatmo",
+            },
+            dataType: 'json',
+            global: false,
+            error: function (request, status, error) {
+                handleAjaxError(request, status, error);
+            },
+            success: function (data) {
+                if (data.state != 'ok') {
+                    $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                    return;
+                }
+                window.open(data.result, "_blank");
+            }
+        });
+    })
+
+
+</script>

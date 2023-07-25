@@ -29,7 +29,8 @@ require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoloa
  *
  *
  */
-class netatmoPublicData extends eqLogic {
+class netatmoPublicData extends eqLogic
+{
 
 
     /**
@@ -50,7 +51,8 @@ class netatmoPublicData extends eqLogic {
     /**
      * Call every 15 min, by Jeedom Core
      */
-    public static function cron15() {
+    public static function cron15()
+    {
 
         // Loop over Equipment
         foreach (self::byType('netatmoPublicData') as $netatmoPublicData) {
@@ -69,18 +71,51 @@ class netatmoPublicData extends eqLogic {
     }
 
     /**
+     * Call every hour, by Jeedom Core
+     */
+    public static function cronHourly()
+    {
+        $config = array("client_id" => config::byKey('npd_client_id', 'netatmoPublicData'),
+            "client_secret" => config::byKey('npd_client_secret', 'netatmoPublicData'),
+            "access_token" => config::byKey('npd_access_token', 'netatmoPublicData'),
+            "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'),
+            "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData'),
+            "scope" => 'read_station');
+
+        $client = new Netatmo\Clients\NAWSApiClient($config);
+
+        //Authentication with Netatmo server (OAuth2)
+        try {
+            $tokens = $client->getAccessToken();
+        } catch (Netatmo\Exceptions\NAClientException $ex) {
+            log::add('netatmoPublicData', 'error', print_r("cronHourly :: An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE));
+        }
+
+        log::add('netatmoPublicData', 'debug', 'cronHourly :: jtokens:' . var_export(array("access_token" => config::byKey('npd_access_token', 'netatmoPublicData'), "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'), "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData')), true));
+        log::add('netatmoPublicData', 'debug', 'cronHourly :: ntokens:' . var_export(array("access_token" => $client->_getAccessToken(), "refresh_token" => $client->_getRefreshToken(), "expires_at" => $client->_getExpiresAt()), true));
+
+        config::save('npd_access_token', $client->_getAccessToken(), 'netatmoPublicData');
+        config::save('npd_refresh_token', $client->_getRefreshToken(), 'netatmoPublicData');
+        config::save('npd_expires_at', $client->_getExpiresAt(), 'netatmoPublicData');
+    }
+
+    /**
      * Get Netatomo data from webservice and stored in $_client
      *
      * @return array|mixed
      */
-    public function getNetatmoData() {
+    public function getNetatmoData()
+    {
 
         $scope = Netatmo\Common\NAScopes::SCOPE_READ_STATION;
         $config = array(
             'client_id' => config::byKey('npd_client_id', 'netatmoPublicData'),
             'client_secret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
-            'username' => config::byKey('npd_username', 'netatmoPublicData'),
-            'password' => config::byKey('npd_password', 'netatmoPublicData'),
+
+            "access_token" => config::byKey('npd_access_token', 'netatmoPublicData'),
+            "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'),
+            "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData'),
+
             'scope' => $scope,
         );
 
@@ -110,7 +145,8 @@ class netatmoPublicData extends eqLogic {
      *
      * @throws Exception
      */
-    public static function createEquipmentsAndCommands() {
+    public static function createEquipmentsAndCommands()
+    {
 
         log::add('netatmoPublicData', 'debug', __FUNCTION__);
         self::$_netatmoData = self::getNetatmoData();
@@ -357,7 +393,8 @@ class netatmoPublicData extends eqLogic {
      * Update all commands values with Netatmo latest values.
      */
     public
-    function updateValues() {
+    function updateValues()
+    {
 
 
         if (empty(self::$_netatmoData)) {
@@ -382,7 +419,7 @@ class netatmoPublicData extends eqLogic {
             switch ($cmd->getLogicalId()) {
 
 
-                    // NAModule1 (temperature +  humidity )
+                // NAModule1 (temperature +  humidity )
                 case "temperature":
                     $module_type = "NAModule1";
 
@@ -411,7 +448,7 @@ class netatmoPublicData extends eqLogic {
                     break;
 
 
-                    //  NAModule2  ( windstrength, windangle, guststrength, gustangle )
+                //  NAModule2  ( windstrength, windangle, guststrength, gustangle )
                 case "windstrength":
 
                     $module_type = "NAModule2";
@@ -453,7 +490,7 @@ class netatmoPublicData extends eqLogic {
                     break;
 
 
-                    //  NAModule3  ( rain, sum_rain_1, sum_rain_24 )
+                //  NAModule3  ( rain, sum_rain_1, sum_rain_24 )
                 case "rain":
 
                     $module_type = "NAModule3";
@@ -489,7 +526,7 @@ class netatmoPublicData extends eqLogic {
                     break;
 
 
-                    //    NAMain
+                //    NAMain
                 case "pressure":
 
                     $module_type = "NAMain";
@@ -524,7 +561,8 @@ class netatmoPublicData extends eqLogic {
      * @param $netatmo_module
      * @param $module_type
      */
-    public static function sendErrorMessage($eqLogic, $netatmo_module, $module_type) {
+    public static function sendErrorMessage($eqLogic, $netatmo_module, $module_type)
+    {
 
         // Record message, if user didn't disabled it this notification
         if (config::byKey('npd_log_error_weather_station', 'netatmoPublicData') != 1) {
@@ -547,7 +585,8 @@ class netatmoPublicData extends eqLogic {
      * @throws Exception
      */
     public
-    static function createCmdRefresh($eqLogic) {
+    static function createCmdRefresh($eqLogic)
+    {
         // Refresh
         $NetatmoInfo = $eqLogic->getCmd(null, 'refresh');
         if (!is_object($NetatmoInfo)) {
@@ -575,7 +614,8 @@ class netatmoPublicData extends eqLogic {
      * @throws Exception
      */
     public
-    static function createCmdCustom($eqLogic, $device, $name, $logicalId, $setGeneric_type = null, $template_dashboard = 'tile', $template_mobile = 'tile', $order = null, $forceReturnLineBefore = null, $minValue = null, $maxValue = null, $unite = null) {
+    static function createCmdCustom($eqLogic, $device, $name, $logicalId, $setGeneric_type = null, $template_dashboard = 'tile', $template_mobile = 'tile', $order = null, $forceReturnLineBefore = null, $minValue = null, $maxValue = null, $unite = null)
+    {
         // Rain
         $NetatmoInfo = $eqLogic->getCmd(null, $logicalId);
         if (!is_object($NetatmoInfo)) {
@@ -632,7 +672,8 @@ class netatmoPublicData extends eqLogic {
      * @throws Exception
      */
     public
-    static function removeCmdCustom($eqLogic, $device, $logicalId) {
+    static function removeCmdCustom($eqLogic, $device, $logicalId)
+    {
 
         $cmdToRemove = $eqLogic->getCmd(null, $logicalId);
         if (is_object($cmdToRemove)) {
@@ -647,7 +688,8 @@ class netatmoPublicData extends eqLogic {
 /**
  * Class netatmoPublicDataCmd
  */
-class netatmoPublicDataCmd extends cmd {
+class netatmoPublicDataCmd extends cmd
+{
 
     /**
      * execute function
@@ -655,7 +697,8 @@ class netatmoPublicDataCmd extends cmd {
      * @param array $_options
      * @return bool
      */
-    public function execute($_options = array()) {
+    public function execute($_options = array())
+    {
         // If 'click' on 'refresh' command
         if ($this->getLogicalId() == 'refresh') {
             log::add('netatmoPublicData', 'debug', "Call 'refresh' command for this object " . print_r($this, true));

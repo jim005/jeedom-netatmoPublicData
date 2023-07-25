@@ -75,7 +75,7 @@ function addCmdToTable(_cmd) {
 
 
 $('.npd_btn_sync').on('click', function(e) {
-    e.preventDefault()
+    e.preventDefault();
     $('#div_alert').showAlert({ message: '{{Synchronisation en cours}}', level: 'warning' })
     $.ajax({
         type: "POST",
@@ -101,6 +101,31 @@ $('.npd_btn_sync').on('click', function(e) {
     })
 })
 
+$('.npd_btn_association_apps_netatmo').on('click', function(e) {
+    e.preventDefault();
+    $('#div_alert').showAlert({message: '{{Association en cours}}', level: 'warning'});
+    $.ajax({
+        type: "POST",
+        url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
+        data: {
+            action: "associationAppsNetatmo",
+        },
+        dataType: 'json',
+        global: false,
+        error: function (request, status, error) {
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            window.open(data.result, "_blank");
+        }
+    });
+})
+
 $('.npd_btn_weathermap').on('click', function() {
     window.open('https://weathermap.netatmo.com/')
 })
+
