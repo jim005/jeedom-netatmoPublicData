@@ -11,11 +11,12 @@ This plugin retrieve weather reports from Netatmo stations. From favorite weathe
 # Configuration
 Once the plugin is installed, you need to fill in your Netatmo connection information:
 
-- Client ID: your client ID (see configuration section)
-- Secret client: your secret client (see configuration section)
-Then, click on "Association Netatomo" to link with your account.
+- `Client ID`: your client ID (see configuration section)
+- `Secret client`: your secret client (see configuration section)
 
-Synchronize: allows you to synchronize Jeedom with your Netamo account to automatically discover your "favorite" Netamo stations, to you or to your neighbors. To do after having saved the previous parameters.
+Then, click on `Association Netatomo` to link with your account.
+
+Button `Synchronize`: allows your Jeedom to discover your "favorite" Netatmo stations, to you or to your neighbors. To do after having saved the previous parameters.
 
 ### Retrieving connection information
 To integrate your Welcome, you must have a `client_id` and a` client_secret` generated from [https://dev.netatmo.com](https://dev.netatmo.com).
