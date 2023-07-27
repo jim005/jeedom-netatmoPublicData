@@ -26,12 +26,12 @@ Pour cela, vous devez créer votre application (gratuit) : [https://dev.netatmo.
 
 Une fois le plugin installé, il vous faut renseigner vos informations de connexion Netatmo :
 
-- Client ID : votre client ID (voir partie configuration)
-- Client secret : votre client secret (voir partie configuration)
-Puis cliquer sur Association Netatmo pour lier votre commpte.
+- `Client ID` : votre client ID (voir partie configuration)
+- `Client secret` : votre client secret (voir partie configuration)
 
-Synchroniser : permet de synchroniser Jeedom avec votre compte Netamo pour découvrir automatiquement vos stations "favorites" Netamo, les votres ou celles de vos voisins. A faire après avoir sauvegardé les paramètres précédents.
+Puis cliquer sur `Association Netatmo` pour lier votre compte.
 
+Le boutton `Synchroniser` : permet à votre Jeedom de découvrir automatiquement vos stations "favorites" Netatmo, les votres ou celles de vos voisins. A faire après avoir sauvegardé les paramètres précédents.
 
 
 # FAQ
