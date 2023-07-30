@@ -19,23 +19,17 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
-
 define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
-require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
-
 
 /**
  * Class netatmoPublicData
- *
  *
  */
 class netatmoPublicData extends eqLogic
 {
 
-
     /**
      * Variables
-     *
      */
     public static $_netatmoData = null;
 
@@ -46,8 +40,6 @@ class netatmoPublicData extends eqLogic
         "NAModule4" => "CO2, Température et Humidité",  // Outdoor module. Max: 3.
     );
     public static $_encryptConfigKey = array('npd_client_secret', 'npd_password');
-
-
     /**
      * Call every 15 min, by Jeedom Core
      */
@@ -72,73 +64,61 @@ class netatmoPublicData extends eqLogic
 
     /**
      * Call every hour, by Jeedom Core
+     * Refresh AccessToken and RefreshToken  (expire every 3 hours)
      */
     public static function cronHourly()
     {
-        $config = array("client_id" => config::byKey('npd_client_id', 'netatmoPublicData'),
-            "client_secret" => config::byKey('npd_client_secret', 'netatmoPublicData'),
-            "access_token" => config::byKey('npd_access_token', 'netatmoPublicData'),
-            "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'),
-            "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData'),
-            "scope" => 'read_station');
+        $provider = new League\OAuth2\Client\Provider\GenericProvider([
+            'clientId' => config::byKey('npd_client_id', 'netatmoPublicData'),
+            'clientSecret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
+            'redirectUri' => network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php',
+            'urlAuthorize' => 'https://api.netatmo.com/oauth2/authorize',
+            'urlAccessToken' => 'https://api.netatmo.com/oauth2/token',
+            'urlResourceOwnerDetails' => 'https://service.example.com/resource'
+        ]);
 
-        $client = new Netatmo\Clients\NAWSApiClient($config);
+        $newAccessToken = $provider->getAccessToken('refresh_token', [
+            'refresh_token' => config::byKey('npd_refresh_token', 'netatmoPublicData'),
+        ]);
 
-        //Authentication with Netatmo server (OAuth2)
-        try {
-            $tokens = $client->getAccessToken();
-        } catch (Netatmo\Exceptions\NAClientException $ex) {
-            log::add('netatmoPublicData', 'error', print_r("cronHourly :: An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE));
-        }
+        config::save('npd_access_token', $newAccessToken->getToken(), 'netatmoPublicData');
+        config::save('npd_refresh_token', $newAccessToken->getRefreshToken(), 'netatmoPublicData');
+        config::save('npd_expires_at', $newAccessToken->getExpires(), 'netatmoPublicData');
 
-        log::add('netatmoPublicData', 'debug', 'cronHourly :: jtokens:' . var_export(array("access_token" => config::byKey('npd_access_token', 'netatmoPublicData'), "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'), "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData')), true));
-        log::add('netatmoPublicData', 'debug', 'cronHourly :: ntokens:' . var_export(array("access_token" => $client->_getAccessToken(), "refresh_token" => $client->_getRefreshToken(), "expires_at" => $client->_getExpiresAt()), true));
-
-        config::save('npd_access_token', $client->_getAccessToken(), 'netatmoPublicData');
-        config::save('npd_refresh_token', $client->_getRefreshToken(), 'netatmoPublicData');
-        config::save('npd_expires_at', $client->_getExpiresAt(), 'netatmoPublicData');
     }
 
+
     /**
-     * Get Netatomo data from webservice and stored in $_client
+     * Get Netatmo data from webservice and stored in $_client
      *
      * @return array|mixed
      */
     public function getNetatmoData()
     {
+        // Retrieve user's Weather Stations data
+        $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
 
-        $scope = Netatmo\Common\NAScopes::SCOPE_READ_STATION;
-        $config = array(
-            'client_id' => config::byKey('npd_client_id', 'netatmoPublicData'),
-            'client_secret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
+        $client = new GuzzleHttp\Client();
+        $response = $client->request("GET", "https://api.netatmo.com/api/getstationsdata", [
+            "query" => [
+                "get_favorites" => "true",
+                "access_token" => $npd_access_token,
+            ],
+        ]);
 
-            "access_token" => config::byKey('npd_access_token', 'netatmoPublicData'),
-            "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'),
-            "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData'),
+        $body = $response->getBody();
+        $content_array = json_decode($body, true);
 
-            'scope' => $scope,
-        );
+        if (!empty($content_array['body'])) {
 
-        $client = new Netatmo\Clients\NAWSApiClient($config);
+            log::add('netatmoPublicData', 'info', "FETCH Netatmo API to get new data");
+            log::add('netatmoPublicData', 'debug', print_r($content_array, true));
 
-        //Authentication with Netatmo server (OAuth2)
-        try {
-            $tokens = $client->getAccessToken();
-        } catch (Netatmo\Exceptions\NAClientException $ex) {
-            log::add('netatmoPublicData', 'error', print_r("An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE));
+            return $content_array['body'];
         }
 
-        //Retrieve user's Weather Stations Information
-        try {
-            //retrieve all stations belonging to the user, and also his favorite ones
-            $data = $client->getData(NULL, TRUE);
-            log::add('netatmoPublicData', 'info', "FETCH Netatamo API to get new data");
-            log::add('netatmoPublicData', 'debug', print_r($client, true));
-            return $data;
-        } catch (Netatmo\Exceptions\NAClientException $ex) {
-            log::add('netatmoPublicData', 'error', print_r("Netatmo webservice : An error occured while retrieving data: " . $ex->getMessage() . "\n", TRUE));
-        }
     }
+
 
     /**
      * Create equipments (and their commands) from Netatmo favorites stations
@@ -392,10 +372,8 @@ class netatmoPublicData extends eqLogic
     /**
      * Update all commands values with Netatmo latest values.
      */
-    public
-    function updateValues()
+    public function updateValues()
     {
-
 
         if (empty(self::$_netatmoData)) {
             log::add('netatmoPublicData', 'debug', "Variable with Netatmo's data is empty... so need to be fetched.");
@@ -549,9 +527,8 @@ class netatmoPublicData extends eqLogic
         }
 
 
-        // @@todo : inform users of new sensors availables from their favoris station. ex : an new anemometer has been added...
-        // Loops overs Netatomo data, and find missing Command => Send Message.
-
+        // @@todo : inform user of new sensors available from theirs favorites stations. ex : an new anemometer has been added...
+        // Loops overs Netatmo data, and find missing Command => Send Message.
 
         // Update Widget
         $this->refreshWidget();

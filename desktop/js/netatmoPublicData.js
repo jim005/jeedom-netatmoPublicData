@@ -120,7 +120,7 @@ $('.npd_btn_association_apps_netatmo').on('click', function(e) {
                 $('#div_alert').showAlert({message: data.result, level: 'danger'});
                 return;
             }
-            window.open(data.result, "_blank");
+            window.open(data.result);
         }
     });
 })

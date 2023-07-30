@@ -29,7 +29,7 @@ try {
     // From button on Configuration page
     if (init('action') == 'createEquipmentsAndCommands') {
 
-        //@@todo : ajouter un message d'attente en JS, bg ora
+        //@@todo : ajouter un message d'attente en JS, background orange
 
 
         // Get data from Netatmo : create equipment.
@@ -45,13 +45,8 @@ try {
 
     if (init('action') == 'associationAppsNetatmo') {
         try {
-            if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
-                throw new Exception('L\'accès externe Jeedom est non défini ou invalide');
-            }
 
-            $redirectURI = 'https://api.netatmo.com/oauth2/authorize?client_id=' . config::byKey('npd_client_id', 'netatmoPublicData') . '&redirect_uri=' . network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/NARedirectURI.php' . '&scope=' . 'read_station' . '&state=' . jeedom::getApiKey('netatmoPublicData');
-
-            log::add('netatmoPublicData', 'debug', 'ajax:: redirectURI:' . var_export($redirectURI, true));
+            $redirectURI = network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php';
 
             ajax::success($redirectURI);
         } catch (Exception $e) {

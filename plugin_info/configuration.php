@@ -22,93 +22,153 @@ if (!isConnect()) {
     die();
 }
 
+
 ?>
 <form class="form-horizontal">
     <fieldset>
 
         <div class="row">
 
+            <?php
 
-            <div class="form-group">
-                <label class="col-sm-3 control-label" for="npd_client_id"> {{Client ID}}</label>
-                <div class="col-sm-4">
-                    <input type="text" class="configKey form-control" data-l1key="npd_client_id" id="npd_client_id"
-                           placeholder="" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3  control-label" for="npd_client_secret">{{Client secret}}</label>
-                <div class="col-sm-4">
-                    <input type="password" class="configKey form-control" data-l1key="npd_client_secret"
-                           id="npd_client_secret" placeholder="" autocomplete="off">
-                </div>
-            </div>
+            $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
+            $npdStatus = !empty($npd_access_token) ? true : false;
 
+            ?>
 
-            <div class="form-group">
-                <label class="col-md-3 control-label">{{Association de votre compte Netatmo}}
-                    <sup><i class="fas fa-question-circle tooltips"
-                            title="{{Autoriser la liaison entre Jeedom et votre compte Netatmo}}"></i></sup>
-                </label>
-                <div class="col-md-2">
-                    <a class="btn btn-success form-control npd_btn_association_apps_netatmo"><i class="fas fa-link"></i>
-                        {{Association Netatmo}}</a>
-                </div>
-            </div>
+            <form class="form-horizontal">
+                <fieldset>
 
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="npd_client_id"> {{Statut}}</label>
 
-            <fieldset>
-                <legend>
-                    <i class="fas fa-sliders"></i> Options
-                </legend>
-
-                <div class=" form-group">
-                    <div class="col-sm-1">
-                        <input type="checkbox" class="configKey form-control" id="npd_log_error_weather_station"
-                               data-l1key="npd_log_error_weather_station">
+                        <?php
+                        if (!$npdStatus) {
+                            echo '<div class="col-sm-1"><span class="label label-danger">NOK</span></div>';
+                        } else {
+                            echo '<div class="col-sm-1"><span class="label label-success">OK</span></div>';
+                        }
+                        ?>
                     </div>
-                    <label class="col-sm-11 control-label" for="npd_log_error_weather_station"
-                           style="text-align: left;">{{Désactiver les messages
-                        d'alertes lorsqu'une station est indisponible}}</label>
+
+                    <?php if ($npdStatus) { ?>
+                        <fieldset>
+                            <legend>
+                                <i class="fas fa-stream"></i> Options
+                            </legend>
+
+                            <div class=" form-group">
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="configKey form-control"
+                                           id="npd_log_error_weather_station"
+                                           data-l1key="npd_log_error_weather_station">
+                                </div>
+                                <label class="col-sm-11 control-label" for="npd_log_error_weather_station"
+                                       style="text-align: left;">{{Désactiver les messages
+                                    d'alertes lorsqu'une station est indisponible}}</label>
+                            </div>
 
 
-                </div>
+                        </fieldset>
+                    <?php } ?>
+
+                    <fieldset>
+                        <legend>
+                            <i class="fas fa-project-diagram"></i> {{Connection à votre compte Netatmo}}
+                        </legend>
 
 
-            </fieldset>
+                    </fieldset>
+
+                    <div>
+
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#npd_own_app" role="tab" data-toggle="tab">{{Your
+                                    own app}}</a></li>
+                            <li role="presentation"><a href="#npd_hosted_app" role="tab" data-toggle="tab">{{Hosted Apps
+                                    (beta)}}</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="npd_own_app">
+
+                                <?php
+                                if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
+                                    echo 'L\'accès externe Jeedom est requis. Il est non défini ou invalide';
+                                } else { ?>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="npd_client_id"> {{Client ID}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="configKey form-control" data-l1key="npd_client_id"
+                                               id="npd_client_id"
+                                               placeholder="" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4  control-label" for="npd_client_secret">{{Client
+                                        secret}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="configKey form-control" data-l1key="npd_client_secret"
+                                               id="npd_client_secret" placeholder="" autocomplete="off">
+                                    </div>
+                                </div>
 
 
-            <fieldset>
-                <legend>
-                    <i class="fas fa-bug"></i> Informations de connexion (debug)
-                </legend>
+                                <div class="form-group">
+                                    <label class="col-md-4 control-label">{{Autoriser l'accès}}</label>
+                                    <div class="col-md-8">
+
+                                        <a class="btn btn-success form-control npd_btn_association_apps_netatmo"><i
+                                                    class="fas fa-link"></i>{{Association Netatmo}}</a>
+                                    </div>
+                                    <?php } ?>
+                                </div>
 
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="npd_client_id"> {{access_token}}</label>
-                    <div class="col-sm-6">
-                        <input type="text" disabled class="configKey form-control" data-l1key="npd_access_token"
-                               id="npd_access_token" placeholder="" autocomplete="off">
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="npd_hosted_app">
+                                A venir
+                            </div>
+
+                        </div>
+
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="npd_client_id"> {{refresh_token}}</label>
-                    <div class="col-sm-6">
-                        <input type="text" disabled class="configKey form-control" data-l1key="npd_refresh_token"
-                               id="npd_refresh_token" placeholder="" autocomplete="off">
-                    </div>
-                </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="npd_client_id"> {{expires_at}}</label>
-                    <div class="col-sm-6">
-                        <input type="text" disabled class="configKey form-control" data-l1key="npd_expires_at"
-                               id="npd_expires_at" placeholder="" autocomplete="off">
-                    </div>
-                </div>
+                    <fieldset>
+                        <legend>
+                            <i class="fas fa-bug"></i> Informations de connexion (debug)
+                        </legend>
 
-            </fieldset>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="npd_client_id"> {{access_token}}</label>
+                            <div class="col-sm-6">
+                                <span class="configKey" data-l1key="npd_access_token" id="npd_access_token">-</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="npd_client_id"> {{refresh_token}}</label>
+                            <div class="col-sm-6">
+                                <span class="configKey" data-l1key="npd_refresh_token" id="npd_refresh_token">-</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="npd_client_id"> {{expires_at}}</label>
+                            <div class="col-sm-6">
+                                <span class="configKey" data-l1key="npd_expires_at" id="npd_expires_at">-</span> (<a
+                                        href="https://www.unixtime.fr/" target="_blank">unixtime.fr</a>)
+                            </div>
+                        </div>
+
+                    </fieldset>
 
         </div>
 

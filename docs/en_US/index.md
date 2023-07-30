@@ -14,7 +14,7 @@ Once the plugin is installed, you need to fill in your Netatmo connection inform
 - `Client ID`: your client ID (see configuration section)
 - `Secret client`: your secret client (see configuration section)
 
-Then, click on `Association Netatomo` to link with your account.
+Then, click on `Association Netatmo` to link with your account.
 
 Button `Synchronize`: allows your Jeedom to discover your "favorite" Netatmo stations, to you or to your neighbors. To do after having saved the previous parameters.
 
