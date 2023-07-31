@@ -31,7 +31,6 @@ try {
 
         //@@todo : ajouter un message d'attente en JS, background orange
 
-
         // Get data from Netatmo : create equipment.
         netatmoPublicData::createEquipmentsAndCommands();
 
@@ -45,17 +44,30 @@ try {
 
     if (init('action') == 'associationAppsNetatmo') {
         try {
-
             $redirectURI = network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php';
-
+            config::save('npd_connection_method', 'ownApp', 'netatmoPublicData');
             ajax::success($redirectURI);
         } catch (Exception $e) {
             ajax::error(displayException($e), $e->getCode());
         }
     }
 
+    // From button on Configuration page
+    if (init('action') == 'appHostedSaveTokens') {
 
-    throw new Exception(__('Aucune methode correspondante à : ', __FILE__) . init('action'));
+        if ($_POST['tokens']['state'] == "ok") {
+            config::save('npd_access_token', $_POST['tokens']['npd_access_token'], 'netatmoPublicData');
+            config::save('npd_refresh_token', $_POST['tokens']['npd_refresh_token'], 'netatmoPublicData');
+            config::save('npd_expires_at', $_POST['tokens']['npd_expires_at'], 'netatmoPublicData');
+            config::save('npd_connection_method', 'hostedApp', 'netatmoPublicData');
+        }
+
+        // success
+        ajax::success();
+    }
+
+
+    throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */
 } catch (Exception $e) {
     ajax::error(displayExeption($e), $e->getCode());

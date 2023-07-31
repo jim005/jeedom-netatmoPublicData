@@ -40,6 +40,7 @@ class netatmoPublicData extends eqLogic
         "NAModule4" => "CO2, Température et Humidité",  // Outdoor module. Max: 3.
     );
     public static $_encryptConfigKey = array('npd_client_secret', 'npd_password');
+
     /**
      * Call every 15 min, by Jeedom Core
      */
@@ -68,23 +69,36 @@ class netatmoPublicData extends eqLogic
      */
     public static function cronHourly()
     {
-        $provider = new League\OAuth2\Client\Provider\GenericProvider([
-            'clientId' => config::byKey('npd_client_id', 'netatmoPublicData'),
-            'clientSecret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
-            'redirectUri' => network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php',
-            'urlAuthorize' => 'https://api.netatmo.com/oauth2/authorize',
-            'urlAccessToken' => 'https://api.netatmo.com/oauth2/token',
-            'urlResourceOwnerDetails' => 'https://service.example.com/resource'
-        ]);
 
-        $newAccessToken = $provider->getAccessToken('refresh_token', [
-            'refresh_token' => config::byKey('npd_refresh_token', 'netatmoPublicData'),
-        ]);
+        $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
 
-        config::save('npd_access_token', $newAccessToken->getToken(), 'netatmoPublicData');
-        config::save('npd_refresh_token', $newAccessToken->getRefreshToken(), 'netatmoPublicData');
-        config::save('npd_expires_at', $newAccessToken->getExpires(), 'netatmoPublicData');
+        if ($npd_connection_method === "ownApp") {
 
+            $provider = new League\OAuth2\Client\Provider\GenericProvider([
+                'clientId' => config::byKey('npd_client_id', 'netatmoPublicData'),
+                'clientSecret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
+                'redirectUri' => network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php',
+                'urlAuthorize' => 'https://api.netatmo.com/oauth2/authorize',
+                'urlAccessToken' => 'https://api.netatmo.com/oauth2/token',
+                'urlResourceOwnerDetails' => 'https://service.example.com/resource'
+            ]);
+
+            $newAccessToken = $provider->getAccessToken('refresh_token', [
+                'refresh_token' => config::byKey('npd_refresh_token', 'netatmoPublicData'),
+            ]);
+
+            config::save('npd_access_token', $newAccessToken->getToken(), 'netatmoPublicData');
+            config::save('npd_refresh_token', $newAccessToken->getRefreshToken(), 'netatmoPublicData');
+            config::save('npd_expires_at', $newAccessToken->getExpires(), 'netatmoPublicData');
+
+        }
+
+        if ($npd_connection_method === "hostedApp") {
+
+            //@@todo: prévoir la récupération du nouveau token
+            log::add('netatmoPublicData', 'debug', 'prévoir récupération nouveau token');
+
+        }
     }
 
 
