@@ -222,7 +222,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
     $('.npd_btn_association_apps_netatmo').on('click', function (e) {
         e.preventDefault();
-        jeedomUtils.showAlert({
+        $.fn.showAlert({
             message: '{{Association en cours}}',
             level: 'warning'
         });
@@ -239,7 +239,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             },
             success: function (data) {
                 if (data.state != 'ok') {
-                    jeedomUtils.showAlert({
+                    $.fn.showAlert({
                         message: data.result,
                         level: 'danger'
                     });
@@ -253,7 +253,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
     $('.npd_btn_association_apps_netatmo_hosted').on('click', function (e) {
         e.preventDefault();
-        jeedomUtils.showAlert({
+        $.fn.showAlert({
             message: '{{Association en cours}}',
             level: 'warning'
         });
@@ -275,7 +275,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             success: function (data) {
                 console.log(data);
                 if (data.state != 'ok') {
-                    jeedomUtils.showAlert({
+                    $.fn.showAlert({
                         message: 'Nouvelle vérification dans 5 secondes (' + getTokenTry + '/' + getTokenTryTotal + ')',
                         level: 'warning'
                     });
@@ -283,7 +283,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                         setTimeout(npdGetTokensAppHosted, 5000);
                         getTokenTry++;
                     } else {
-                        jeedomUtils.showAlert({
+                        $.fn.showAlert({
                             message: 'Impossible de récupérer les tokens',
                             level: 'danger'
                         });
@@ -292,7 +292,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                 }
 
                 console.log(data);
-                jeedomUtils.showAlert({
+                $.fn.showAlert({
                     message: '{{Tokens recupérés}}',
                     level: 'success'
                 });
@@ -318,10 +318,10 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             },
             success: function (data) {
                 if (data.state != 'ok') {
-                    jeedomUtils.showAlert({message: data.result, level: 'danger'});
+                    $.fn.showAlert({message: data.result, level: 'danger'});
                     return;
                 } else {
-                    jeedomUtils.showAlert({message: '{{Tokens sauvegardés}}', level: 'success'});
+                    $.fn.showAlert({message: '{{Tokens sauvegardés}}', level: 'success'});
                     $('.bt_refreshPluginInfo').trigger('click');
                 }
             }
