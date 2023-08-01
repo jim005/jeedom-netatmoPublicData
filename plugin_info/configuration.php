@@ -88,14 +88,16 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                             <li role="presentation"
                                 class="<?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"><a
                                         href="#npd_own_app" role="tab" data-toggle="tab"
-                                        style="border-bottom-width: 4px !important;">{{Own App}}</a></li>
+                                        style="border-bottom-width: 4px !important;">{{Votre propre application}}
+                                    (expert) </a></li>
                             <li role="presentation"
                                 class="<?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"><a
                                         href="#npd_hosted_app" role="tab" data-toggle="tab"
-                                        style="border-bottom-width: 4px !important;">{{Hosted App (beta)}}</a></li>
+                                        style="border-bottom-width: 4px !important;">{{L'application hébergée}} (simple)
+                                    (BETA)</a></li>
                         </ul>
 
-                        <div class="tab-content">
+                        <div class="tab-content" style="height: unset !important; padding-top: 2em;">
                             <div role="tabpanel"
                                  class="tab-pane <?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"
                                  id="npd_own_app">
@@ -220,7 +222,10 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
     $('.npd_btn_association_apps_netatmo').on('click', function (e) {
         e.preventDefault();
-        $('#div_alert').showAlert({message: '{{Association en cours}}', level: 'warning'});
+        jeedomUtils.showAlert({
+            message: '{{Association en cours}}',
+            level: 'warning'
+        });
         $.ajax({
             type: "POST",
             url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
@@ -234,7 +239,10 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             },
             success: function (data) {
                 if (data.state != 'ok') {
-                    $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                    jeedomUtils.showAlert({
+                        message: data.result,
+                        level: 'danger'
+                    });
                     return;
                 }
                 window.open(data.result, "_blank");
@@ -245,16 +253,19 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
     $('.npd_btn_association_apps_netatmo_hosted').on('click', function (e) {
         e.preventDefault();
-        $('#div_alert').showAlert({message: '{{Association en cours}}', level: 'warning'});
+        jeedomUtils.showAlert({
+            message: '{{Association en cours}}',
+            level: 'warning'
+        });
         window.open("https://gateway.websenso.net/flux/netatmo/AuthorizationCodeGrant.php?jeedom_id=<?php echo $npd_jeedom_id; ?>", "_blank");
-        setTimeout(npdGetTokens, 5000);
+        setTimeout(npdGetTokensAppHosted, 5000);
 
     });
 
     getTokenTry = 1;
     getTokenTryTotal = 5;
 
-    function npdGetTokens() {
+    function npdGetTokensAppHosted() {
 
         $.ajax({
             url: "https://gateway.websenso.net/flux/netatmo/getTokens.php?jeedom_id=<?php echo $npd_jeedom_id; ?>",
@@ -264,28 +275,34 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             success: function (data) {
                 console.log(data);
                 if (data.state != 'ok') {
-                    $('#div_alert').showAlert({
+                    jeedomUtils.showAlert({
                         message: 'Nouvelle vérification dans 5 secondes (' + getTokenTry + '/' + getTokenTryTotal + ')',
                         level: 'warning'
                     });
                     if (getTokenTry < getTokenTryTotal) {
-                        setTimeout(npdGetTokens, 5000);
+                        setTimeout(npdGetTokensAppHosted, 5000);
                         getTokenTry++;
                     } else {
-                        $('#div_alert').showAlert({message: 'Impossible de récupérer les tokens', level: 'danger'});
+                        jeedomUtils.showAlert({
+                            message: 'Impossible de récupérer les tokens',
+                            level: 'danger'
+                        });
                     }
                     return;
                 }
 
                 console.log(data);
-                $('#div_alert').showAlert({message: '{{Tokens recupérés}}', level: 'success'});
-                npdSaveTokens(data);
+                jeedomUtils.showAlert({
+                    message: '{{Tokens recupérés}}',
+                    level: 'success'
+                });
+                npdSaveTokensAppHosted(data);
 
             }
         });
     }
 
-    function npdSaveTokens(content) {
+    function npdSaveTokensAppHosted(content) {
 
         $.ajax({
             type: "POST",
@@ -301,10 +318,10 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             },
             success: function (data) {
                 if (data.state != 'ok') {
-                    $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                    jeedomUtils.showAlert({message: data.result, level: 'danger'});
                     return;
                 } else {
-                    $('#div_alert').showAlert({message: '{{Tokens sauvegardés}}', level: 'success'});
+                    jeedomUtils.showAlert({message: '{{Tokens sauvegardés}}', level: 'success'});
                     $('.bt_refreshPluginInfo').trigger('click');
                 }
             }

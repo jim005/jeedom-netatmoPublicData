@@ -95,8 +95,24 @@ class netatmoPublicData extends eqLogic
 
         if ($npd_connection_method === "hostedApp") {
 
-            //@@todo: prévoir la récupération du nouveau token
-            log::add('netatmoPublicData', 'debug', 'prévoir récupération nouveau token');
+            log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens');
+
+            $client = new GuzzleHttp\Client();
+            $response = $client->request("GET", "https://gateway.websenso.net/flux/netatmo/getTokens.php", [
+                "query" => [
+                    "refresh" => true,
+                    "jeedom_id" => crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne"),
+                ],
+            ]);
+
+            $body = $response->getBody();
+            $content_array = json_decode($body, true);
+
+            if ($content_array['state'] === "ok") {
+                config::save('npd_access_token', $content_array['npd_access_token'], 'netatmoPublicData');
+                config::save('npd_refresh_token', $content_array['npd_refresh_token'], 'netatmoPublicData');
+                config::save('npd_expires_at', $content_array['npd_expires_at'], 'netatmoPublicData');
+            }
 
         }
     }

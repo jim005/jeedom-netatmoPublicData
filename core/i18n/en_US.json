@@ -25,6 +25,8 @@
   "plugins\/netatmoPublicData\/plugin_info\/configuration.php": {
     "Client ID": "Client ID",
     "Client secret": "Secret client",
+    "Votre propre application": "Your own application",
+    "L'application hébergée": "Hosted App",
     "Statut": "Status",
     "Connection à votre compte Netatmo": "Connect to your Netatmo account",
     "Désactiver les messages d'alertes lorsqu'une station est indisponible": "Disabled notification in Message Center, when an station is unreachable"
