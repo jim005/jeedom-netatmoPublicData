@@ -64,15 +64,16 @@ class netatmoPublicData extends eqLogic
     }
 
     /**
-     * Call every hour, by Jeedom Core
-     * Refresh AccessToken and RefreshToken  (expire every 3 hours)
+     * Request new tokens
      */
-    public static function cronHourly()
+    public function getNetatmoTokens()
     {
 
         $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
 
         if ($npd_connection_method === "ownApp") {
+
+            log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens - ownApp');
 
             $provider = new League\OAuth2\Client\Provider\GenericProvider([
                 'clientId' => config::byKey('npd_client_id', 'netatmoPublicData'),
@@ -95,7 +96,7 @@ class netatmoPublicData extends eqLogic
 
         if ($npd_connection_method === "hostedApp") {
 
-            log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens');
+            log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens - hostedApp');
 
             $client = new GuzzleHttp\Client();
             $response = $client->request("GET", "https://gateway.websenso.net/flux/netatmo/getTokens.php", [
@@ -117,7 +118,6 @@ class netatmoPublicData extends eqLogic
         }
     }
 
-
     /**
      * Get Netatmo data from webservice and stored in $_client
      *
@@ -125,6 +125,14 @@ class netatmoPublicData extends eqLogic
      */
     public function getNetatmoData()
     {
+
+        $npd_expires_at = config::byKey('npd_expires_at', 'netatmoPublicData');
+
+        // Request new tokens, if expired
+        if ($npd_expires_at < time()) {
+            $this->getNetatmoTokens();
+        }
+
         // Retrieve user's Weather Stations data
         $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
 
