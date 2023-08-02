@@ -1,7 +1,19 @@
 {
   "id": "netatmoPublicData",
   "name": "Netatmo OpenData",
-  "description": "Vos voisins ont une station météo Netatmo dans leur jardin (et pas vous ) ? <br><strong>Récupèrer leurs données pour votre Jeedom</strong> (température, pression, pluie, vent...) et gratuitement. <br><br>Depuis la carte Netatmo, sélectionnez jusqu'à 5 stations favorites, puis elles seront visibles dans Jeedom et utilisable dans vos Scénarii, Vues, Designs, etc.  Notamment :<br>- Température<br>- Pression<br>- Vent ( Vitesse + Direction)<br>- Rafales de vent ( Vitesse + Direction)<br>- Pluie (Temps réel + sur 1h + sur la journée )<br><br><br>English : Display your favorite weather stations (owned or public) from Netatmo, for free !",
+   "description": {
+    "fr_FR": "Vos voisins ont une station météo Netatmo dans leur jardin (et pas vous ) ?\nRécupérer leurs données pour votre Jeedom (température, pression, pluie, vent...) et gratuitement.",
+    "en_US": "Do your neighbors have a Netatmo weather station in their garden (and you don't)?\nGet their data for your Jeedom (temperature, pressure, rain, wind...) for free.",
+    "es_ES": "¿Tus vecinos tienen una estación meteorológica Netatmo en su jardín (y tú no)?\nObtén gratis sus datos para tu Jeedom (temperatura, presión, lluvia, viento, etc.).",
+    "de_DE": "Ihre Nachbarn haben eine Netatmo-Wetterstation in ihrem Garten (und Sie nicht )?\nHolen Sie sich ihre Daten für Ihr Jeedom (Temperatur, Luftdruck, Regen, Wind...) und das kostenlos.",
+    "pt_PT": "Os seus vizinhos têm uma estação meteorológica Netatmo no jardim (e você não)?\nObtenha os dados deles para o seu Jeedom (temperatura, pressão, chuva, vento, etc.) gratuitamente.",
+    "ru_RU": "У ваших соседей в саду стоит метеостанция Netatmo (а у вас нет)?\nПолучите их данные для своего Jeedom (температура, давление, дождь, ветер и т.д.) бесплатно.",
+    "id_ID": "Apakah tetangga Anda memiliki stasiun cuaca Netatmo di kebun mereka (dan Anda tidak)?\nDapatkan data mereka untuk Jeedom Anda (suhu, tekanan, hujan, angin, dll.) secara gratis.",
+    "it_IT": "I vostri vicini hanno una stazione meteo Netatmo in giardino (e voi no)?\nOttenete gratuitamente i loro dati per il vostro Jeedom (temperatura, pressione, pioggia, vento, ecc.).",
+    "ja_JP": "ご近所の庭にNetatmoウェザーステーションがありますか？\nあなたのジードムのデータ（気温、気圧、雨、風など）を無料で入手できます。",
+    "tr": "Vos voisins ont une station météo Netatmo dans leur jardin (et pas vous ) ?\nRécupérer leurs données pour votre Jeedom (température, pression, pluie, vent...) et gratuitement."
+  },
+  "utilization": "Depuis la carte Netatmo, sélectionnez jusqu'à 5 stations favorites, puis elles seront visibles dans Jeedom et utilisable dans vos Scénarii, Vues, Designs, etc.  Notamment : Température, Pression, Vent ( Vitesse + Direction), Rafales de vent ( Vitesse + Direction), Pluie (Temps réel + sur 1h + sur la journée )",
   "version": "2.0",
   "licence": "AGPL",
   "author": "Jim005",
@@ -12,6 +24,8 @@
   "maxDependancyInstallTime": 0,
   "changelog": "https:\/\/jim005.github.io\/jeedom-netatmoPublicData\/#language#\/changelog",
   "documentation": "https:\/\/jim005.github.io\/jeedom-netatmoPublicData\/#language#\/",
+  "changelog_beta": "https:\/\/jim005.github.io\/jeedom-netatmoPublicData\/#language#\/changelog",
+  "documentation_beta": "https:\/\/jim005.github.io\/jeedom-netatmoPublicData\/#language#\/",
   "link": {
     "forum": "https://community.jeedom.com/t/pugin-netatmo-opendata-presentation/28530"
   },
@@ -33,6 +47,8 @@
     "docker",
     "diy",
     "mobile",
-    "v4"
+    "v4",
+    "diy",
+    "atlas"
   ]
 }

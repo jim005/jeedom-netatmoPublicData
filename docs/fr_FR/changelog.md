@@ -2,7 +2,6 @@
 
 // TODO
 - Ajout ( OU PAS ) du support de VOS modules intérieurs ( de type:  NAModule4 : Température and Humidité ). (Thanks to https://github.com/c4software )
-- Ajustement des widgets pour V4.1
 - Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
 
 # Août 2023
