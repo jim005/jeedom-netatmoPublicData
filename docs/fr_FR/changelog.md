@@ -5,6 +5,12 @@
 - Ajustement des widgets pour V4.1
 - Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
 
+# Août 2023
+- La version Jeedom Core 4.2 est un pre-réquis. Suppression du support pour version inférieure. 
+- Suppression du SDK Netatmo au profit de l'usage des librairies intégrées dans le Jeedom Core.
+- Méthode d'authentification supplémentaire avec l'application hébergée sur mon serveur. Cette nouvelle méthode ne requière plus le CLIENT_ID, et CLIENT_SECRET !
+- Corrections diverses.
+
 # Juillet 2023
 - Changement de la méthode d'authentification : ajout d'un bouton "Association". Suppression des champs mots de passe et e-mail. Merci à @thanaus ❤ pour ses morceaux de codes.️
 

@@ -333,17 +333,8 @@ class netatmoPublicData extends eqLogic
                 }
             }
 
-            //@@todo : to be removed, as V4 can adjust automatically widget from their content : https://github.com/jeedom/core/blob/V4-stable/docs/fr_FR/changelog.md
             /*
              * Adjust widget size (width and height)
-             *
-             * For V3 :
-             * width : 392px
-             * 1 lines => height : 92px
-             * 3 lines => height : 232px
-             * 4 lines => height : 272px
-             *
-             * For V4 :
              * width : 312px
              * 1 lines => height : 152px
              * 3 lines => height : 352px
@@ -351,32 +342,16 @@ class netatmoPublicData extends eqLogic
              */
             if ($new_equipment) {
 
-                if ((float)getVersion(null) < 4) {
-                    log::add('netatmoPublicData', 'debug', "Jeedom v3  ( < v4 )");
-                    $eqLogic->setDisplay('width', '392px');
-                    switch ($widget_line) {
-                        case 1:
-                            $eqLogic->setDisplay('height', '92px');
-                            break;
-                        case 3:
-                            $eqLogic->setDisplay('height', '232px');
-                            break;
-                        default:
-                            $eqLogic->setDisplay('height', '272px');
-                    }
-                } else {
-                    log::add('netatmoPublicData', 'debug', "Jeedom v4 ( >= v4 )");
-                    $eqLogic->setDisplay('width', '312px');
-                    switch ($widget_line) {
-                        case 1:
-                            $eqLogic->setDisplay('height', '152px');
-                            break;
-                        case 3:
-                            $eqLogic->setDisplay('height', '352px');
-                            break;
-                        default:
-                            $eqLogic->setDisplay('height', '452px');
-                    }
+                $eqLogic->setDisplay('width', '312px');
+                switch ($widget_line) {
+                    case 1:
+                        $eqLogic->setDisplay('height', '152px');
+                        break;
+                    case 3:
+                        $eqLogic->setDisplay('height', '352px');
+                        break;
+                    default:
+                        $eqLogic->setDisplay('height', '452px');
                 }
 
                 $eqLogic->save();
@@ -640,11 +615,6 @@ class netatmoPublicData extends eqLogic
             $NetatmoInfo->setIsVisible(true);
             $NetatmoInfo->setIsHistorized(true);
 
-            // For V3, don't use new widgets
-            if ((float)getVersion(null) < 4 and in_array($template_dashboard, array('rain', 'HygroThermographe', 'compass'))) {
-                $template_dashboard = 'tile';
-                $template_mobile = 'tile';
-            }
             $NetatmoInfo->setTemplate('dashboard', $template_dashboard);
             $NetatmoInfo->setTemplate('mobile', $template_mobile);
 
