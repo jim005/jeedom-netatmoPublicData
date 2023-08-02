@@ -146,7 +146,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                                     <div class="col-md-6">
                                         <a class="btn btn-success form-control npd_btn_association_apps_netatmo_hosted"><i
                                                     class="fas fa-link"></i>
-                                            {{Association Netatmo Hosted}} <img
+                                            {{J'autorise l'application à l'accès mes stations favorites Netatmo}} <img
                                                     src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
                                                     alt="Logo du plugin netatmoOpenData" style="width: 20px;">
                                         </a>
@@ -250,15 +250,19 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
         });
     })
 
-
     $('.npd_btn_association_apps_netatmo_hosted').on('click', function (e) {
         e.preventDefault();
+        $.showLoading();
+
         $.fn.showAlert({
             message: '{{Association en cours}}',
             level: 'warning'
         });
+        npdRemoveTokensAppHosted();
+
         window.open("https://gateway.websenso.net/flux/netatmo/AuthorizationCodeGrant.php?jeedom_id=<?php echo $npd_jeedom_id; ?>", "_blank");
         setTimeout(npdGetTokensAppHosted, 5000);
+
 
     });
 
@@ -323,10 +327,30 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                 } else {
                     $.fn.showAlert({message: '{{Tokens sauvegardés}}', level: 'success'});
                     $('.bt_refreshPluginInfo').trigger('click');
+                    $.hideLoading();
                 }
             }
         });
     }
 
+    function npdRemoveTokensAppHosted() {
+
+        $.ajax({
+            type: "POST",
+            url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
+            data: {
+                action: "appHostedRemoveTokens"
+            },
+            dataType: 'json',
+            global: false,
+            error: function (request, status, error) {
+                handleAjaxError(request, status, error);
+            },
+            success: function () {
+                $.fn.showAlert({message: '{{Suppression des tokens existants}}', level: 'success'});
+                $('.bt_refreshPluginInfo').trigger('click');
+            }
+        });
+    }
 
 </script>

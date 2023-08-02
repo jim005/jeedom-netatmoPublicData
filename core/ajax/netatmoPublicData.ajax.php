@@ -66,6 +66,14 @@ try {
         ajax::success();
     }
 
+    // From button on Configuration page
+    if (init('action') == 'appHostedRemoveTokens') {
+        config::remove('npd_access_token', 'netatmoPublicData');
+        config::remove('npd_refresh_token', 'netatmoPublicData');
+        config::remove('npd_connection_method', 'netatmoPublicData');
+        ajax::success();
+    }
+
 
     throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */
