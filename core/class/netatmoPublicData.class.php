@@ -19,6 +19,12 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
+// @@todo : Pour test sur la version 4.4 beta - en attendant la gestion native des lib composer
+// https://community.jeedom.com/t/debut-de-la-migration-vers-composer-en-live/109920/5?u=jim005
+if (!class_exists('League\OAuth2\Client\Provider\GenericProvider')) {
+    require_once __DIR__ . "/../../vendor/autoload.php";
+}
+
 define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
 
 /**
