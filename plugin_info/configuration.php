@@ -42,7 +42,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                 <fieldset>
 
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="npd_client_id"> {{Statut}}</label>
+                        <label class="col-sm-1 control-label" for="npd_client_id"> {{Statut}}</label>
 
                         <?php
                         if (!$npdStatus) {
@@ -53,51 +53,44 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                         ?>
                     </div>
 
-                    <?php if ($npdStatus) { ?>
-                        <fieldset>
-                            <legend>
-                                <i class="fas fa-stream"></i> Options
-                            </legend>
-
-                            <div class=" form-group">
-                                <div class="col-sm-1">
-                                    <input type="checkbox" class="configKey form-control"
-                                           id="npd_log_error_weather_station"
-                                           data-l1key="npd_log_error_weather_station">
-                                </div>
-                                <label class="col-sm-11 control-label" for="npd_log_error_weather_station"
-                                       style="text-align: left;">{{Désactiver les messages d'alertes lorsqu'une station
-                                    est indisponible}}</label>
-                            </div>
-
-
-                        </fieldset>
-                    <?php } ?>
-
-                    <fieldset>
-                        <legend>
-                            <i class="fas fa-project-diagram"></i> {{Connection à votre compte Netatmo}}
-                        </legend>
-
-
-                    </fieldset>
 
                     <div>
 
                         <ul class="nav nav-tabs" role="tablist">
                             <li role="presentation"
-                                class="<?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"><a
-                                        href="#npd_own_app" role="tab" data-toggle="tab"
-                                        style="border-bottom-width: 4px !important;">{{Votre propre application}}
-                                    (expert) </a></li>
-                            <li role="presentation"
                                 class="<?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"><a
                                         href="#npd_hosted_app" role="tab" data-toggle="tab"
-                                        style="border-bottom-width: 4px !important;">{{L'application hébergée}} (simple)
+                                        style="border-bottom-width: 4px !important;">{{Utilise l'application hébergée}}
+                                    (simple)
                                     (BETA)</a></li>
+                            <li role="presentation"
+                                class="<?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"><a
+                                        href="#npd_own_app" role="tab" data-toggle="tab"
+                                        style="border-bottom-width: 4px !important;">{{Utilise ton application}}
+                                    (expert) </a></li>
+
                         </ul>
 
                         <div class="tab-content" style="height: unset !important; padding-top: 2em;">
+
+                            <div role="tabpanel"
+                                 class="tab-pane <?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"
+                                 id="npd_hosted_app">
+
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label"></label>
+                                    <div class="col-md-6">
+                                        <a class="btn btn-success form-control npd_btn_association_apps_netatmo_hosted"><i
+                                                    class="fas fa-link"></i>
+                                            {{J'autorise l'application à l'accès mes stations favorites Netatmo}} <img
+                                                    src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
+                                                    alt="Logo du plugin netatmoOpenData" style="width: 20px;">
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+
                             <div role="tabpanel"
                                  class="tab-pane <?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"
                                  id="npd_own_app">
@@ -137,27 +130,31 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
 
                             </div>
-                            <div role="tabpanel"
-                                 class="tab-pane <?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"
-                                 id="npd_hosted_app">
-
-                                <div class="form-group">
-                                    <label class="col-md-3 control-label"></label>
-                                    <div class="col-md-6">
-                                        <a class="btn btn-success form-control npd_btn_association_apps_netatmo_hosted"><i
-                                                    class="fas fa-link"></i>
-                                            {{J'autorise l'application à l'accès mes stations favorites Netatmo}} <img
-                                                    src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
-                                                    alt="Logo du plugin netatmoOpenData" style="width: 20px;">
-                                        </a>
-                                    </div>
-                                </div>
-
-                            </div>
-
                         </div>
 
                     </div>
+
+
+                    <?php if ($npdStatus) { ?>
+                        <fieldset>
+                            <legend>
+                                <i class="fas fa-stream"></i> Options
+                            </legend>
+
+                            <div class=" form-group">
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="configKey form-control"
+                                           id="npd_log_error_weather_station"
+                                           data-l1key="npd_log_error_weather_station">
+                                </div>
+                                <label class="col-sm-11 control-label" for="npd_log_error_weather_station"
+                                       style="text-align: left;">{{Désactiver les messages d'alertes lorsqu'une station
+                                    est indisponible}}</label>
+                            </div>
+
+
+                        </fieldset>
+                    <?php } ?>
 
                     <br/>
                     <br/>
