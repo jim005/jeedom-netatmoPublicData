@@ -42,15 +42,17 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                 <fieldset>
 
                     <div class="form-group">
-                        <label class="col-sm-1 control-label" for="npd_client_id"> {{Statut}}</label>
-
-                        <?php
-                        if (!$npdStatus) {
-                            echo '<div class="col-sm-1"><span class="label label-danger">NOK</span></div>';
-                        } else {
-                            echo '<div class="col-sm-1"><span class="label label-success">OK</span></div>';
-                        }
-                        ?>
+                        <label class="col-sm-2 control-label" for="npd_client_id">{{Statut}}</label>
+                        <div class="col-sm-4">
+                            <?php
+                            if (!$npdStatus) {
+                                echo ' <span class="label label-danger">NOK</span>';
+                            } else {
+                                echo '<span class="label label-success">OK</span>';
+                            }
+                            ?></div>
+                        <label class="col-sm-2 control-label">{{Méthode}}</label>
+                        <div class="col-sm-4"><span class="configKey" data-l1key="npd_connection_method" >-</span></div>
                     </div>
 
 
