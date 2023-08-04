@@ -23,9 +23,20 @@ if (!class_exists('League\OAuth2\Client\Provider\GenericProvider')) {
     require_once __DIR__ . "/../../vendor/autoload.php";
 }
 
+$npd_client_id = config::byKey('npd_client_id', 'netatmoPublicData');
+$npd_client_secret = config::byKey('npd_client_secret', 'netatmoPublicData');
+
+//if (empty($npd_client_id) || empty($npd_client_secret)) {
+//    exit('Client_id or Client_Secret incorrect');
+//}
+
+if (isset($_GET['error']))  {
+    die($_GET['error']);
+}
+
 $provider = new League\OAuth2\Client\Provider\GenericProvider([
-    'clientId' => config::byKey('npd_client_id', 'netatmoPublicData'),
-    'clientSecret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
+    'clientId' => $npd_client_id,
+    'clientSecret' => $npd_client_secret,
     'redirectUri' => network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php',
     'urlAuthorize' => 'https://api.netatmo.com/oauth2/authorize',
     'urlAccessToken' => 'https://api.netatmo.com/oauth2/token',
@@ -64,6 +75,8 @@ if (!isset($_GET['code'])) {
 
 } else {
 
+
+
     try {
 
         // Try to get an access token using the authorization code grant.
@@ -76,11 +89,13 @@ if (!isset($_GET['code'])) {
         config::save('npd_access_token', $accessToken->getToken(), 'netatmoPublicData');
         config::save('npd_refresh_token', $accessToken->getRefreshToken(), 'netatmoPublicData');
         config::save('npd_expires_at', $accessToken->getExpires(), 'netatmoPublicData');
+        config::save('npd_connection_method', 'ownApp', 'netatmoPublicData');
 
         echo "✅";
-        echo " - <a href=\"" . network::getNetworkAccess('external') . "/index.php?v=d&p=plugin&id=netatmoPublicData\">retour</a>";
+        echo " - <a href=\"" . network::getNetworkAccess('external') . "/index.php?v=d&p=plugin&id=netatmoPublicData\">retour</a>  => Pensez à rafraichir votre page du plugin";
+        echo "<br />";
 
-    } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+    } catch (League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
 
         // Failed to get the access token or user details.
         exit($e->getMessage());

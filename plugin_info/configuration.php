@@ -36,6 +36,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
             $npdStatus = !empty($npd_access_token) ? true : false;
 
+
             ?>
 
             <form class="form-horizontal">
@@ -43,7 +44,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="npd_client_id">{{Statut}}</label>
-                        <div class="col-sm-4">
+                        <div class="col-sm-2">
                             <?php
                             if (!$npdStatus) {
                                 echo ' <span class="label label-danger">NOK</span>';
@@ -51,90 +52,110 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                                 echo '<span class="label label-success">OK</span>';
                             }
                             ?></div>
-                        <label class="col-sm-2 control-label">{{Méthode}}</label>
-                        <div class="col-sm-4"><span class="configKey" data-l1key="npd_connection_method" >-</span></div>
+
+                        <?php if ($npdStatus) { ?>
+                            <label class="col-sm-2 control-label">{{Méthode}}</label>
+                            <div class="col-sm-2"> <?= $npd_connection_method ?></div>
+
+                            <label class="col-sm-2 control-label">{{Action}}</label>
+                            <div class="col-sm-2"><a class="btn btn-danger btn-xs" id="npd_connection_reset"> <i
+                                            class="fas fa-times"></i> Débrancher</a></div>
+                        <?php } ?>
                     </div>
 
+                    <br/>
 
-                    <div>
+                    <?php if (!$npdStatus) { ?>
+                        <div>
 
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation"
-                                class="<?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"><a
-                                        href="#npd_hosted_app" role="tab" data-toggle="tab"
-                                        style="border-bottom-width: 4px !important;">{{Utilise l'application hébergée}}
-                                    (simple)
-                                    (BETA)</a></li>
-                            <li role="presentation"
-                                class="<?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"><a
-                                        href="#npd_own_app" role="tab" data-toggle="tab"
-                                        style="border-bottom-width: 4px !important;">{{Utilise ton application}}
-                                    (expert) </a></li>
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation"
+                                    class="<?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"><a
+                                            href="#npd_hosted_app" role="tab" data-toggle="tab"
+                                            style="border-bottom-width: 4px !important;">{{Utilise l'application
+                                        hébergée}}
+                                        (simple)
+                                        (BETA)</a></li>
+                                <li role="presentation"
+                                    class="<?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"><a
+                                            href="#npd_own_app" role="tab" data-toggle="tab"
+                                            style="border-bottom-width: 4px !important;">{{Utilise ton application}}
+                                        (expert) </a></li>
 
-                        </ul>
+                            </ul>
 
-                        <div class="tab-content" style="height: unset !important; padding-top: 2em;">
+                            <div class="tab-content" style="height: unset !important; padding-top: 2em;">
 
-                            <div role="tabpanel"
-                                 class="tab-pane <?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"
-                                 id="npd_hosted_app">
-
-                                <div class="form-group">
-                                    <label class="col-md-3 control-label"></label>
-                                    <div class="col-md-6">
-                                        <a class="btn btn-success form-control npd_btn_association_apps_netatmo_hosted"><i
-                                                    class="fas fa-link"></i>
-                                            {{J'autorise l'application à l'accès mes stations favorites Netatmo}} <img
-                                                    src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
-                                                    alt="Logo du plugin netatmoOpenData" style="width: 20px;">
-                                        </a>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div role="tabpanel"
-                                 class="tab-pane <?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"
-                                 id="npd_own_app">
-
-                                <?php
-                                if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
-                                    echo 'L\'accès externe Jeedom est requis. Il est non défini ou invalide';
-                                } else { ?>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label" for="npd_client_id"> {{Client ID}}</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="configKey form-control" data-l1key="npd_client_id"
-                                                   id="npd_client_id"
-                                                   placeholder="" autocomplete="off">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="col-sm-3  control-label" for="npd_client_secret">{{Client
-                                            secret}}</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="configKey form-control"
-                                                   data-l1key="npd_client_secret"
-                                                   id="npd_client_secret" placeholder="" autocomplete="off">
-                                        </div>
-                                    </div>
-
+                                <div role="tabpanel"
+                                     class="tab-pane <?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"
+                                     id="npd_hosted_app">
 
                                     <div class="form-group">
                                         <label class="col-md-3 control-label"></label>
                                         <div class="col-md-6">
-                                            <a class="btn btn-success form-control npd_btn_association_apps_netatmo"><i
-                                                        class="fas fa-link"></i>{{Association Netatmo}}</a>
+                                            <a class="btn btn-success form-control npd_btn_association"
+                                               data-npd-connection-method="hostedApp"><i
+                                                        class="fas fa-link"></i>
+                                                {{J'autorise l'application à l'accès mes stations favorites Netatmo}}
+                                                <img
+                                                        src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
+                                                        alt="Logo du plugin netatmoOpenData" style="width: 20px;">
+                                            </a>
                                         </div>
                                     </div>
-                                <?php } ?>
+
+                                </div>
+
+                                <div role="tabpanel"
+                                     class="tab-pane <?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"
+                                     id="npd_own_app">
+
+                                    <?php
+                                    //@@todo : move to the top
+                                    if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
+                                        echo 'L\'accès externe Jeedom est requis. Il est non défini ou invalide';
+                                    } else {
+                                        $netatmoAuthorizationUrl = network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php';
+                                        ?>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="npd_client_id"> {{Client
+                                                ID}}</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="configKey form-control"
+                                                       data-l1key="npd_client_id"
+                                                       id="npd_client_id"
+                                                       placeholder="" autocomplete="off">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3  control-label" for="npd_client_secret">{{Client
+                                                secret}}</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="configKey form-control"
+                                                       data-l1key="npd_client_secret"
+                                                       id="npd_client_secret" placeholder="" autocomplete="off">
+                                            </div>
+                                        </div>
 
 
+                                        <div class="form-group">
+                                            <label class="col-md-3 control-label"></label>
+                                            <div class="col-md-6">
+                                                <a class="btn btn-success form-control npd_btn_association"
+                                                   data-npd-connection-method="ownApp"><i
+                                                            class="fas fa-link"></i>{{Association Netatmo}}</a>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+
+
+                                </div>
                             </div>
+
                         </div>
 
-                    </div>
+                    <?php } ?>
 
 
                     <?php if ($npdStatus) { ?>
@@ -170,39 +191,35 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                         </legend>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="npd_client_id"> {{access_token}}</label>
+                            <label class="col-sm-3 control-label"> {{npd_access_token}}</label>
                             <div class="col-sm-6">
-                                <span class="configKey" data-l1key="npd_access_token" id="npd_access_token">-</span>
+                                <?= config::byKey('npd_access_token', 'netatmoPublicData'); ?>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="npd_client_id"> {{refresh_token}}</label>
+                            <label class="col-sm-3 control-label"> {{npd_refresh_token}}</label>
                             <div class="col-sm-6">
-                                <span class="configKey" data-l1key="npd_refresh_token" id="npd_refresh_token">-</span>
+                                <?= config::byKey('npd_refresh_token', 'netatmoPublicData'); ?>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="npd_connection_method">
-                                {{npd_connection_method}}</label>
+                            <label class="col-sm-3 control-label">{{npd_connection_method}}</label>
                             <div class="col-sm-6">
-                                <span class="configKey" data-l1key="npd_connection_method"
-                                      id="npd_connection_method">-</span>
-                            </div>
-                        </div>
-
-
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="npd_client_id"> {{expires_at}}</label>
-                            <div class="col-sm-6">
-                                <span class="configKey" data-l1key="npd_expires_at" id="npd_expires_at">-</span> (<a
-                                        href="https://www.unixtime.fr/" target="_blank">unixtime.fr</a>)
+                                <?= config::byKey('npd_connection_method', 'netatmoPublicData'); ?>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label"> {{An Jeedom ID Crypted (for hosted app)}}</label>
+                            <label class="col-sm-3 control-label">{{npd_expires_at}}</label>
+                            <div class="col-sm-6">
+                                <?= config::byKey('npd_expires_at', 'netatmoPublicData'); ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{An Jeedom ID Crypted (for hosted app)}}</label>
                             <div class="col-sm-6">
                                 <?php echo $npd_jeedom_id; ?>
                             </div>
@@ -218,52 +235,58 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
 <script>
 
-
-    $('.npd_btn_association_apps_netatmo').on('click', function (e) {
+    $("#npd_connection_reset").on('click', function (e) {
         e.preventDefault();
-        $.fn.showAlert({
-            message: '{{Association en cours}}',
-            level: 'warning'
-        });
-        $.ajax({
-            type: "POST",
-            url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
-            data: {
-                action: "associationAppsNetatmo",
-            },
-            dataType: 'json',
-            global: false,
-            error: function (request, status, error) {
-                handleAjaxError(request, status, error);
-            },
-            success: function (data) {
-                if (data.state != 'ok') {
-                    $.fn.showAlert({
-                        message: data.result,
-                        level: 'danger'
-                    });
-                    return;
-                }
-                window.open(data.result, "_blank");
-            }
-        });
-    })
 
-    $('.npd_btn_association_apps_netatmo_hosted').on('click', function (e) {
+        // Remove current tokens
+        npdRemoveTokens();
+
+    });
+
+    /**
+     * Redirect to Netatmo Authorization URL, for callback
+     */
+    $(".npd_btn_association").on('click', function (e) {
         e.preventDefault();
         $.showLoading();
 
+        // Info
         $.fn.showAlert({
             message: '{{Association en cours}}',
             level: 'warning'
         });
-        npdRemoveTokensAppHosted();
 
-        window.open("https://gateway.websenso.net/flux/netatmo/AuthorizationCodeGrant.php?jeedom_id=<?php echo $npd_jeedom_id; ?>", "_blank");
-        setTimeout(npdGetTokensAppHosted, 5000);
+        // Remove current tokens
+        npdRemoveTokens();
 
+        //ownApp OR hostedApp
+        if ($(this).data('npd-connection-method') === "ownApp") {
+
+            // ownApp
+
+            // // Save Client ID and Client ID
+            jeedom.config.save({
+                configuration: $('#npd_own_app').getValues('.configKey')[0],
+                plugin: "netatmoPublicData",
+            });
+
+
+            // Redirect to Netatmo Authorization URL
+            let netatmoAuthorizationUrl = '<?= $netatmoAuthorizationUrl ?>';
+            window.open(netatmoAuthorizationUrl, "_blank");
+
+
+        } else {
+            // hostedApp
+
+            // Redirect to Netatmo Authorization URL
+            window.open("https://gateway.websenso.net/flux/netatmo/AuthorizationCodeGrant.php?jeedom_id=<?php echo $npd_jeedom_id; ?>", "_blank");
+            setTimeout(npdGetTokensAppHosted, 5000);
+
+        }
 
     });
+
 
     getTokenTry = 1;
     getTokenTryTotal = 5;
@@ -294,62 +317,65 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                     return;
                 }
 
-                console.log(data);
                 $.fn.showAlert({
                     message: '{{Tokens recupérés}}',
                     level: 'success'
                 });
-                npdSaveTokensAppHosted(data);
 
-            }
-        });
-    }
 
-    function npdSaveTokensAppHosted(content) {
+                jeedom.config.save({
+                    configuration: data,
+                    plugin: "netatmoPublicData",
+                });
 
-        $.ajax({
-            type: "POST",
-            url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
-            data: {
-                action: "appHostedSaveTokens",
-                tokens: content,
-            },
-            dataType: 'json',
-            global: false,
-            error: function (request, status, error) {
-                handleAjaxError(request, status, error);
-            },
-            success: function (data) {
-                if (data.state != 'ok') {
-                    $.fn.showAlert({message: data.result, level: 'danger'});
-                    return;
-                } else {
-                    $.fn.showAlert({message: '{{Tokens sauvegardés}}', level: 'success'});
-                    $('.bt_refreshPluginInfo').trigger('click');
-                    $.hideLoading();
-                }
-            }
-        });
-    }
+                jeedom.config.save({
+                    configuration: {'npd_connection_method': 'hostedApp'},
+                    plugin: "netatmoPublicData",
+                });
 
-    function npdRemoveTokensAppHosted() {
-
-        $.ajax({
-            type: "POST",
-            url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
-            data: {
-                action: "appHostedRemoveTokens"
-            },
-            dataType: 'json',
-            global: false,
-            error: function (request, status, error) {
-                handleAjaxError(request, status, error);
-            },
-            success: function () {
-                $.fn.showAlert({message: '{{Suppression des tokens existants}}', level: 'success'});
                 $('.bt_refreshPluginInfo').trigger('click');
+
+                $.hideLoading();
+
             }
         });
+    }
+
+
+    function npdRemoveTokens() {
+
+        // Remove current tokens
+        //@@todo : bug impossible to pass an array.
+        // AJAX :           core/js/config.class.js:198
+        // PHP Database :   core/class/config.class.php:117
+        // configuration: ['npd_access_token', 'npd_refresh_token', 'npd_expires_at', 'npd_connection_method', 'npd_oauth2state'],
+        // Topic :  https://community.jeedom.com/t/jeedom-config-remove-avec-un-array-bug/110334
+
+        jeedom.config.remove({
+            configuration: 'npd_access_token',
+            plugin: "netatmoPublicData",
+        });
+        jeedom.config.remove({
+            configuration: 'npd_refresh_token',
+            plugin: "netatmoPublicData",
+        });
+        jeedom.config.remove({
+            configuration: 'npd_expires_at',
+            plugin: "netatmoPublicData",
+        });
+        jeedom.config.remove({
+            configuration: 'npd_connection_method',
+            plugin: "netatmoPublicData",
+        });
+        jeedom.config.remove({
+            configuration: 'npd_oauth2state',
+            plugin: "netatmoPublicData",
+        });
+
+        $.fn.showAlert({message: '{{Suppression des tokens existants}}', level: 'success'});
+
+        $('.bt_refreshPluginInfo').trigger('click');
+
     }
 
 </script>

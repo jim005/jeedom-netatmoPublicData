@@ -101,29 +101,6 @@ $('.npd_btn_sync').on('click', function(e) {
     })
 })
 
-$('.npd_btn_association_apps_netatmo').on('click', function(e) {
-    e.preventDefault();
-    $.fn.showAlert({message: '{{Association en cours}}', level: 'warning'});
-    $.ajax({
-        type: "POST",
-        url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
-        data: {
-            action: "associationAppsNetatmo",
-        },
-        dataType: 'json',
-        global: false,
-        error: function (request, status, error) {
-            handleAjaxError(request, status, error);
-        },
-        success: function (data) {
-            if (data.state != 'ok') {
-                $.fn.showAlert({message: data.result, level: 'danger'});
-                return;
-            }
-            window.open(data.result);
-        }
-    });
-})
 
 $('.npd_btn_weathermap').on('click', function() {
     window.open('https://weathermap.netatmo.com/')

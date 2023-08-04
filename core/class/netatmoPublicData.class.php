@@ -72,7 +72,7 @@ class netatmoPublicData extends eqLogic
     /**
      * Request new tokens
      */
-    public function getNetatmoTokens()
+    public static function getNetatmoTokens()
     {
 
         $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
@@ -136,7 +136,7 @@ class netatmoPublicData extends eqLogic
 
         // Request new tokens, if expired
         if ($npd_expires_at < time()) {
-            $this->getNetatmoTokens();
+            netatmoPublicData::getNetatmoTokens();
         }
 
         // Retrieve user's Weather Stations data
