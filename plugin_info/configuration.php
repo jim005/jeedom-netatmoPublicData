@@ -26,6 +26,11 @@ $npd_jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCette
 $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
 
 ?>
+<script>
+    var jeedom_id = '<?= $npd_jeedom_id; ?>';
+    var netatmoAuthorizationUrl = '<?= $netatmoAuthorizationUrl ?>';
+</script>
+<script src="/plugins/netatmoPublicData/plugin_info/configuration.js?123" type="application/javascript"></script>
 <form class="form-horizontal">
     <fieldset>
 
@@ -35,7 +40,6 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
             $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
             $npdStatus = !empty($npd_access_token) ? true : false;
-
 
             ?>
 
@@ -232,150 +236,3 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
     </fieldset>
 </form>
-
-<script>
-
-    $("#npd_connection_reset").on('click', function (e) {
-        e.preventDefault();
-
-        // Remove current tokens
-        npdRemoveTokens();
-
-    });
-
-    /**
-     * Redirect to Netatmo Authorization URL, for callback
-     */
-    $(".npd_btn_association").on('click', function (e) {
-        e.preventDefault();
-        $.showLoading();
-
-        // Info
-        $.fn.showAlert({
-            message: '{{Association en cours}}',
-            level: 'warning'
-        });
-
-        // Remove current tokens
-        npdRemoveTokens();
-
-        //ownApp OR hostedApp
-        if ($(this).data('npd-connection-method') === "ownApp") {
-
-            // ownApp
-
-            // // Save Client ID and Client ID
-            jeedom.config.save({
-                configuration: $('#npd_own_app').getValues('.configKey')[0],
-                plugin: "netatmoPublicData",
-            });
-
-
-            // Redirect to Netatmo Authorization URL
-            let netatmoAuthorizationUrl = '<?= $netatmoAuthorizationUrl ?>';
-            window.open(netatmoAuthorizationUrl, "_blank");
-
-
-        } else {
-            // hostedApp
-
-            // Redirect to Netatmo Authorization URL
-            window.open("https://gateway.websenso.net/flux/netatmo/AuthorizationCodeGrant.php?jeedom_id=<?php echo $npd_jeedom_id; ?>", "_blank");
-            setTimeout(npdGetTokensAppHosted, 5000);
-
-        }
-
-    });
-
-
-    getTokenTry = 1;
-    getTokenTryTotal = 5;
-
-    function npdGetTokensAppHosted() {
-
-        $.ajax({
-            url: "https://gateway.websenso.net/flux/netatmo/getTokens.php?jeedom_id=<?php echo $npd_jeedom_id; ?>",
-            error: function (request, status, error) {
-                handleAjaxError(request, status, error);
-            },
-            success: function (data) {
-                console.log(data);
-                if (data.state != 'ok') {
-                    $.fn.showAlert({
-                        message: 'Nouvelle vérification dans 5 secondes (' + getTokenTry + '/' + getTokenTryTotal + ')',
-                        level: 'warning'
-                    });
-                    if (getTokenTry < getTokenTryTotal) {
-                        setTimeout(npdGetTokensAppHosted, 5000);
-                        getTokenTry++;
-                    } else {
-                        $.fn.showAlert({
-                            message: 'Impossible de récupérer les tokens',
-                            level: 'danger'
-                        });
-                    }
-                    return;
-                }
-
-                $.fn.showAlert({
-                    message: '{{Tokens recupérés}}',
-                    level: 'success'
-                });
-
-
-                jeedom.config.save({
-                    configuration: data,
-                    plugin: "netatmoPublicData",
-                });
-
-                jeedom.config.save({
-                    configuration: {'npd_connection_method': 'hostedApp'},
-                    plugin: "netatmoPublicData",
-                });
-
-                $('.bt_refreshPluginInfo').trigger('click');
-
-                $.hideLoading();
-
-            }
-        });
-    }
-
-
-    function npdRemoveTokens() {
-
-        // Remove current tokens
-        //@@todo : bug impossible to pass an array.
-        // AJAX :           core/js/config.class.js:198
-        // PHP Database :   core/class/config.class.php:117
-        // configuration: ['npd_access_token', 'npd_refresh_token', 'npd_expires_at', 'npd_connection_method', 'npd_oauth2state'],
-        // Topic :  https://community.jeedom.com/t/jeedom-config-remove-avec-un-array-bug/110334
-
-        jeedom.config.remove({
-            configuration: 'npd_access_token',
-            plugin: "netatmoPublicData",
-        });
-        jeedom.config.remove({
-            configuration: 'npd_refresh_token',
-            plugin: "netatmoPublicData",
-        });
-        jeedom.config.remove({
-            configuration: 'npd_expires_at',
-            plugin: "netatmoPublicData",
-        });
-        jeedom.config.remove({
-            configuration: 'npd_connection_method',
-            plugin: "netatmoPublicData",
-        });
-        jeedom.config.remove({
-            configuration: 'npd_oauth2state',
-            plugin: "netatmoPublicData",
-        });
-
-        $.fn.showAlert({message: '{{Suppression des tokens existants}}', level: 'success'});
-
-        $('.bt_refreshPluginInfo').trigger('click');
-
-    }
-
-</script>
