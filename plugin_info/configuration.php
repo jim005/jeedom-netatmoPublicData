@@ -26,11 +26,6 @@ $npd_jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCette
 $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
 
 ?>
-<script>
-    var jeedom_id = '<?= $npd_jeedom_id; ?>';
-    var netatmoAuthorizationUrl = '<?= $netatmoAuthorizationUrl ?>';
-</script>
-<script src="/plugins/netatmoPublicData/plugin_info/configuration.js?123" type="application/javascript"></script>
 <form class="form-horizontal">
     <fieldset>
 
@@ -236,3 +231,104 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
     </fieldset>
 </form>
+
+<?php
+
+//var_dump(netatmoPublicData::getNetatmoTokens("hostedApp"));
+
+?>
+
+<script>
+    var jeedom_id = '<?= $npd_jeedom_id; ?>';
+    var netatmoAuthorizationUrl = '<?= $netatmoAuthorizationUrl ?>';
+</script>
+
+
+<script>
+
+
+
+    $("#npd_connection_reset").on('click', function (e) {
+        e.preventDefault();
+
+        // Remove current tokens
+        npdRemoveTokens();
+    });
+
+
+
+    /**
+     * Redirect to Netatmo Authorization URL, for callback
+     */
+    $(".npd_btn_association").on('click', function (e) {
+        e.preventDefault();
+        $.showLoading();
+
+        // Info
+        $.fn.showAlert({
+            message: '{{Association en cours}}',
+            level: 'warning'
+        });
+
+        // Remove current tokens
+        npdRemoveTokens();
+
+        //ownApp OR hostedApp
+        if ($(this).data('npd-connection-method') === "ownApp") {
+
+            // ownApp
+
+            // // Save Client ID and Client ID
+            jeedom.config.save({
+                configuration: $('#npd_own_app').getValues('.configKey')[0],
+                plugin: "netatmoPublicData",
+            });
+
+
+            // Redirect to Netatmo Authorization URL
+            window.open(netatmoAuthorizationUrl, "_blank");
+
+
+        } else {
+            // hostedApp
+
+            jeedom.config.save({
+                configuration: {'npd_connection_method': 'hostedApp'},
+                plugin: "netatmoPublicData",
+            });
+
+            // Redirect to Netatmo Authorization URL
+            window.open("https://gateway.websenso.net/flux/netatmo/AuthorizationCodeGrant.php?jeedom_id=" + jeedom_id, "_blank");
+
+
+        }
+
+    });
+
+
+
+    /**
+     *  Remove Tokens from Jeedom, so 'Associations' action with be available.
+     */
+    function npdRemoveTokens() {
+
+        // Remove current tokens
+        jeedom.config.remove({
+                configuration: {
+                    'npd_access_token': null,
+                    'npd_refresh_token': null,
+                    'npd_expires_at': null,
+                    'npd_connection_method': null,
+                    'npd_oauth2state': null
+                },
+                plugin: "netatmoPublicData",
+            }
+        );
+
+        $.fn.showAlert({message: '{{Suppression des tokens existants}}', level: 'success'});
+
+        $('.bt_refreshPluginInfo').trigger('click');
+
+    }
+
+</script>
