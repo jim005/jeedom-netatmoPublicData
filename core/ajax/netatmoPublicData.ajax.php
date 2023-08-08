@@ -26,7 +26,8 @@ try {
 
     ajax::init();
 
-    // From button on Configuration page
+
+    // From button 'Synchronize' on Configuration page
     if (init('action') == 'createEquipmentsAndCommands') {
 
         //@@todo : ajouter un message d'attente en JS, background orange
@@ -36,6 +37,15 @@ try {
 
         // Run task cron : get sensor's value
         netatmoPublicData::cron15();
+
+        // success
+        ajax::success();
+    }
+
+    // From button 'check link', on Configuration page
+    if (init('action') == 'getNetatmoTokens') {
+
+        netatmoPublicData::getNetatmoTokens();
 
         // success
         ajax::success();

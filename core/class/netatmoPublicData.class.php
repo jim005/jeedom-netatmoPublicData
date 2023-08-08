@@ -134,7 +134,7 @@ class netatmoPublicData extends eqLogic
 
         $npd_expires_at = config::byKey('npd_expires_at', 'netatmoPublicData');
 
-        log::add('netatmoPublicData', 'debug', "alors  : " .  print_r($npd_expires_at, true));
+        log::add('netatmoPublicData', 'debug', "alors  : " . print_r($npd_expires_at, true));
 
         // Request new tokens, if expired
         if (is_null($npd_expires_at) || $npd_expires_at < time()) {

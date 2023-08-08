@@ -6,12 +6,10 @@
 - Tester sur 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
 # Août 2023
-- La version Jeedom Core 4.2 est un pre-réquis. Suppression du support pour version inférieure. 
-- Suppression du SDK Netatmo au profit de l'usage des librairies intégrées dans le Jeedom Core.
-- Méthode d'authentification supplémentaire avec l'application hébergée sur mon serveur. Cette nouvelle méthode ne requière plus le CLIENT_ID, et CLIENT_SECRET !
+- La version Jeedom Core 4.2 est un pre-réquis. Suppression du support pour les versions inférieures. 
+- Suppression du SDK Netatmo au profit de l'usage des librairies génériques (natif en 4.3, embarqué ici pour 4.4).
+- Nouvelle méthode d'authentification - supplémentaire - avec l'application hébergée sur mon serveur. Cette nouvelle méthode ne requière plus le CLIENT_ID, et CLIENT_SECRET !
 - Corrections diverses.
-- Intégration des librairies pour Jeedom Core 4.4 beta
-
 
 # Juillet 2023
 - Changement de la méthode d'authentification : ajout d'un bouton "Association". Suppression des champs mots de passe et e-mail. Merci à @thanaus ❤ pour ses morceaux de codes.️

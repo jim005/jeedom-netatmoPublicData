@@ -23,43 +23,24 @@ if (!isConnect()) {
 }
 
 $npd_jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne");
-$npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
-
+$npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData');
+$npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
+$npdStatus = !empty($npd_access_token) ? true : false;
 ?>
 <form class="form-horizontal">
     <fieldset>
 
         <div class="row">
 
-            <?php
-
-            $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
-            $npdStatus = !empty($npd_access_token) ? true : false;
-
-            ?>
-
             <form class="form-horizontal">
                 <fieldset>
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="npd_client_id">{{Statut}}</label>
-                        <div class="col-sm-2">
-                            <?php
-                            if (!$npdStatus) {
-                                echo ' <span class="label label-danger">NOK</span>';
-                            } else {
-                                echo '<span class="label label-success">OK</span>';
-                            }
-                            ?></div>
-
-                        <?php if ($npdStatus) { ?>
-                            <label class="col-sm-2 control-label">{{Méthode}}</label>
-                            <div class="col-sm-2"> <?= $npd_connection_method ?></div>
-
-                            <label class="col-sm-2 control-label">{{Action}}</label>
-                            <div class="col-sm-2"><a class="btn btn-danger btn-xs" id="npd_connection_reset"> <i
-                                            class="fas fa-times"></i> Débrancher</a></div>
-                        <?php } ?>
+                        <div class="col-sm-3">
+                            <?= (!$npdStatus) ? ' <span class="label label-danger">NOK</span>' : '<span class="label label-success">OK</span>'; ?>
+                            <?= (!$npdStatus || empty($npd_connection_method)) ? '( <a class="" id="npd_connection_get_tokens"> <i class="fas fa-link"></i> Tester la liaison</a> )' : '( <a class="" id="npd_connection_reset"> <i class="fas fa-unlink"></i> Débrancher</a> )'; ?>
+                        </div>
                     </div>
 
                     <br/>
@@ -110,7 +91,6 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                                      id="npd_own_app">
 
                                     <?php
-                                    //@@todo : move to the top
                                     if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
                                         echo 'L\'accès externe Jeedom est requis. Il est non défini ou invalide';
                                     } else {
@@ -170,7 +150,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
                                            data-l1key="npd_log_error_weather_station">
                                 </div>
                                 <label class="col-sm-11 control-label" for="npd_log_error_weather_station"
-                                       style="text-align: left;">{{Désactiver les messages d'alertes lorsqu'une station
+                                       style="text-align: left;">{{Masquer les messages d'alertes lorsqu'une station météo
                                     est indisponible}}</label>
                             </div>
 
@@ -186,7 +166,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
                     <fieldset>
                         <legend>
-                            <i class="fas fa-bug"></i> Informations de connexion (debug)
+                            <i class="fas fa-bug"></i> Infos debug
                         </legend>
 
                         <div class="form-group">
@@ -232,20 +212,64 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
     </fieldset>
 </form>
 
-<?php
-
-//var_dump(netatmoPublicData::getNetatmoTokens("hostedApp"));
-
-?>
 
 <script>
     var jeedom_id = '<?= $npd_jeedom_id; ?>';
     var netatmoAuthorizationUrl = '<?= $netatmoAuthorizationUrl ?>';
-</script>
 
+    /**
+     * get tokens.
+     *
+     */
+    $("#npd_connection_get_tokens").on('click', function (e) {
 
-<script>
+        e.preventDefault();
 
+        $.fn.showAlert({
+            message: '{{Récupération des tokens en cours}}',
+            level: 'warning'
+        });
+
+        // Get configuration method
+        jeedom.config.load({
+            configuration: 'npd_connection_method',
+            plugin: "netatmoPublicData",
+            error: function (error) {
+                $.fn.showAlert({message: error.message, level: 'danger'});
+            },
+            success: function (data) {
+                console.log(data);
+
+                if (data) {
+
+                    // getNetatmoTokens
+                    $.ajax({
+                        type: "POST",
+                        url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
+                        data: {
+                            action: "getNetatmoTokens",
+                        },
+                        dataType: 'json',
+                        global: false,
+                        error: function (request, status, error) {
+                            handleAjaxError(request, status, error);
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            if (data.state != 'ok') {
+                                $.fn.showAlert({message: data.result, level: 'danger', emptyBefore: true});
+                                return;
+                            }
+                            document.getElementsByClassName('bt_refreshPluginInfo')[0].click();
+
+                        }
+                    });
+                } else {
+                    $.fn.showAlert({message: 'Association à établir préalablement', level: 'danger'});
+                }
+            }
+        });
+    });
 
 
     $("#npd_connection_reset").on('click', function (e) {
@@ -254,7 +278,6 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
         // Remove current tokens
         npdRemoveTokens();
     });
-
 
 
     /**
@@ -267,7 +290,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
         // Info
         $.fn.showAlert({
             message: '{{Association en cours}}',
-            level: 'warning'
+            level: 'danger'
         });
 
         // Remove current tokens
@@ -278,15 +301,23 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
             // ownApp
 
-            // // Save Client ID and Client ID
+            // Save Client ID and Client ID
             jeedom.config.save({
                 configuration: $('#npd_own_app').getValues('.configKey')[0],
                 plugin: "netatmoPublicData",
             });
 
+            jeedom.config.save({
+                configuration: {'npd_connection_method': 'ownApp'},
+                plugin: "netatmoPublicData",
+                success: function (data) {
+                    console.log(data);
 
-            // Redirect to Netatmo Authorization URL
-            window.open(netatmoAuthorizationUrl, "_blank");
+                    // Redirect to Netatmo Authorization URL
+                    window.open(netatmoAuthorizationUrl, "_blank");
+
+                },
+            });
 
 
         } else {
@@ -300,11 +331,9 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
             // Redirect to Netatmo Authorization URL
             window.open("https://gateway.websenso.net/flux/netatmo/AuthorizationCodeGrant.php?jeedom_id=" + jeedom_id, "_blank");
 
-
         }
 
     });
-
 
 
     /**
@@ -327,7 +356,7 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 
         $.fn.showAlert({message: '{{Suppression des tokens existants}}', level: 'success'});
 
-        $('.bt_refreshPluginInfo').trigger('click');
+        document.getElementsByClassName('bt_refreshPluginInfo')[0].click();
 
     }
 
