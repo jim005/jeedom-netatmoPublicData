@@ -3,7 +3,7 @@
 // TODO
 - Ajout ( OU PAS ) du support de VOS modules intérieurs ( de type:  NAModule4 : Température and Humidité ). (Thanks to https://github.com/c4software )
 - Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
-- Tester sur 4.4 beta (qui ne gère pas encore les dépendances composer.json)
+- Optimisez sur 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
 # Août 2023
 - La version Jeedom Core 4.2 est un pre-réquis. Suppression du support pour les versions inférieures. 
