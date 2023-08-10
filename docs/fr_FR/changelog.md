@@ -1,12 +1,14 @@
-# Changelog : Netatmo OpenData
+# Changelog : NetatmoOpenData
 
-// TODO
+//@@TODO
 - Ajout ( OU PAS ) du support de VOS modules intérieurs ( de type:  NAModule4 : Température and Humidité ). (Thanks to https://github.com/c4software )
-- Informer si une station a de nouveaux capteurs. (ex: ajout d'un anémomètre par un gentil voisin)
+- Informer si une station a de nouveaux capteurs. (ex : ajout d'un anémomètre par un gentil voisin)
 - Optimisez sur 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
 # Août 2023
-- La version Jeedom Core 4.2 est un pre-réquis. Suppression du support pour les versions inférieures. 
+Cette nouvelle version apporte uniquement des optimisations techniques pour la liaison avec Netatmo: 
+- La version Jeedom Core 4.2 est un preréquis. Suppression du support pour les versions inférieures. 
+- Suppression du Cron toutes les heures. Suppression de 16 appels à Netatmo par jour.  
 - Suppression du SDK Netatmo au profit de l'usage des librairies génériques (natif en 4.3, embarqué ici pour 4.4).
 - Nouvelle méthode d'authentification - supplémentaire - avec l'application hébergée sur mon serveur. Cette nouvelle méthode ne requière plus le CLIENT_ID, et CLIENT_SECRET !
 - Corrections diverses.
@@ -25,9 +27,9 @@
 
 ## Janvier 2021
 - Suppression de 90% des messages envoyés dans le Centre des Messages (ouf !)
-- Le button "Synchronisation" supprime les Commandes qui ne sont pas plus disponibles (Ex : votre voisin n'a pas remis de pîles dans son module extérieur).
+- Le bouton "Synchronisation" supprime les Commandes qui ne sont pas plus disponibles (Ex : votre voisin n'a pas remis de piles dans son module extérieur).
 - Intégration des données extérieures de VOTRE station (pour les chanceux).
-- Ajout d'un TimeOut natif de Jeedom de 60 min sur chaque Equipements. Vous pouvez voir les alertes dans : Analyses > Equipements > Equipements en alerte . (Exemple : votre voisin coupe le Wifi la nuit... vous n'avez pas de données pendant son sommeil).
+- Ajout d'un TimeOut natif de Jeedom de 60 min sur chaque Equipements. Vous pouvez voir les alertes dans : Analyses > Equipements > Equipements en alerte. (Exemple : votre voisin coupe le Wifi la nuit... vous n'avez pas de données pendant son sommeil).
 - Refonte de la mise à jour des données.
 
 Un grand merci à l'[université d'Aix-Marseille](http://www.gap.univ-mrs.fr/miw/) (Campus de Gap, Licence Pro Internet MIW ) qui m'a prêté une station Netatmo pour optimiser ce plugin. 
