@@ -39,7 +39,7 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                         <label class="col-sm-2 control-label" for="npd_client_id">{{Statut}}</label>
                         <div class="col-sm-3">
                             <?= (!$npdStatus) ? ' <span class="label label-danger">NOK</span>' : '<span class="label label-success">OK</span>'; ?>
-                            <?= (!$npdStatus || empty($npd_connection_method)) ? '( <a class="" id="npd_connection_get_tokens"> <i class="fas fa-link"></i> Tester la liaison</a> )' : '( <a class="" id="npd_connection_reset"> <i class="fas fa-unlink"></i> Débrancher</a> )'; ?>
+                            <?= (!$npdStatus || empty($npd_connection_method)) ? '( <a class="" id="npd_connection_get_tokens"> <i class="fas fa-link"></i> Tester la liaison</a> - <a class="" id="npd_connection_reset"> <i class="fas fa-unlink"></i> Débrancher</a> )' : '( <a class="" id="npd_connection_reset"> <i class="fas fa-unlink"></i> Débrancher</a> )'; ?>
                         </div>
                     </div>
 
@@ -150,7 +150,8 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                                            data-l1key="npd_log_error_weather_station">
                                 </div>
                                 <label class="col-sm-11 control-label" for="npd_log_error_weather_station"
-                                       style="text-align: left;">{{Masquer les messages d'alertes lorsqu'une station météo
+                                       style="text-align: left;">{{Masquer les messages d'alertes lorsqu'une station
+                                    météo
                                     est indisponible}}</label>
                             </div>
 
@@ -240,32 +241,32 @@ $npdStatus = !empty($npd_access_token) ? true : false;
             success: function (data) {
                 console.log(data);
 
-                if (data) {
 
-                    // getNetatmoTokens
-                    $.ajax({
-                        type: "POST",
-                        url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
-                        data: {
-                            action: "getNetatmoTokens",
-                        },
-                        dataType: 'json',
-                        global: false,
-                        error: function (request, status, error) {
-                            handleAjaxError(request, status, error);
-                        },
-                        success: function (data) {
-                            console.log(data);
-                            if (data.state != 'ok') {
-                                $.fn.showAlert({message: data.result, level: 'danger', emptyBefore: true});
-                                return;
-                            }
-                            document.getElementsByClassName('bt_refreshPluginInfo')[0].click();
 
+                // getNetatmoTokens
+                $.ajax({
+                    type: "POST",
+                    url: "plugins/netatmoPublicData/core/ajax/netatmoPublicData.ajax.php",
+                    data: {
+                        action: "getNetatmoTokens",
+                    },
+                    dataType: 'json',
+                    global: false,
+                    error: function (request, status, error) {
+                        handleAjaxError(request, status, error);
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        if (data.state != 'ok') {
+                            $.fn.showAlert({message: data.result, level: 'danger', emptyBefore: true});
+                            return;
                         }
-                    });
-                } else {
-                    $.fn.showAlert({message: 'Association à établir préalablement', level: 'danger'});
+                        document.getElementsByClassName('bt_refreshPluginInfo')[0].click();
+
+                    }
+                });
+                if (!data) {
+                    $.fn.showAlert({message: 'Conseils: "Débrancher et relancer la liaison', level: 'danger'});
                 }
             }
         });

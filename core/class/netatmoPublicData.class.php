@@ -76,6 +76,7 @@ class netatmoPublicData extends eqLogic
     {
 
         $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
+        log::add('netatmoPublicData', 'debug', $npd_connection_method);
 
         if ($npd_connection_method === "ownApp") {
 
