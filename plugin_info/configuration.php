@@ -24,7 +24,7 @@ if (!isConnect()) {
 
 $npd_jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne");
 $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData');
-$npd_connection_method_display = config::byKey('npd_connection_method', 'netatmoPublicData','ownApp');
+$npd_connection_method_display = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
 $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
 $npdStatus = !empty($npd_access_token) ? true : false;
 ?>
@@ -38,104 +38,110 @@ $npdStatus = !empty($npd_access_token) ? true : false;
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="npd_client_id">{{Statut}}</label>
-                        <div class="col-sm-3">
+                        <div class="col-sm-10">
                             <?= (!$npdStatus) ? ' <span class="label label-danger">NOK</span>' : '<span class="label label-success">OK</span>'; ?>
-                            <?= (!$npdStatus || empty($npd_connection_method)) ? '( <a class="" id="npd_connection_get_tokens"> <i class="fas fa-link"></i> Tester la liaison</a> - <a class="" id="npd_connection_reset"> <i class="fas fa-unlink"></i> Débrancher</a> )' : '( <a class="" id="npd_connection_reset"> <i class="fas fa-unlink"></i> Débrancher</a> )'; ?>
+                            <?= (!$npdStatus) ? '( <a class="" id="npd_connection_get_tokens"> <i class="fas fa-link"></i> Tester la liaison</a> )' : '( <a class="" id="npd_connection_get_tokens"> <i class="fas fa-link"></i> Tester la liaison</a> - <a class="" id="npd_connection_reset"> <i class="fas fa-unlink"></i> Débrancher</a> )'; ?>
                         </div>
                     </div>
 
                     <br/>
 
 
-                        <div>
+                    <div>
 
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li role="presentation"
-                                    class="<?= ($npd_connection_method_display === "hostedApp") ? "active" : "" ?>"><a
-                                            href="#npd_hosted_app" role="tab" data-toggle="tab"
-                                            style="border-bottom-width: 4px !important;">{{Utilise l'application
-                                        hébergée}}
-                                        (simple)
-                                        (BETA)</a></li>
-                                <li role="presentation"
-                                    class="<?= ($npd_connection_method_display === "ownApp") ? "active" : "" ?>"><a
-                                            href="#npd_own_app" role="tab" data-toggle="tab"
-                                            style="border-bottom-width: 4px !important;">{{Utilise ton application}}
-                                        (expert) </a></li>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation"
+                                class="<?= ($npd_connection_method_display === "hostedApp") ? "active" : "" ?>"><a
+                                        href="#npd_hosted_app" role="tab" data-toggle="tab"
+                                        style="border-bottom-width: 4px !important;">{{Utilise l'application
+                                    hébergée}}
 
-                            </ul>
+                                    <img
+                                            src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
+                                            alt="Logo du plugin netatmoOpenData" style="width: 20px;"></a></li>
+                            <li role="presentation"
+                                class="<?= ($npd_connection_method_display === "ownApp") ? "active" : "" ?>"><a
+                                        href="#npd_own_app" role="tab" data-toggle="tab"
+                                        style="border-bottom-width: 4px !important;">{{Utilise votre application}}
+                                </a></li>
 
-                            <div class="tab-content" style="height: unset !important; padding-top: 2em;">
+                        </ul>
 
-                                <div role="tabpanel"
-                                     class="tab-pane <?= ($npd_connection_method_display === "hostedApp") ? "active" : "" ?>"
-                                     id="npd_hosted_app">
+                        <div class="tab-content" style="height: unset !important; padding-top: 2em;">
+
+                            <div role="tabpanel"
+                                 class="tab-pane <?= ($npd_connection_method_display === "hostedApp") ? "active" : "" ?>"
+                                 id="npd_hosted_app">
+
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label"></label>
+                                    <div class="col-md-6">
+
+                                        <p>⚠️ Vous allez autoriser une application tierce "voisins_data" à récupérer vos
+                                            stations favorites Netatmo, ayant la permission "read_station"
+                                            uniquement. </p>
+                                        <p>Elle est développée et hébergée par l'auteur de ce plugin, en déhors de
+                                            l'écosystème Jeedom.</p>
+                                        <a class="btn btn-success form-control npd_btn_association"
+                                           data-npd-connection-method="hostedApp"><i
+                                                    class="fas fa-link"></i>
+                                            {{Autoriser l'application hébergée}}
+                                            <img
+                                                    src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
+                                                    alt="Logo du plugin netatmoOpenData" style="width: 20px;">
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div role="tabpanel"
+                                 class="tab-pane <?= ($npd_connection_method_display === "ownApp") ? "active" : "" ?>"
+                                 id="npd_own_app">
+
+                                <?php
+                                if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
+                                    echo 'L\'accès externe Jeedom est requis. Il est non défini ou invalide';
+                                } else {
+                                    $netatmoAuthorizationUrl = network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php';
+                                    ?>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label" for="npd_client_id"> {{Client
+                                            ID}}</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="configKey form-control"
+                                                   data-l1key="npd_client_id"
+                                                   id="npd_client_id"
+                                                   placeholder="" autocomplete="off">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-3  control-label" for="npd_client_secret">{{Client
+                                            secret}}</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="configKey form-control"
+                                                   data-l1key="npd_client_secret"
+                                                   id="npd_client_secret" placeholder="" autocomplete="off">
+                                        </div>
+                                    </div>
+
 
                                     <div class="form-group">
                                         <label class="col-md-3 control-label"></label>
                                         <div class="col-md-6">
                                             <a class="btn btn-success form-control npd_btn_association"
-                                               data-npd-connection-method="hostedApp"><i
-                                                        class="fas fa-link"></i>
-                                                {{J'autorise l'application accéder à mes stations favorites Netatmo}}
-                                                <img
-                                                        src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
-                                                        alt="Logo du plugin netatmoOpenData" style="width: 20px;">
-                                            </a>
+                                               data-npd-connection-method="ownApp"><i
+                                                        class="fas fa-link"></i>{{Autoriser votre application Netatmo}}</a>
                                         </div>
                                     </div>
-
-                                </div>
-
-                                <div role="tabpanel"
-                                     class="tab-pane <?= ($npd_connection_method_display === "ownApp") ? "active" : "" ?>"
-                                     id="npd_own_app">
-
-                                    <?php
-                                    if (!filter_var(network::getNetworkAccess('external'), FILTER_VALIDATE_URL)) {
-                                        echo 'L\'accès externe Jeedom est requis. Il est non défini ou invalide';
-                                    } else {
-                                        $netatmoAuthorizationUrl = network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php';
-                                        ?>
-                                        <div class="form-group">
-                                            <label class="col-sm-3 control-label" for="npd_client_id"> {{Client
-                                                ID}}</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="configKey form-control"
-                                                       data-l1key="npd_client_id"
-                                                       id="npd_client_id"
-                                                       placeholder="" autocomplete="off">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="col-sm-3  control-label" for="npd_client_secret">{{Client
-                                                secret}}</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="configKey form-control"
-                                                       data-l1key="npd_client_secret"
-                                                       id="npd_client_secret" placeholder="" autocomplete="off">
-                                            </div>
-                                        </div>
+                                <?php } ?>
 
 
-                                        <div class="form-group">
-                                            <label class="col-md-3 control-label"></label>
-                                            <div class="col-md-6">
-                                                <a class="btn btn-success form-control npd_btn_association"
-                                                   data-npd-connection-method="ownApp"><i
-                                                            class="fas fa-link"></i>{{Association Netatmo}}</a>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
-
-
-                                </div>
                             </div>
-
                         </div>
 
-
+                    </div>
 
 
                     <?php if ($npdStatus) { ?>
@@ -257,7 +263,6 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                 console.log(data);
 
 
-
                 // getNetatmoTokens
                 $.ajax({
                     type: "POST",
@@ -280,9 +285,9 @@ $npdStatus = !empty($npd_access_token) ? true : false;
 
                     }
                 });
-                if (!data) {
-                    $.fn.showAlert({message: 'Pour choisir voir les informmations de connexion, débrancher et relancer la liaison', level: 'warning'});
-                }
+                // if (!data) {
+                //     $.fn.showAlert({message: 'Pour choisir l de connexion, débrancher et relancer la liaison', level: 'warning'});
+                // }
             }
         });
     });
