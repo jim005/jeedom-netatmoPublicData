@@ -266,7 +266,7 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                     }
                 });
                 if (!data) {
-                    $.fn.showAlert({message: 'Conseils: "Débrancher et relancer la liaison', level: 'danger'});
+                    $.fn.showAlert({message: 'Pour choisir voir les informmations de connexion, débrancher et relancer la liaison', level: 'warning'});
                 }
             }
         });
