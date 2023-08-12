@@ -14,10 +14,10 @@ Plugin permettant de récupérer les relevés météo des stations Netatmo (mêm
 # Configuration
 
 ## Liaison entre Jeedom et Netatmo
-Une fois le plugin installée, allez dans la page de Configuration du plugin (Icône "Configuration"). 2 choix s'offre à vous pour récupérer les données de vos stations favorites. 
+Une fois le plugin installée, allez dans la page de Configuration du plugin (Icône "Configuration"). 2 choix s'offrent à vous pour récupérer les données de vos stations favorites. 
 
 ### Méthode n°1 : "L'application hébergée" (simple)
-Clique sur le bouton `J'autorise l'application à l'accès mes stations favorites Netatmo` pour autoriser l'application hébergée NetatmoPublicData a récupérer tes `tokens` d'accès. 
+Clique sur le bouton `J'autorise l'application à accéder mes stations favorites Netatmo` pour autoriser l'application hébergée NetatmoPublicData a récupérer tes `tokens` d'accès. 
 
 Une nouvelle fenêtre s'ouvre, vous autorisez l'application Netatmo, puis vous verrez l'icône verte : ✅. Passez à l'étape suivante "Tester la liason".
 
@@ -48,7 +48,7 @@ Dans le plugin, le boutton `Synchroniser` : permet à votre Jeedom de découvrir
 - Quelle est la différence entre la méthode "L'application hébergée" et la version "Ton application" ?
 >Dans les 2 méthodes, les données des stations sont récupérées directement chez Netatmo. (Votre Jeedom > serveur de Netatmo). 
 >- La version "Ton application" requière la configuration d'un `Client ID`, d'un `Client secret` et un accès externe à Jeedom. Les flux des données se font uniquement entre votre Jeedom et les serveurs de Netatmo. Ceci est la méthode initiale de configuration.
->- La version "L'application hébergée" s'appuie sur une application unique hébergée pour obtenir les `tokens` d'accès. Mon serveur stocke ces `tokens` et permet de les renouveler automatiquement pour vous. Aucune donnée liée à vos stations, vos données personnelles transittent ici. Le script complet sera publié sur Github prochainement.
+>- La version "L'application hébergée" s'appuie sur une application unique hébergée pour obtenir les `tokens` d'accès. Mon serveur stocke ces `tokens` et permet de les renouveler automatiquement pour vous. Aucune donnée liée à vos stations, vos données personnelles transittent ici. Le script complet est publié sur [GitHub](https://github.com/jim005/jeedom-netatmoPublicData-hostedApp).
 
 - Puis-je changer de méthode de connexion sans permettre mes stations ?
 >Oui. Vous pouvez changer de méthode comme vous voulez. Aucun impact sur vos Stations (Equipement) déjà crées et configurées dans vos Scénarii.

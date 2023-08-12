@@ -76,7 +76,7 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                                             <a class="btn btn-success form-control npd_btn_association"
                                                data-npd-connection-method="hostedApp"><i
                                                         class="fas fa-link"></i>
-                                                {{J'autorise l'application à l'accès mes stations favorites Netatmo}}
+                                                {{J'autorise l'application accéder à mes stations favorites Netatmo}}
                                                 <img
                                                         src="/plugins/netatmoPublicData/plugin_info/netatmoPublicData_icon.svg"
                                                         alt="Logo du plugin netatmoOpenData" style="width: 20px;">
