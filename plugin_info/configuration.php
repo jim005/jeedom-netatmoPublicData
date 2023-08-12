@@ -24,6 +24,7 @@ if (!isConnect()) {
 
 $npd_jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne");
 $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData');
+$npd_connection_method_display = config::byKey('npd_connection_method', 'netatmoPublicData','ownApp');
 $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
 $npdStatus = !empty($npd_access_token) ? true : false;
 ?>
@@ -45,19 +46,19 @@ $npdStatus = !empty($npd_access_token) ? true : false;
 
                     <br/>
 
-                    <?php if (!$npdStatus) { ?>
+
                         <div>
 
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation"
-                                    class="<?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"><a
+                                    class="<?= ($npd_connection_method_display === "hostedApp") ? "active" : "" ?>"><a
                                             href="#npd_hosted_app" role="tab" data-toggle="tab"
                                             style="border-bottom-width: 4px !important;">{{Utilise l'application
                                         hébergée}}
                                         (simple)
                                         (BETA)</a></li>
                                 <li role="presentation"
-                                    class="<?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"><a
+                                    class="<?= ($npd_connection_method_display === "ownApp") ? "active" : "" ?>"><a
                                             href="#npd_own_app" role="tab" data-toggle="tab"
                                             style="border-bottom-width: 4px !important;">{{Utilise ton application}}
                                         (expert) </a></li>
@@ -67,7 +68,7 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                             <div class="tab-content" style="height: unset !important; padding-top: 2em;">
 
                                 <div role="tabpanel"
-                                     class="tab-pane <?= ($npd_connection_method === "hostedApp") ? "active" : "" ?>"
+                                     class="tab-pane <?= ($npd_connection_method_display === "hostedApp") ? "active" : "" ?>"
                                      id="npd_hosted_app">
 
                                     <div class="form-group">
@@ -87,7 +88,7 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                                 </div>
 
                                 <div role="tabpanel"
-                                     class="tab-pane <?= ($npd_connection_method === "ownApp") ? "active" : "" ?>"
+                                     class="tab-pane <?= ($npd_connection_method_display === "ownApp") ? "active" : "" ?>"
                                      id="npd_own_app">
 
                                     <?php
@@ -134,7 +135,7 @@ $npdStatus = !empty($npd_access_token) ? true : false;
 
                         </div>
 
-                    <?php } ?>
+
 
 
                     <?php if ($npdStatus) { ?>
@@ -202,6 +203,20 @@ $npdStatus = !empty($npd_access_token) ? true : false;
                             <label class="col-sm-3 control-label">{{An Jeedom ID Crypted (for hosted app)}}</label>
                             <div class="col-sm-6">
                                 <?php echo $npd_jeedom_id; ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{npd_client_id}}</label>
+                            <div class="col-sm-6">
+                                <?= config::byKey('npd_client_id', 'netatmoPublicData'); ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{npd_client_secret}}</label>
+                            <div class="col-sm-6">
+                                <?= config::byKey('npd_client_secret', 'netatmoPublicData'); ?>
                             </div>
                         </div>
 
