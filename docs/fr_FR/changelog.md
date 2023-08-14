@@ -1,9 +1,8 @@
 # Changelog : NetatmoOpenData
 
 //@@TODO
-- Ajout ( OU PAS ) du support de VOS modules intérieurs ( de type:  NAModule4 : Température and Humidité ). (Thanks to https://github.com/c4software )
 - Informer si une station a de nouveaux capteurs. (ex : ajout d'un anémomètre par un gentil voisin)
-- Optimisez sur 4.4 beta (qui ne gère pas encore les dépendances composer.json)
+- Optimiser pour Jeedom Core 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
 # Août 2023
 Cette nouvelle version apporte uniquement des optimisations techniques pour la liaison avec Netatmo: 
