@@ -32,13 +32,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
         if (count($eqLogics) == 0) {
             echo '<br><div class="text-center" style="font-size:1.2em;font-weight:bold;">{{Aucun équipement trouvé, cliquer sur "Synchronisation" pour commencer}}</div>';
         } else {
-            echo '<div class="input-group" style="margin:5px;">';
-            echo '<input class="form-control roundedLeft" placeholder="{{Rechercher}}" id="in_searchEqlogic">';
-            echo '<div class="input-group-btn">';
-            echo '<a id="bt_resetSearch" class="btn" style="width:30px"><i class="fas fa-times"></i></a>';
-            echo '<a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>';
-            echo '</div>';
-            echo '</div>';
+            ?>
+            <div class="input-group" style="margin-bottom:5px;">
+                <input class="form-control roundedLeft" placeholder="{{Rechercher}}" id="in_searchEqlogic"/>
+                <div class="input-group-btn">
+                    <a id="bt_resetObjectSearch" class="btn" style="width:30px"><i class="fas fa-times"></i>
+                    </a><a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1"
+                           data-state="0"><i class="fas fa-grip-lines"></i></a>
+                </div>
+            </div>
+            <?php
             echo '<div class="eqLogicThumbnailContainer">';
             foreach ($eqLogics as $eqLogic) {
                 $opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
@@ -61,15 +64,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
     <div class="col-xs-12 eqLogic" style="display: none;">
         <div class="input-group pull-right" style="display:inline-flex">
             <span class="input-group-btn">
-                <a class="btn btn-default btn-sm eqLogicAction roundedLeft" data-action="configure"><i class="fa fa-cogs"></i> {{Configuration avancée}}</a>
+                <a class="btn btn-default btn-sm eqLogicAction roundedLeft" data-action="configure"><i
+                            class="fa fa-cogs"></i> {{Configuration avancée}}</a>
                 <a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i> {{Sauvegarder}}</a>
-                <a class="btn btn-danger btn-sm eqLogicAction roundedRight" data-action="remove"><i class="fas fa-minus-circle"></i> {{Supprimer}}</a>
+                <a class="btn btn-danger btn-sm eqLogicAction roundedRight" data-action="remove"><i
+                            class="fas fa-minus-circle"></i> {{Supprimer}}</a>
             </span>
         </div>
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fas fa-arrow-circle-left"></i></a></li>
-            <li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-tachometer-alt"></i> {{Equipement}}</a></li>
-            <li role="presentation"><a href="#commandtab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i> {{Commandes}}</a></li>
+            <li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab"
+                                       data-toggle="tab" data-action="returnToThumbnailDisplay"><i
+                            class="fas fa-arrow-circle-left"></i></a></li>
+            <li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab"
+                                                      data-toggle="tab"><i class="fas fa-tachometer-alt"></i>
+                    {{Equipement}}</a></li>
+            <li role="presentation"><a href="#commandtab" aria-controls="home" role="tab" data-toggle="tab"><i
+                            class="fas fa-list"></i> {{Commandes}}</a></li>
         </ul>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="eqlogictab">
@@ -80,8 +90,10 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">{{Nom de la station météo Netatmo}}</label>
                                 <div class="col-sm-6">
-                                    <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;">
-                                    <input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de l'équipement}}">
+                                    <input type="text" class="eqLogicAttr form-control" data-l1key="id"
+                                           style="display : none;">
+                                    <input type="text" class="eqLogicAttr form-control" data-l1key="name"
+                                           placeholder="{{Nom de l'équipement}}">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -114,8 +126,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">{{Options}}</label>
                                 <div class="col-sm-6">
-                                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked>{{Activer}}</label>
-                                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked>{{Visible}}</label>
+                                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr"
+                                                                          data-l1key="isEnable"
+                                                                          checked>{{Activer}}</label>
+                                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr"
+                                                                          data-l1key="isVisible"
+                                                                          checked>{{Visible}}</label>
                                 </div>
                             </div>
                         </div>
@@ -131,7 +147,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">{{Nom}}</label>
                                 <div class="col-sm-6">
-                                    <span class="eqLogicAttr" data-l1key="configuration" data-l2key="station_name"></span>
+                                        <span class="eqLogicAttr" data-l1key="configuration"
+                                              data-l2key="station_name"></span>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -148,13 +165,13 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <div role="tabpanel" class="tab-pane" id="commandtab">
                 <table id="table_cmd" class="table table-bordered table-condensed">
                     <thead>
-                        <tr>
-                            <th class="hidden-xs" style="min-width:50px;width:70px;">ID</th>
-                            <th style="min-width:200px;width:350px;">{{Nom}}</th>
-                            <th>{{Type}}</th>
-                            <th style="min-width:260px;width:300px;">{{Options}}</th>
-                            <th style="min-width:80px;width:200px;"></th>
-                        </tr>
+                    <tr>
+                        <th class="hidden-xs" style="min-width:50px;width:70px;">ID</th>
+                        <th style="min-width:200px;width:350px;">{{Nom}}</th>
+                        <th>{{Type}}</th>
+                        <th style="min-width:260px;width:300px;">{{Options}}</th>
+                        <th style="min-width:80px;width:200px;"></th>
+                    </tr>
                     </thead>
                     <tbody>
                     </tbody>

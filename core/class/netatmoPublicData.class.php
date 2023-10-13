@@ -19,23 +19,23 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
+// @@todo : Pour test sur la version 4.4 beta - en attendant la gestion native des lib composer
+// https://community.jeedom.com/t/debut-de-la-migration-vers-composer-en-live/109920/5?u=jim005
+if (!class_exists('League\OAuth2\Client\Provider\GenericProvider')) {
+    require_once __DIR__ . "/../../vendor/autoload.php";
+}
 
 define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
-require_once(__ROOT_PLUGIN__ . '/../3rdparty/Netatmo-API-PHP/src/Netatmo/autoload.php');
-
 
 /**
  * Class netatmoPublicData
- *
  *
  */
 class netatmoPublicData extends eqLogic
 {
 
-
     /**
      * Variables
-     *
      */
     public static $_netatmoData = null;
 
@@ -46,7 +46,6 @@ class netatmoPublicData extends eqLogic
         "NAModule4" => "CO2, Température et Humidité",  // Outdoor module. Max: 3.
     );
     public static $_encryptConfigKey = array('npd_client_secret', 'npd_password');
-
 
     /**
      * Call every 15 min, by Jeedom Core
@@ -71,74 +70,102 @@ class netatmoPublicData extends eqLogic
     }
 
     /**
-     * Call every hour, by Jeedom Core
+     * Request new tokens
      */
-    public static function cronHourly()
+    public static function getNetatmoTokens()
     {
-        $config = array("client_id" => config::byKey('npd_client_id', 'netatmoPublicData'),
-            "client_secret" => config::byKey('npd_client_secret', 'netatmoPublicData'),
-            "access_token" => config::byKey('npd_access_token', 'netatmoPublicData'),
-            "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'),
-            "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData'),
-            "scope" => 'read_station');
 
-        $client = new Netatmo\Clients\NAWSApiClient($config);
+        $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
+        log::add('netatmoPublicData', 'debug', $npd_connection_method);
 
-        //Authentication with Netatmo server (OAuth2)
-        try {
-            $tokens = $client->getAccessToken();
-        } catch (Netatmo\Exceptions\NAClientException $ex) {
-            log::add('netatmoPublicData', 'error', print_r("cronHourly :: An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE));
+        if ($npd_connection_method === "ownApp") {
+
+            log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens - ownApp');
+
+            $provider = new League\OAuth2\Client\Provider\GenericProvider([
+                'clientId' => config::byKey('npd_client_id', 'netatmoPublicData'),
+                'clientSecret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
+                'redirectUri' => network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php',
+                'urlAuthorize' => 'https://api.netatmo.com/oauth2/authorize',
+                'urlAccessToken' => 'https://api.netatmo.com/oauth2/token',
+                'urlResourceOwnerDetails' => 'https://service.example.com/resource'
+            ]);
+
+            $newAccessToken = $provider->getAccessToken('refresh_token', [
+                'refresh_token' => config::byKey('npd_refresh_token', 'netatmoPublicData'),
+            ]);
+
+            config::save('npd_access_token', $newAccessToken->getToken(), 'netatmoPublicData');
+            config::save('npd_refresh_token', $newAccessToken->getRefreshToken(), 'netatmoPublicData');
+            config::save('npd_expires_at', $newAccessToken->getExpires(), 'netatmoPublicData');
+
         }
 
-        log::add('netatmoPublicData', 'debug', 'cronHourly :: jtokens:' . var_export(array("access_token" => config::byKey('npd_access_token', 'netatmoPublicData'), "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'), "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData')), true));
-        log::add('netatmoPublicData', 'debug', 'cronHourly :: ntokens:' . var_export(array("access_token" => $client->_getAccessToken(), "refresh_token" => $client->_getRefreshToken(), "expires_at" => $client->_getExpiresAt()), true));
+        if ($npd_connection_method === "hostedApp") {
 
-        config::save('npd_access_token', $client->_getAccessToken(), 'netatmoPublicData');
-        config::save('npd_refresh_token', $client->_getRefreshToken(), 'netatmoPublicData');
-        config::save('npd_expires_at', $client->_getExpiresAt(), 'netatmoPublicData');
+            log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens - hostedApp');
+
+            $client = new GuzzleHttp\Client();
+            $response = $client->request("GET", "https://gateway.websenso.net/flux/netatmo/getTokens.php", [
+                "query" => [
+                    "refresh" => true,
+                    "jeedom_id" => crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne"),
+                ],
+            ]);
+
+            $body = $response->getBody();
+            $content_array = json_decode($body, true);
+
+            if ($content_array['state'] === "ok") {
+                config::save('npd_access_token', $content_array['npd_access_token'], 'netatmoPublicData');
+                config::save('npd_refresh_token', $content_array['npd_refresh_token'], 'netatmoPublicData');
+                config::save('npd_expires_at', $content_array['npd_expires_at'], 'netatmoPublicData');
+            }
+
+        }
     }
 
     /**
-     * Get Netatomo data from webservice and stored in $_client
+     * Get Netatmo data from webservice and stored in $_client
      *
      * @return array|mixed
      */
     public function getNetatmoData()
     {
 
-        $scope = Netatmo\Common\NAScopes::SCOPE_READ_STATION;
-        $config = array(
-            'client_id' => config::byKey('npd_client_id', 'netatmoPublicData'),
-            'client_secret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
+        $npd_expires_at = config::byKey('npd_expires_at', 'netatmoPublicData');
 
-            "access_token" => config::byKey('npd_access_token', 'netatmoPublicData'),
-            "refresh_token" => config::byKey('npd_refresh_token', 'netatmoPublicData'),
-            "expires_at" => config::byKey('npd_expires_at', 'netatmoPublicData'),
+        log::add('netatmoPublicData', 'debug', "alors  : " . print_r($npd_expires_at, true));
 
-            'scope' => $scope,
-        );
-
-        $client = new Netatmo\Clients\NAWSApiClient($config);
-
-        //Authentication with Netatmo server (OAuth2)
-        try {
-            $tokens = $client->getAccessToken();
-        } catch (Netatmo\Exceptions\NAClientException $ex) {
-            log::add('netatmoPublicData', 'error', print_r("An error happened while trying to retrieve your tokens: " . $ex->getMessage() . "\n", TRUE));
+        // Request new tokens, if expired
+        if (is_null($npd_expires_at) || $npd_expires_at < time()) {
+            netatmoPublicData::getNetatmoTokens();
         }
 
-        //Retrieve user's Weather Stations Information
-        try {
-            //retrieve all stations belonging to the user, and also his favorite ones
-            $data = $client->getData(NULL, TRUE);
-            log::add('netatmoPublicData', 'info', "FETCH Netatamo API to get new data");
-            log::add('netatmoPublicData', 'debug', print_r($client, true));
-            return $data;
-        } catch (Netatmo\Exceptions\NAClientException $ex) {
-            log::add('netatmoPublicData', 'error', print_r("Netatmo webservice : An error occured while retrieving data: " . $ex->getMessage() . "\n", TRUE));
+        // Retrieve user's Weather Stations data
+        $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
+
+        $client = new GuzzleHttp\Client();
+        $response = $client->request("GET", "https://api.netatmo.com/api/getstationsdata", [
+            "query" => [
+                "get_favorites" => "true",
+                "access_token" => $npd_access_token,
+            ],
+        ]);
+
+        $body = $response->getBody();
+        $content_array = json_decode($body, true);
+
+        if (!empty($content_array['body'])) {
+
+            log::add('netatmoPublicData', 'info', "FETCH Netatmo API to get new data");
+            log::add('netatmoPublicData', 'debug', print_r($content_array, true));
+
+            return $content_array['body'];
         }
+
     }
+
 
     /**
      * Create equipments (and their commands) from Netatmo favorites stations
@@ -315,17 +342,8 @@ class netatmoPublicData extends eqLogic
                 }
             }
 
-            //@@todo : to be removed, as V4 can adjust automatically widget from their content : https://github.com/jeedom/core/blob/V4-stable/docs/fr_FR/changelog.md
             /*
              * Adjust widget size (width and height)
-             *
-             * For V3 :
-             * width : 392px
-             * 1 lines => height : 92px
-             * 3 lines => height : 232px
-             * 4 lines => height : 272px
-             *
-             * For V4 :
              * width : 312px
              * 1 lines => height : 152px
              * 3 lines => height : 352px
@@ -333,32 +351,16 @@ class netatmoPublicData extends eqLogic
              */
             if ($new_equipment) {
 
-                if ((float)getVersion(null) < 4) {
-                    log::add('netatmoPublicData', 'debug', "Jeedom v3  ( < v4 )");
-                    $eqLogic->setDisplay('width', '392px');
-                    switch ($widget_line) {
-                        case 1:
-                            $eqLogic->setDisplay('height', '92px');
-                            break;
-                        case 3:
-                            $eqLogic->setDisplay('height', '232px');
-                            break;
-                        default:
-                            $eqLogic->setDisplay('height', '272px');
-                    }
-                } else {
-                    log::add('netatmoPublicData', 'debug', "Jeedom v4 ( >= v4 )");
-                    $eqLogic->setDisplay('width', '312px');
-                    switch ($widget_line) {
-                        case 1:
-                            $eqLogic->setDisplay('height', '152px');
-                            break;
-                        case 3:
-                            $eqLogic->setDisplay('height', '352px');
-                            break;
-                        default:
-                            $eqLogic->setDisplay('height', '452px');
-                    }
+                $eqLogic->setDisplay('width', '312px');
+                switch ($widget_line) {
+                    case 1:
+                        $eqLogic->setDisplay('height', '152px');
+                        break;
+                    case 3:
+                        $eqLogic->setDisplay('height', '352px');
+                        break;
+                    default:
+                        $eqLogic->setDisplay('height', '452px');
                 }
 
                 $eqLogic->save();
@@ -392,10 +394,8 @@ class netatmoPublicData extends eqLogic
     /**
      * Update all commands values with Netatmo latest values.
      */
-    public
-    function updateValues()
+    public function updateValues()
     {
-
 
         if (empty(self::$_netatmoData)) {
             log::add('netatmoPublicData', 'debug', "Variable with Netatmo's data is empty... so need to be fetched.");
@@ -549,9 +549,8 @@ class netatmoPublicData extends eqLogic
         }
 
 
-        // @@todo : inform users of new sensors availables from their favoris station. ex : an new anemometer has been added...
-        // Loops overs Netatomo data, and find missing Command => Send Message.
-
+        // @@todo : inform user of new sensors available from theirs favorites stations. ex : an new anemometer has been added...
+        // Loops overs Netatmo data, and find missing Command => Send Message.
 
         // Update Widget
         $this->refreshWidget();
@@ -625,11 +624,6 @@ class netatmoPublicData extends eqLogic
             $NetatmoInfo->setIsVisible(true);
             $NetatmoInfo->setIsHistorized(true);
 
-            // For V3, don't use new widgets
-            if ((float)getVersion(null) < 4 and in_array($template_dashboard, array('rain', 'HygroThermographe', 'compass'))) {
-                $template_dashboard = 'tile';
-                $template_mobile = 'tile';
-            }
             $NetatmoInfo->setTemplate('dashboard', $template_dashboard);
             $NetatmoInfo->setTemplate('mobile', $template_mobile);
 

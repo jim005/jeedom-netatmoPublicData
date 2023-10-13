@@ -1,7 +1,7 @@
 {
   "id": "netatmoPublicData",
   "name": "Netatmo OpenData",
-  "description": {
+   "description": 
     "fr_FR": "Vos voisins ont une station météo Netatmo dans leur jardin (et pas vous ) ?\nRécupérer leurs données pour votre Jeedom (température, pression, pluie, vent...) et gratuitement.",
     "en_US": "Do your neighbors have a Netatmo weather station in their garden (and you don't)?\nGet their data for your Jeedom (temperature, pressure, rain, wind...) for free.",
     "es_ES": "¿Tus vecinos tienen una estación meteorológica Netatmo en su jardín (y tú no)?\nObtén gratis sus datos para tu Jeedom (temperatura, presión, lluvia, viento, etc.).",
@@ -14,10 +14,10 @@
     "tr": "Vos voisins ont une station météo Netatmo dans leur jardin (et pas vous ) ?\nRécupérer leurs données pour votre Jeedom (température, pression, pluie, vent...) et gratuitement."
   },
   "utilization": "Depuis la carte Netatmo, sélectionnez jusqu'à 5 stations favorites, puis elles seront visibles dans Jeedom et utilisable dans vos Scénarii, Vues, Designs, etc.  Notamment : Température, Pression, Vent ( Vitesse + Direction), Rafales de vent ( Vitesse + Direction), Pluie (Temps réel + sur 1h + sur la journée )",
-  "version": "1.3",
+  "version": "2.0",
   "licence": "AGPL",
   "author": "Jim005",
-  "require": "3.2",
+  "require": "4.2",
   "category": "weather",
   "hasDependency": false,
   "hasOwnDeamon": false,

@@ -1,4 +1,12 @@
-# Changelog : Netatmo OpenData
+# Changelog : NetatmoOpenData
+
+# August 2023
+This new version brings only technical optimizations for the link with Netatmo: 
+- Jeedom Core 4.2 is a prerequisite. Removal of support for lower versions. 
+- Removal of the hourly Cron. No more 16 calls to Netatmo per day.  
+- Netatmo SDK no longer required, instead using generic libraries (native in 4.3, embedded here for 4.4).
+- New - additional - authentication method with the application hosted on my server. This new method no longer requires CLIENT_ID and CLIENT_SECRET!
+- Miscellaneous corrections.
 
 # July 2023
 - Authentication method changed: "Association" button added. Removed password and e-mail fields. Thanks to @thanaus ❤ for his code snippets.️
