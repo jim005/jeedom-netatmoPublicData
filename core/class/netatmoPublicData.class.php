@@ -138,7 +138,7 @@ class netatmoPublicData extends eqLogic
 
         $npd_expires_at = config::byKey('npd_expires_at', 'netatmoPublicData');
 
-        log::add('netatmoPublicData', 'debug', "Token valid until: " . print_r($npd_expires_at, true) .  " - in " . print_r(round((time() - $npd_expires_at) / 60 * -1), true) . " minute(s)");
+        log::add('netatmoPublicData', 'debug', "Token valid until: " . print_r($npd_expires_at, true) . " - in " . print_r(round((time() - $npd_expires_at) / 60 * -1), true) . " minute(s)");
 
         // Request new tokens, if expired
         if (is_null($npd_expires_at) || $npd_expires_at < time()) {
@@ -158,7 +158,7 @@ class netatmoPublicData extends eqLogic
                 ]);
 
                 $body = $response->getBody();
-                $content_array = json_decode($body, true);
+                return json_decode($body, true);
             } catch (ClientException $e) {
                 if ($e->getResponse()->getStatusCode() == 403) {
                     // Handle the 403 Forbidden error here, for example, request a new token
@@ -175,19 +175,22 @@ class netatmoPublicData extends eqLogic
                 // Handle other exceptions (e.g., network issues) here.
             }
 
-            if (!empty($content_array['body'])) {
-
-                log::add('netatmoPublicData', 'info', "FETCH Netatmo API to get new data");
-                log::add('netatmoPublicData', 'debug', print_r($content_array, true));
-
-                return $content_array['body'];
-            }
+            return false;
         }
 
         // Initial function call
         $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
-        performRequestWithToken($npd_access_token);
+        $content_array = performRequestWithToken($npd_access_token);
 
+        if (!empty($content_array['body'])) {
+
+            log::add('netatmoPublicData', 'info', "FETCH Netatmo API to get new data");
+            log::add('netatmoPublicData', 'debug', print_r($content_array, true));
+
+            return $content_array['body'];
+        }
+
+        return false;
     }
 
 
