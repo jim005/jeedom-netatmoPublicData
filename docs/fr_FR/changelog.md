@@ -5,7 +5,7 @@
 - Optimiser pour Jeedom Core 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
 # Novembre 2023 
-- Optimisation du code lors de token expirée. => moins de message dans le Centre des Messages :-)  
+- Optimisation du code lors de token expiré. => moins de message dans le Centre des Messages :-)  
 
 # Août 2023
 Cette nouvelle version apporte uniquement des optimisations techniques pour la liaison avec Netatmo: 
