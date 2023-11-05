@@ -1,5 +1,8 @@
 # Changelog : NetatmoOpenData
 
+# November 2023 
+- Code optimization when token has expired. => less message in Message Center :-) 
+
 # August 2023
 This new version brings only technical optimizations for the link with Netatmo: 
 - Jeedom Core 4.2 is a prerequisite. Removal of support for lower versions. 

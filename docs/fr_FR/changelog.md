@@ -4,6 +4,9 @@
 - Informer si une station a de nouveaux capteurs. (ex : ajout d'un anémomètre par un gentil voisin)
 - Optimiser pour Jeedom Core 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
+# Novembre 2023 
+- Optimisation du code lors de token expirée. => moins de message dans le Centre des Messages :-)  
+
 # Août 2023
 Cette nouvelle version apporte uniquement des optimisations techniques pour la liaison avec Netatmo: 
 - La version Jeedom Core 4.2 est un preréquis. Suppression du support pour les versions inférieures. 
