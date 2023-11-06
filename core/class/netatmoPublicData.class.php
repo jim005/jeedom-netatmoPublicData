@@ -27,6 +27,9 @@ if (!class_exists('League\OAuth2\Client\Provider\GenericProvider')) {
 
 define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+
 /**
  * Class netatmoPublicData
  *
@@ -135,7 +138,7 @@ class netatmoPublicData extends eqLogic
 
         $npd_expires_at = config::byKey('npd_expires_at', 'netatmoPublicData');
 
-        log::add('netatmoPublicData', 'debug', "alors  : " . print_r($npd_expires_at, true));
+        log::add('netatmoPublicData', 'debug', "Token valid until: " . print_r($npd_expires_at, true) . " - in " . print_r(round((time() - $npd_expires_at) / 60 * -1), true) . " minute(s)");
 
         // Request new tokens, if expired
         if (is_null($npd_expires_at) || $npd_expires_at < time()) {
@@ -143,18 +146,41 @@ class netatmoPublicData extends eqLogic
         }
 
         // Retrieve user's Weather Stations data
+        function performRequestWithToken($npd_access_token)
+        {
+            $client = new GuzzleHttp\Client();
+            try {
+                $response = $client->request("GET", "https://api.netatmo.com/api/getstationsdata", [
+                    "query" => [
+                        "get_favorites" => "true",
+                        "access_token" => $npd_access_token,
+                    ],
+                ]);
+
+                $body = $response->getBody();
+                return json_decode($body, true);
+            } catch (ClientException $e) {
+                if ($e->getResponse()->getStatusCode() == 403) {
+                    // Handle the 403 Forbidden error here, for example, request a new token
+                    netatmoPublicData::getNetatmoTokens();
+                    $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
+
+                    // Retry the function call with the new token
+                    performRequestWithToken($npd_access_token);
+                } else {
+                    // Handle other client errors differently, if needed.
+                    log::add('netatmoPublicData', 'debug', "Error Status Code : " . print_r($e->getResponse(), true));
+                }
+            } catch (\Exception $e) {
+                // Handle other exceptions (e.g., network issues) here.
+            }
+
+            return false;
+        }
+
+        // Initial function call
         $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
-
-        $client = new GuzzleHttp\Client();
-        $response = $client->request("GET", "https://api.netatmo.com/api/getstationsdata", [
-            "query" => [
-                "get_favorites" => "true",
-                "access_token" => $npd_access_token,
-            ],
-        ]);
-
-        $body = $response->getBody();
-        $content_array = json_decode($body, true);
+        $content_array = performRequestWithToken($npd_access_token);
 
         if (!empty($content_array['body'])) {
 
@@ -164,6 +190,7 @@ class netatmoPublicData extends eqLogic
             return $content_array['body'];
         }
 
+        return false;
     }
 
 
@@ -172,7 +199,8 @@ class netatmoPublicData extends eqLogic
      *
      * @throws Exception
      */
-    public static function createEquipmentsAndCommands()
+    public
+    static function createEquipmentsAndCommands()
     {
 
         log::add('netatmoPublicData', 'debug', __FUNCTION__);
@@ -394,7 +422,8 @@ class netatmoPublicData extends eqLogic
     /**
      * Update all commands values with Netatmo latest values.
      */
-    public function updateValues()
+    public
+    function updateValues()
     {
 
         if (empty(self::$_netatmoData)) {
@@ -560,7 +589,8 @@ class netatmoPublicData extends eqLogic
      * @param $netatmo_module
      * @param $module_type
      */
-    public static function sendErrorMessage($eqLogic, $netatmo_module, $module_type)
+    public
+    static function sendErrorMessage($eqLogic, $netatmo_module, $module_type)
     {
 
         // Record message, if user didn't disabled it this notification
