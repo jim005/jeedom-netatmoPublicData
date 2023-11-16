@@ -108,11 +108,16 @@ class netatmoPublicData extends eqLogic
 
             log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens - hostedApp');
 
+            $jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne");
+
             $client = new GuzzleHttp\Client();
             $response = $client->request("GET", "https://gateway.websenso.net/flux/netatmo/getTokens.php", [
                 "query" => [
                     "refresh" => true,
-                    "jeedom_id" => crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne"),
+                    "jeedom_id" => $jeedom_id,
+                ],
+                "headers" => [
+                    "Referer" => "Jeedom " . $jeedom_id,
                 ],
             ]);
 
