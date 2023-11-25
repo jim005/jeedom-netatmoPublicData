@@ -5,6 +5,7 @@
 - Optimiser pour Jeedom Core 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
 # Novembre 2023 
+- Optimisation sur les requêtes envoyées pour ceux en avec version hébergée / hostedApp. 
 - Optimisation du code lors de token expiré. => moins de message dans le Centre des Messages :-)  
 
 # Août 2023
