@@ -1,6 +1,7 @@
 # Changelog : NetatmoOpenData
 
 # November 2023 
+- Code optimization on request for user which hostedApp method 
 - Code optimization when token has expired. => less message in Message Center :-) 
 
 # August 2023
