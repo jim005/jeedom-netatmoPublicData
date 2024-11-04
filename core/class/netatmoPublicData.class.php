@@ -139,7 +139,7 @@ class netatmoPublicData extends eqLogic
      *
      * @return array|mixed
      */
-    public function getNetatmoData()
+    public static function getNetatmoData()
     {
 
         $npd_expires_at = config::byKey('npd_expires_at', 'netatmoPublicData');
