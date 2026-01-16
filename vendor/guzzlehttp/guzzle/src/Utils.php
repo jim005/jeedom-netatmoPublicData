@@ -113,7 +113,8 @@ final class Utils
      */
     public static function defaultUserAgent(): string
     {
-        return sprintf('GuzzleHttp/%d', ClientInterface::MAJOR_VERSION);
+        // return sprintf('GuzzleHttp/%d', ClientInterface::MAJOR_VERSION);
+        return 'GuzzleHttp/7 Jeedom/4'; //  https://community.jeedom.com/t/erreur-sur-la-fonction-cron15-du-plugin-undefined-class-constant-major-version/146119?u=jim005
     }
 
     /**
