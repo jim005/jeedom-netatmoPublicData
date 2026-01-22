@@ -1,5 +1,13 @@
 {
     "require": {
-        "league/oauth2-client": "^2.7"
+        "league/oauth2-client": "^2.7",
+        "cweagans/composer-patches": "^1.7"
+    },
+    "extra": {
+        "patches": {
+            "guzzlehttp/guzzle": {
+                "Fix MAJOR_VERSION constant issue on some Jeedom installations": "patches/guzzle-user-agent.patch"
+            }
+        }
     }
 }
