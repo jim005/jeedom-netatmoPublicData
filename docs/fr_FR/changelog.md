@@ -4,6 +4,15 @@
 - Informer si une station a de nouveaux capteurs. (ex : ajout d'un anémomètre par un gentil voisin)
 - Optimiser pour Jeedom Core 4.4 beta (qui ne gère pas encore les dépendances composer.json)
 
+# Septembre 2026
+- Correction de l'erreur « Class netatmoPublicData does not exist ». Elle survenait lorsque l'installation des dépendances du plugin échouait sous PHP 7.4, laissant le plugin hors service.
+- Compatibilité vérifiée de PHP 7.4 à PHP 8.3, sur Jeedom 4.6 et supérieur.
+- Correction de plusieurs erreurs fatales sous PHP 8 : plantage sur une installation neuve ou après un clic sur « Débrancher », et lorsqu'une station est retirée de vos favoris Netatmo.
+- Le plugin ne s'interrompt plus quand l'API Netatmo est momentanément injoignable. L'erreur est journalisée et la récupération des données reprend au cycle suivant.
+- Correction de la taille des widgets, qui pouvait être appliquée à tort à des stations existantes lors d'une synchronisation.
+- Le message signalant un module injoignable affiche à nouveau le type de la station principale.
+- Mise à jour des librairies embarquées (Guzzle, OAuth2).
+
 # Novembre 2023 
 - Optimisation sur les requêtes envoyées pour ceux en avec version hébergée / hostedApp. 
 - Optimisation du code lors de token expiré. => moins de message dans le Centre des Messages :-)  
