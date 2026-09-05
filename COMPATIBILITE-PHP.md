@@ -59,6 +59,35 @@ Détail corroborant : PHP 8 formate ce message avec des guillemets (`Class "neta
 not exist`), PHP 7.4 sans. La formulation rapportée par les utilisateurs est celle de PHP 7.4 —
 exactement la population où l'installation des dépendances échouait.
 
+### Confirmation par les logs d'installation d'un utilisateur
+
+Les logs remontés le 5 septembre 2026 (Jeedom, PHP 7.4.33, Composer 2.10.3) valident la chaîne
+étape par étape :
+
+```
++ cd /var/www/html/.../plugins/netatmoPublicData
++ rm -rf vendor
++ sudo composer install --no-ansi --no-dev --no-interaction ...
+Verifying lock file contents can be installed on current platform.
+Your lock file does not contain a compatible set of packages. Please run composer update.
+Problem 1
+- symfony/deprecation-contracts is locked to version v3.7.1 ...
+- symfony/deprecation-contracts v3.7.1 requires php >=8.1 -> your php version (7.4.33) does not satisfy that requirement.
+Problem 2
+- guzzlehttp/psr7 2.13.0 requires symfony/deprecation-contracts ^2.5 || ^3.0 ...
++ php .../jeecli.php plugin dependancy_end netatmoPublicData
+PHP Warning: require_once(.../core/class/../../vendor/autoload.php): failed to open stream:
+             No such file or directory in .../core/class/netatmoPublicData.class.php on line 25
+```
+
+Le `chown` qui suit l'installation liste `3rdparty CLAUDE.md LICENSE README.md composer.json
+composer.lock core desktop docs notesDev.md plugin_info` — sans `vendor`, qui n'a effectivement pas
+été recréé.
+
+Cette panne a été reproduite à l'identique en forçant la plateforme à PHP 7.4.33 : mêmes Problem 1
+et Problem 2, mêmes paquets. Avec le `composer.lock` corrigé, dans les mêmes conditions,
+l'installation des dix paquets est vérifiée sans erreur.
+
 ### Correctifs appliqués
 
 - `composer.json` déclare `"php": ">=7.4"` et épingle `config.platform.php = "7.4"`, sur le modèle du
@@ -139,5 +168,7 @@ Deux options pour supprimer le risque à la source : un workflow GitHub Actions 
 commite `vendor/` sur les PR Dependabot, ou l'abandon du `vendor/` versionné maintenant que
 `packages.json` couvre l'installation. Le dépôt n'a aujourd'hui aucun répertoire `.github/`.
 
-Note annexe : `CLAUDE.md` documente un répertoire `3rdparty/Netatmo-API-PHP/` absent du dépôt, et
-`.gitmodules` est vide.
+Deux observations annexes tirées des mêmes logs. Un répertoire `3rdparty` est présent sur les
+installations des utilisateurs alors qu'il est absent du dépôt et que `.gitmodules` est vide :
+reliquat d'une version antérieure, que `CLAUDE.md` documente encore. Et `CLAUDE.md` comme
+`notesDev.md` sont livrés en production chez les utilisateurs, alors qu'ils sont internes.
