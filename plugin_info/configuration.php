@@ -27,6 +27,10 @@ $npd_connection_method = config::byKey('npd_connection_method', 'netatmoPublicDa
 $npd_connection_method_display = config::byKey('npd_connection_method', 'netatmoPublicData', 'ownApp');
 $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
 $npdStatus = !empty($npd_access_token) ? true : false;
+
+// Initialisée ici car seule la branche « accès externe valide » plus bas lui donne une valeur,
+// alors qu'elle est toujours lue par le bloc <script> en fin de page.
+$netatmoAuthorizationUrl = '';
 ?>
 <form class="form-horizontal">
     <fieldset>

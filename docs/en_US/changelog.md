@@ -1,5 +1,14 @@
 # Changelog : NetatmoOpenData
 
+# September 2026
+- Fixed the "Class netatmoPublicData does not exist" error. It occurred when the plugin's dependency installation failed under PHP 7.4, leaving the plugin unusable.
+- Compatibility verified from PHP 7.4 to PHP 8.3, on Jeedom 4.6 and above.
+- Fixed several fatal errors under PHP 8: crash on a fresh install or after clicking "Disconnect", and when a station is removed from your Netatmo favourites.
+- The plugin no longer stops when the Netatmo API is briefly unreachable. The error is logged and data retrieval resumes on the next cycle.
+- Fixed widget sizing, which could wrongly be applied to existing stations during a synchronization.
+- The unreachable-module message shows the main station type again.
+- Updated bundled libraries (Guzzle, OAuth2).
+
 # November 2023 
 - Code optimization on request for user which hostedApp method 
 - Code optimization when token has expired. => less message in Message Center :-) 

@@ -19,13 +19,26 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
-// @@todo : Pour test sur la version 4.4 beta - en attendant la gestion native des lib composer
+// Jeedom >= 4.4 installe lui-même les dépendances Composer (voir plugin_info/packages.json)
+// et supprime au passage le vendor/ livré avec le plugin. Sur les socles plus anciens, ou tant
+// que l'installation des dépendances n'a pas été lancée, on retombe sur le vendor/ embarqué.
 // https://community.jeedom.com/t/debut-de-la-migration-vers-composer-en-live/109920/5?u=jim005
 if (!class_exists('League\OAuth2\Client\Provider\GenericProvider')) {
-    require_once __DIR__ . "/../../vendor/autoload.php";
+    // file_exists() plutôt qu'un require_once sec : si l'installation des dépendances a échoué,
+    // le vendor/ est absent et un require fatal empêcherait la déclaration de la classe
+    // netatmoPublicData. Jeedom la cherche ensuite via ReflectionClass et remonte
+    // « Class netatmoPublicData does not exist », qui masque la vraie cause.
+    if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
+        require_once __DIR__ . '/../../vendor/autoload.php';
+    } else {
+        log::add('netatmoPublicData', 'error',
+            __('Dépendances Composer absentes. Relancez l\'installation des dépendances depuis la page du plugin.', __FILE__));
+    }
 }
 
-define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
+if (!defined('__ROOT_PLUGIN__')) {
+    define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
+}
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -73,6 +86,24 @@ class netatmoPublicData extends eqLogic
     }
 
     /**
+     * Build a Guzzle client with an explicit User-Agent.
+     *
+     * Le User-Agent est fixé ici, et non plus par un patch dans vendor/guzzlehttp : Jeedom
+     * supprime et réinstalle vendor/ à chaque installation des dépendances, toute modification
+     * de ce répertoire est donc perdue. Le fixer explicitement évite en plus l'appel à
+     * Utils::defaultUserAgent(), qui échoue sur « Undefined class constant MAJOR_VERSION »
+     * lorsqu'un Guzzle antérieur à la 7 est déjà chargé par le core.
+     *
+     * @return GuzzleHttp\Client
+     */
+    private static function getHttpClient()
+    {
+        return new Client([
+            'headers' => array('User-Agent' => 'GuzzleHttp/7 Jeedom/4'),
+        ]);
+    }
+
+    /**
      * Request new tokens
      */
     public static function getNetatmoTokens()
@@ -111,7 +142,7 @@ class netatmoPublicData extends eqLogic
             $jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne");
             $npd_local_version = update::byLogicalId('netatmoPublicData')->getLocalVersion();
 
-            $client = new GuzzleHttp\Client();
+            $client = self::getHttpClient();
             $response = $client->request("GET", "https://gateway.websenso.net/flux/netatmo/getTokens.php", [
                 "query" => [
                     "refresh" => true,
@@ -125,13 +156,56 @@ class netatmoPublicData extends eqLogic
             $body = $response->getBody();
             $content_array = json_decode($body, true);
 
-            if ($content_array['state'] === "ok") {
+            if (is_array($content_array) && isset($content_array['state']) && $content_array['state'] === "ok") {
                 config::save('npd_access_token', $content_array['npd_access_token'], 'netatmoPublicData');
                 config::save('npd_refresh_token', $content_array['npd_refresh_token'], 'netatmoPublicData');
                 config::save('npd_expires_at', $content_array['npd_expires_at'], 'netatmoPublicData');
             }
 
         }
+    }
+
+    /**
+     * Retrieve user's Weather Stations data.
+     *
+     * Méthode statique et non plus fonction déclarée dans le corps de getNetatmoData() : une
+     * fonction imbriquée est déclarée dans l'espace global, et le second appel de la méthode
+     * dans la même requête provoquait « Cannot redeclare performRequestWithToken() ».
+     *
+     * @param string $npd_access_token
+     * @param bool $retryOn403 Autorise une seule relance après renouvellement du token
+     * @return array|false
+     */
+    private static function performRequestWithToken($npd_access_token, $retryOn403 = true)
+    {
+        try {
+            $response = self::getHttpClient()->request("GET", "https://api.netatmo.com/api/getstationsdata", [
+                "query" => [
+                    "get_favorites" => "true",
+                    "access_token" => $npd_access_token,
+                ],
+            ]);
+
+            $content_array = json_decode($response->getBody(), true);
+
+            return is_array($content_array) ? $content_array : false;
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 403 && $retryOn403) {
+                // Token refusé : on en demande un nouveau et on rejoue la requête une seule fois.
+                netatmoPublicData::getNetatmoTokens();
+                $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
+
+                // Le return manquait ici : le token renouvelé était obtenu puis perdu.
+                return self::performRequestWithToken($npd_access_token, false);
+            }
+
+            log::add('netatmoPublicData', 'error', "Error Status Code : " . $e->getResponse()->getStatusCode());
+        } catch (\Exception $e) {
+            // Network issue, timeout, DNS...
+            log::add('netatmoPublicData', 'error', "Appel API Netatmo en échec : " . $e->getMessage());
+        }
+
+        return false;
     }
 
     /**
@@ -142,51 +216,21 @@ class netatmoPublicData extends eqLogic
     public static function getNetatmoData()
     {
 
-        $npd_expires_at = config::byKey('npd_expires_at', 'netatmoPublicData');
+        // Cast explicite : config::byKey() renvoie '' (et non null) quand la clé est absente,
+        // par exemple après un « Débrancher » ou sur une installation neuve. En PHP 8,
+        // time() - '' lève une TypeError fatale (« Unsupported operand types »).
+        $npd_expires_at = (int)config::byKey('npd_expires_at', 'netatmoPublicData', 0);
 
-        log::add('netatmoPublicData', 'debug', "Token valid until: " . print_r($npd_expires_at, true) . " - in " . print_r(round((time() - $npd_expires_at) / 60 * -1), true) . " minute(s)");
+        log::add('netatmoPublicData', 'debug', "Token valid until: " . print_r($npd_expires_at, true) . " - in " . print_r(round(($npd_expires_at - time()) / 60), true) . " minute(s)");
 
-        // Request new tokens, if expired
-        if (is_null($npd_expires_at) || $npd_expires_at < time()) {
+        // Request new tokens, if expired (or never obtained)
+        if ($npd_expires_at <= 0 || $npd_expires_at < time()) {
             netatmoPublicData::getNetatmoTokens();
         }
 
-        // Retrieve user's Weather Stations data
-        function performRequestWithToken($npd_access_token)
-        {
-            $client = new GuzzleHttp\Client();
-            try {
-                $response = $client->request("GET", "https://api.netatmo.com/api/getstationsdata", [
-                    "query" => [
-                        "get_favorites" => "true",
-                        "access_token" => $npd_access_token,
-                    ],
-                ]);
-
-                $body = $response->getBody();
-                return json_decode($body, true);
-            } catch (ClientException $e) {
-                if ($e->getResponse()->getStatusCode() == 403) {
-                    // Handle the 403 Forbidden error here, for example, request a new token
-                    netatmoPublicData::getNetatmoTokens();
-                    $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
-
-                    // Retry the function call with the new token
-                    performRequestWithToken($npd_access_token);
-                } else {
-                    // Handle other client errors differently, if needed.
-                    log::add('netatmoPublicData', 'debug', "Error Status Code : " . print_r($e->getResponse(), true));
-                }
-            } catch (\Exception $e) {
-                // Handle other exceptions (e.g., network issues) here.
-            }
-
-            return false;
-        }
-
-        // Initial function call
+        // Initial call
         $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
-        $content_array = performRequestWithToken($npd_access_token);
+        $content_array = self::performRequestWithToken($npd_access_token);
 
         if (!empty($content_array['body'])) {
 
@@ -213,9 +257,19 @@ class netatmoPublicData extends eqLogic
         self::$_netatmoData = self::getNetatmoData();
 
 
+        // security : getNetatmoData() renvoie false si l'API est injoignable ou le token invalide
+        if (!is_array(self::$_netatmoData) || !isset(self::$_netatmoData['devices']) || !is_array(self::$_netatmoData['devices'])) {
+            log::add('netatmoPublicData', 'error', __('Aucune donnée reçue de Netatmo : synchronisation abandonnée.', __FILE__));
+            return;
+        }
+
         // Loop over Favorites Stations, from Netatmo
         $npd_equipment_favorite_logicalId = array();
         foreach (self::$_netatmoData['devices'] as $device) { //array multi scope
+
+            // Réinitialisé à chaque itération : sans cela le drapeau restait à true pour tous les
+            // équipements suivants, qui héritaient du dimensionnement de widget d'une autre station.
+            $new_equipment = false;
 
 
             // Security : manage only NAMain station type
@@ -438,7 +492,7 @@ class netatmoPublicData extends eqLogic
         }
 
         // security
-        if (!is_array(self::$_netatmoData['devices'])) {   // security
+        if (!is_array(self::$_netatmoData) || !isset(self::$_netatmoData['devices']) || !is_array(self::$_netatmoData['devices'])) {
             return;
         }
 
@@ -446,6 +500,19 @@ class netatmoPublicData extends eqLogic
 
         // Target Equipment, on Netatmo data
         $netatmo_array_key = array_search($this->getLogicalId(), array_column($netatmo, '_id'));
+
+        // La station n'est plus dans les favoris Netatmo : sans ce garde, $netatmo[false] est
+        // résolu en $netatmo[0] et les array_column() plus bas reçoivent null, ce qui lève une
+        // TypeError fatale en PHP 8 (simple warning en PHP 7.4).
+        if ($netatmo_array_key === false) {
+            log::add('netatmoPublicData', 'debug', "SKIP : station " . $this->getLogicalId() . " absente des données Netatmo");
+            return;
+        }
+
+        // Sous-modules de la station (absents si la station n'en déclare aucun)
+        $netatmo_modules = isset($netatmo[$netatmo_array_key]['modules']) && is_array($netatmo[$netatmo_array_key]['modules'])
+            ? $netatmo[$netatmo_array_key]['modules']
+            : array();
 
         // Loops over all Commands in this Equipment.
         foreach ($this->getCmd() as $cmd) {
@@ -458,11 +525,11 @@ class netatmoPublicData extends eqLogic
                 case "temperature":
                     $module_type = "NAModule1";
 
-                    $NAModule1_array_key = array_search($module_type, array_column($netatmo[$netatmo_array_key]['modules'], 'type'));
+                    $NAModule1_array_key = array_search($module_type, array_column($netatmo_modules, 'type'));
 
                     if ($NAModule1_array_key !== false) {
 
-                        $netatmo_module = $netatmo[$netatmo_array_key]['modules'][$NAModule1_array_key];  // shortcut
+                        $netatmo_module = $netatmo_modules[$NAModule1_array_key];  // shortcut
 
                         if ($netatmo_module['reachable'] == true) {
 
@@ -488,12 +555,12 @@ class netatmoPublicData extends eqLogic
 
                     $module_type = "NAModule2";
 
-                    $NAModule2_array_key = array_search($module_type, array_column($netatmo[$netatmo_array_key]['modules'], 'type'));
+                    $NAModule2_array_key = array_search($module_type, array_column($netatmo_modules, 'type'));
 
                     if ($NAModule2_array_key !== false) {
 
 
-                        $netatmo_module = $netatmo[$netatmo_array_key]['modules'][$NAModule2_array_key];  // shortcut
+                        $netatmo_module = $netatmo_modules[$NAModule2_array_key];  // shortcut
 
                         if ($netatmo_module['reachable'] == true) {
 
@@ -530,12 +597,12 @@ class netatmoPublicData extends eqLogic
 
                     $module_type = "NAModule3";
 
-                    $NAModule3_array_key = array_search($module_type, array_column($netatmo[$netatmo_array_key]['modules'], 'type'));
+                    $NAModule3_array_key = array_search($module_type, array_column($netatmo_modules, 'type'));
 
 
                     if ($NAModule3_array_key !== false) {
 
-                        $netatmo_module = $netatmo[$netatmo_array_key]['modules'][$NAModule3_array_key];  // shortcut
+                        $netatmo_module = $netatmo_modules[$NAModule3_array_key];  // shortcut
 
 
                         if ($netatmo_module['reachable'] == true) {
@@ -601,7 +668,13 @@ class netatmoPublicData extends eqLogic
 
         // Record message, if user didn't disabled it this notification
         if (config::byKey('npd_log_error_weather_station', 'netatmoPublicData') != 1) {
-            $message = $eqLogic->getHumanName() . ' - module ' . self::$_moduleType[$netatmo_module['type']]
+            // $_moduleType ne référence que les sous-modules NAModule* : le type NAMain, qui passe
+            // aussi par ici via la commande 'pressure', retombe sur son libellé brut.
+            $moduleLabel = isset(self::$_moduleType[$netatmo_module['type']])
+                ? self::$_moduleType[$netatmo_module['type']]
+                : $netatmo_module['type'];
+
+            $message = $eqLogic->getHumanName() . ' - module ' . $moduleLabel
                 . ' ( ' . $netatmo_module['type'] . ' ' . $netatmo_module['_id'] . ' ) is not reachable ! '
                 . 'You could : wait, remove those alerts on configuration page or even consider to remove commands linked ( click on '
                 . '<a href="index.php?v=d&m=netatmoPublicData&p=netatmoPublicData">Synchronise</a>, '
