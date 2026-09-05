@@ -1,9 +1,5 @@
 # Changelog : NetatmoOpenData
 
-//@@TODO
-- Informer si une station a de nouveaux capteurs. (ex : ajout d'un anémomètre par un gentil voisin)
-- Optimiser pour Jeedom Core 4.4 beta (qui ne gère pas encore les dépendances composer.json)
-
 # Septembre 2026
 - Correction de l'erreur « Class netatmoPublicData does not exist ». Elle survenait lorsque l'installation des dépendances du plugin échouait sous PHP 7.4, laissant le plugin hors service.
 - Compatibilité vérifiée de PHP 7.4 à PHP 8.3, sur Jeedom 4.6 et supérieur.

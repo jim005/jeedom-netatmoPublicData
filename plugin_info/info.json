@@ -14,7 +14,7 @@
     "tr": "Vos voisins ont une station météo Netatmo dans leur jardin (et pas vous ) ?\nRécupérer leurs données pour votre Jeedom (température, pression, pluie, vent...) et gratuitement."
   },
   "utilization": "Depuis la carte Netatmo, sélectionnez jusqu'à 5 stations favorites, puis elles seront visibles dans Jeedom et utilisable dans vos Scénarii, Vues, Designs, etc.  Notamment : Température, Pression, Vent ( Vitesse + Direction), Rafales de vent ( Vitesse + Direction), Pluie (Temps réel + sur 1h + sur la journée )",
-  "version": "2.1",
+  "version": "2.2",
   "licence": "AGPL",
   "author": "Jim005",
   "require": "4.2",
