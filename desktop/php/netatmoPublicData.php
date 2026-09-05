@@ -104,7 +104,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
                                         <?php
                                         $options = '';
                                         foreach ((jeeObject::buildTree(null, false)) as $object) {
-                                            $options .= '<option value="' . $object->getId() . '">' . str_repeat('&nbsp;&nbsp;', $object->getConfiguration('parentNumber')) . $object->getName() . '</option>';
+                                            // Cast explicite : getConfiguration() renvoie '' quand la clé est absente, et
+                                            // str_repeat() lève une TypeError fatale en PHP 8 sur une chaîne non numérique.
+                                            $options .= '<option value="' . $object->getId() . '">' . str_repeat('&nbsp;&nbsp;', (int)$object->getConfiguration('parentNumber', 0)) . $object->getName() . '</option>';
                                         }
                                         echo $options;
                                         ?>
