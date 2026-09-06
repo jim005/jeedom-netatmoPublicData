@@ -17,7 +17,7 @@
   "version": "2.2",
   "licence": "AGPL",
   "author": "Jim005",
-  "require": "4.2",
+  "require": "4.6",
   "category": "weather",
   "hasDependency": true,
   "hasOwnDeamon": false,
