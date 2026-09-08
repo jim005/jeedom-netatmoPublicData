@@ -1,0 +1,126 @@
+name: Intégrité des dépendances Composer
+
+# Ce workflow protège la plage de compatibilité annoncée par le plugin (PHP 7.4 à 8.3).
+#
+# Jeedom installe lui-même les dépendances du plugin : il exécute « rm -rf vendor » puis
+# « composer install » depuis composer.lock (core/class/system.class.php). Un lock qui
+# verrouille un paquet exigeant une version de PHP plus récente que le socle supporté rend
+# donc le plugin inutilisable, et un vendor/ versionné désynchronisé du lock masque le
+# problème jusqu'à la première réinstallation des dépendances.
+
+on:
+  pull_request:
+    paths:
+      - 'composer.json'
+      - 'composer.lock'
+      - 'vendor/**'
+      - '.github/workflows/composer-integrity.yml'
+      - '.github/scripts/check-vendor-lock.php'
+  push:
+    branches:
+      - beta
+      - master
+    paths:
+      - 'composer.json'
+      - 'composer.lock'
+      - 'vendor/**'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "install = matérialise vendor/ depuis le lock existant ; update = résout à nouveau les dépendances"
+        type: choice
+        options:
+          - install
+          - update
+        default: install
+
+permissions:
+  contents: read
+
+jobs:
+  compatibilite:
+    name: PHP ${{ matrix.php }}
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # Bornes de la plage annoncée dans plugin_info/info.json et le changelog.
+        php: ['7.4', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Valider composer.json et la fraîcheur du lock
+        run: composer validate --no-check-publish --no-ansi
+
+      - name: Vérifier que le lock est installable sur cette version de PHP
+        # C'est le contrôle qui aurait évité la panne : sous PHP 7.4, le lock verrouillait
+        # symfony/deprecation-contracts v3.7.1, qui exige php >= 8.1.
+        run: |
+          composer install --no-ansi --no-dev --no-interaction \
+            --no-plugins --no-progress --no-scripts --dry-run
+
+      - name: Lint des sources PHP du plugin
+        run: |
+          find core desktop plugin_info -name '*.php' -print0 \
+            | xargs -0 -r -n1 php -l
+
+  vendor-aligne:
+    name: vendor/ aligné sur composer.lock
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Comparer vendor/composer/installed.json et composer.lock
+        run: php .github/scripts/check-vendor-lock.php
+
+  synchroniser:
+    name: Régénérer vendor/ et committer
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          # La plateforme cible est épinglée dans composer.json (config.platform.php),
+          # la version de PHP du runner ne change donc pas la résolution.
+          php-version: '8.3'
+          coverage: none
+
+      - name: Installer les dépendances
+        if: inputs.mode == 'install'
+        run: |
+          composer install --no-ansi --no-dev --no-interaction \
+            --no-plugins --no-progress --no-scripts --optimize-autoloader
+
+      - name: Mettre à jour les dépendances
+        if: inputs.mode == 'update'
+        run: |
+          composer update --no-ansi --no-dev --no-interaction \
+            --no-plugins --no-progress --no-scripts --optimize-autoloader
+
+      - name: Committer si vendor/ ou le lock ont changé
+        run: |
+          if git diff --quiet -- composer.lock vendor; then
+            echo "Rien à faire : vendor/ et composer.lock sont déjà alignés."
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add composer.lock vendor
+          git commit -m "chore: régénère vendor/ depuis composer.lock (${{ inputs.mode }})"
+          git push

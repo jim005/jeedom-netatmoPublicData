@@ -6,6 +6,11 @@ Ces deux contraintes sont cohérentes avec le core : le `composer.json` de Jeedo
 `"php": ">=7.4"` et épingle `config.platform.php = "7.4"`. Un Jeedom 4.6 peut donc tourner sous
 PHP 7.4 comme sous PHP 8.3, et le plugin doit couvrir toute la plage.
 
+Le socle Jeedom est désormais appliqué : `plugin_info/info.json` déclare `"require": "4.6"`. Jeedom
+lit ce champ dans `plugin::setIsEnable()` et refuse l'activation du plugin sur un core plus ancien,
+avec un message explicite. Les installations en Jeedom 4.2 à 4.5 ne sont pas désactivées
+rétroactivement, mais ne pourront plus réactiver le plugin après cette mise à jour.
+
 ## 1. Cause racine de « Class netatmoPublicData does not exist »
 
 Le message ne vient pas du plugin mais du core, et il masque la vraie panne. Chaîne complète,
@@ -157,18 +162,60 @@ deux clients HTTP. Le comportement survit aux réinstallations et n'appelle plus
   avant correctif, tous propres après.
 - `composer.lock` et `vendor/composer/installed.json` alignés paquet par paquet.
 
-## 7. Point de vigilance restant
+## 7. Garde-fou d'intégrité des dépendances
 
 `vendor/` reste versionné alors que Jeedom le supprime et le reconstruit. Les deux arbres doivent
 donc rester synchronisés : toute mise à jour de `composer.lock` — les montées Dependabot en
-particulier — doit s'accompagner d'une régénération de `vendor/` dans le même commit. C'est
-précisément ce qui avait dérivé (lock en Guzzle 7.15.2, `vendor/` en 7.7.0).
+particulier — doit s'accompagner d'une régénération de `vendor/`. C'est précisément ce qui avait
+dérivé, et Dependabot ne touche jamais au `vendor/`.
 
-Deux options pour supprimer le risque à la source : un workflow GitHub Actions qui régénère et
-commite `vendor/` sur les PR Dependabot, ou l'abandon du `vendor/` versionné maintenant que
-`packages.json` couvre l'installation. Le dépôt n'a aujourd'hui aucun répertoire `.github/`.
+Le workflow `.github/workflows/composer-integrity.yml` ferme cette porte. Il se déclenche sur toute
+PR ou tout push touchant `composer.json`, `composer.lock` ou `vendor/`.
 
-Deux observations annexes tirées des mêmes logs. Un répertoire `3rdparty` est présent sur les
-installations des utilisateurs alors qu'il est absent du dépôt et que `.gitmodules` est vide :
-reliquat d'une version antérieure, que `CLAUDE.md` documente encore. Et `CLAUDE.md` comme
-`notesDev.md` sont livrés en production chez les utilisateurs, alors qu'ils sont internes.
+**`compatibilite`** — matrice PHP 7.4 et 8.3, les deux bornes annoncées dans `plugin_info/info.json`.
+Sur chaque version : `composer validate` (qui contrôle aussi la fraîcheur du lock vis-à-vis de
+`composer.json`), puis `composer install --dry-run`, qui échoue si le lock verrouille un paquet
+incompatible avec ce PHP. C'est exactement le contrôle qui aurait arrêté la panne : sous PHP 7.4,
+`symfony/deprecation-contracts v3.7.1` exige `php >= 8.1`. S'ajoute un `php -l` sur les sources du
+plugin, sur les deux versions.
+
+**`vendor-aligne`** — `.github/scripts/check-vendor-lock.php` compare `vendor/composer/installed.json`
+à `composer.lock`, paquet par paquet. La comparaison porte sur les noms et versions, pas sur le
+contenu des fichiers : selon que Composer installe depuis une archive dist ou depuis les sources,
+les arbres diffèrent légitimement, et un diff octet-à-octet produirait de faux positifs.
+
+Ce contrôle a été éprouvé sur l'état réel de `beta` avant correctif. Il remonte les sept écarts,
+dont celui à l'origine de la panne :
+
+```
+guzzlehttp/guzzle                  vendor/ : 7.7.0    lock : 7.15.2
+symfony/deprecation-contracts      vendor/ : v2.5.2   lock : v3.7.1
+symfony/polyfill-php80             absent de vendor/ (lock : v1.37.0)
+...
+✗ 7 écart(s) détecté(s).
+```
+
+**`synchroniser`** — déclenchement manuel (`workflow_dispatch`), au choix en mode `install`
+(matérialise `vendor/` depuis le lock existant) ou `update` (résout à nouveau). Régénère et commite
+`vendor/` et `composer.lock` ensemble. Le déclenchement est manuel à dessein : les workflows lancés
+par Dependabot reçoivent un jeton en lecture seule et ne peuvent pas pousser de commit.
+
+### Effet attendu au premier lancement de `synchroniser`
+
+Le `vendor/` actuellement versionné a été régénéré depuis des clones **source**, faute d'accès aux
+archives dist au moment du correctif. Il embarque donc les suites de tests, les docs et les
+répertoires `.github/` des dépendances — que les paquets excluent pourtant en dist via
+`export-ignore`. Un `composer install` normal produira un arbre sensiblement plus léger que les
+4,3 Mo actuels.
+
+C'est un gain — le paquet livré aux Jeedom des utilisateurs s'allège d'autant — mais cela produira un
+diff volumineux. Le contrôle `vendor-aligne` n'en est pas affecté, puisqu'il ne compare que les
+versions.
+
+## 8. Observations annexes
+
+Un répertoire `3rdparty` est présent sur les installations des utilisateurs alors qu'il est absent du
+dépôt et que `.gitmodules` est vide : reliquat d'une version antérieure, que `CLAUDE.md` documente
+encore. Et `CLAUDE.md`, `notesDev.md` comme ce rapport sont livrés en production chez les
+utilisateurs alors qu'ils sont internes — un `.gitattributes` avec `export-ignore` les écarterait du
+paquet.
