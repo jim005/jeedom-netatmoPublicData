@@ -1,8 +1,9 @@
 # Changelog : NetatmoOpenData
 
 # Septembre 2026
+- La version Jeedom 4.6 est désormais un prérequis. Suppression du support des versions inférieures : le plugin ne peut plus être activé sur un Jeedom antérieur. Les installations existantes ne sont pas désactivées, mais ne pourront plus réactiver le plugin après cette mise à jour.
 - Correction de l'erreur « Class netatmoPublicData does not exist ». Elle survenait lorsque l'installation des dépendances du plugin échouait sous PHP 7.4, laissant le plugin hors service.
-- Compatibilité vérifiée de PHP 7.4 à PHP 8.3, sur Jeedom 4.6 et supérieur.
+- Compatibilité vérifiée de PHP 7.4 à PHP 8.3.
 - Correction de plusieurs erreurs fatales sous PHP 8 : plantage sur une installation neuve ou après un clic sur « Débrancher », et lorsqu'une station est retirée de vos favoris Netatmo.
 - Le plugin ne s'interrompt plus quand l'API Netatmo est momentanément injoignable. L'erreur est journalisée et la récupération des données reprend au cycle suivant.
 - Correction de la taille des widgets, qui pouvait être appliquée à tort à des stations existantes lors d'une synchronisation.
