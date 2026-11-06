@@ -15,15 +15,12 @@ This is a Jeedom plugin for accessing Netatmo Public Weather Data API.
 - **desktop/js/netatmoPublicData.js** - JavaScript logic
 - **desktop/css/netatmoPublicData.css** - Styling
 
-### Third-Party Integration
-- **3rdparty/Netatmo-API-PHP/** - Netatmo API PHP library
-  - Clients, Constants, Exceptions, Handlers
-  - Netatmo objects and API wrappers
-
-### Dependencies (vendor/)
-- **guzzlehttp/guzzle** - HTTP client
-- **league/oauth2-client** - OAuth 2.0 authentication
-- **psr/http-*** - PSR HTTP standards
+### Dependencies
+- **None.** HTTP and OAuth 2.0 calls use native curl (`netatmoPublicData::httpRequest()`,
+  `requestOAuthTokens()`, `getOAuthAuthorizationUrl()`).
+- Do NOT reintroduce Composer / vendor/: Jeedom runs every plugin in the same PHP process, and a
+  bundled library collides with the copy shipped by another plugin (e.g. Guzzle 6 from
+  SmartLife/Tuya). See COMPATIBILITE-PHP.md §8.
 
 ### Internationalization
 - **core/i18n/** - Translations (de_DE, en_US, es_ES, fr_FR, id_ID, ja_JP, pt_PT, ru_RU, tr)
@@ -36,10 +33,9 @@ This is a Jeedom plugin for accessing Netatmo Public Weather Data API.
 ### Configuration
 - **plugin_info/info.json** - Plugin metadata
 - **plugin_info/configuration.php** - Configuration UI
-- **composer.json** - PHP dependencies
 
 ## Development Notes
-- Uses OAuth 2.0 for Netatmo API authentication
+- Uses OAuth 2.0 for Netatmo API authentication (native curl, no library)
 - Integrates with Jeedom's core framework
 - Supports multiple languages
 - Uses Materialize CSS for documentation

@@ -1,5 +1,8 @@
 # Compatibilité PHP 7.4 → 8.3 et « Class netatmoPublicData does not exist »
 
+> **Novembre 2026 :** le plugin n'a plus aucune dépendance Composer (§8). Les sections 1, 4 et 7,
+> qui décrivent la gestion du `vendor/`, sont conservées pour l'historique.
+
 Cible de compatibilité retenue : **Jeedom 4.6 minimum**, **PHP 7.4 à 8.3**.
 
 Ces deux contraintes sont cohérentes avec le core : le `composer.json` de Jeedom 4.6.2 déclare
@@ -219,3 +222,36 @@ dépôt et que `.gitmodules` est vide : reliquat d'une version antérieure, que 
 encore. Et `CLAUDE.md`, `notesDev.md` comme ce rapport sont livrés en production chez les
 utilisateurs alors qu'ils sont internes — un `.gitattributes` avec `export-ignore` les écarterait du
 paquet.
+
+## 8. Suppression des dépendances Composer (novembre 2026)
+
+**Symptôme remonté :** à chaque cron15,
+`Call to undefined method GuzzleHttp\Handler\Proxy::wrapTlsFallback()`, et plus aucune mise à jour
+des stations. La réinstallation des dépendances n'y change rien.
+
+**Cause :** Jeedom exécute le `cron15` de tous les plugins dans le même processus PHP. Chaque
+`vendor/autoload.php` enregistre son autoloader Composer **en tête** de pile (`register(true)`) :
+le dernier plugin chargé fournit toutes les classes pas encore chargées. Les plugins étant chargés
+par ordre alphabétique, le Guzzle 6.5.0 du plugin SmartLife/Tuya passait devant notre Guzzle 7.
+Résultat, un Guzzle hybride : `GuzzleHttp\Utils` (7.x, déjà chargé) appelait
+`Proxy::wrapTlsFallback()` sur un `GuzzleHttp\Handler\Proxy` 6.x qui ne la connaît pas. L'erreur
+« Undefined class constant MAJOR_VERSION » contournée au §4 était un autre visage du même problème.
+
+Reproduit en chargeant notre `vendor/` puis un Guzzle 6.5.0 dans le même script : erreur
+identique. Dans l'ordre inverse, aucune erreur.
+
+**Correctif :** Guzzle et `league/oauth2-client` sont retirés. Le plugin ne s'en servait que pour
+trois GET et deux POST vers `oauth2/token`. Ils sont remplacés par des méthodes en curl natif dans
+`netatmoPublicData` : `httpRequest()`, `getOAuthAuthorizationUrl()`, `requestOAuthTokens()`,
+`saveOAuthTokens()`. Le préfixage des espaces de noms (PHP-Scoper, Strauss) a été écarté : Jeedom
+supprime et réinstalle `vendor/` depuis `packages.json`, il aurait fallu sortir l'arbre préfixé de
+Composer et le régénérer à chaque mise à jour, sans gain par rapport à cinq requêtes HTTP.
+
+Supprimés : `vendor/`, `composer.json`, `composer.lock`, `plugin_info/packages.json`, le workflow
+`composer-integrity.yml` et son script. `info.json` passe à `"hasDependency": false`. Le workflow
+`php-lint.yml` reprend le lint 7.4 / 8.3 et refuse toute réintroduction d'un `vendor/`.
+
+**Vérifié** sur un banc avec core Jeedom simulé et faux serveur Netatmo : renouvellement du token
+(ownApp et application hébergée), relance unique sur 403, erreurs 400 / 500 journalisées, flux
+« authorization code » complet (state, échange du code, state invalide), et fonctionnement
+inchangé quand un Guzzle 6 est chargé avant le plugin.

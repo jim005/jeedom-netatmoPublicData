@@ -73,8 +73,8 @@ In the plugin, the `Synchronize` button: allows your Jeedom to automatically dis
 > Please, update yours plugins, developers have fixed it. (eg : horlogehtc )
 
 - Data are not updated, even with cron15 enabled ?
-> There are some technical background conflict with others plugins.
-> Please, update yours plugins, developers have fixed it (eg : NetatmoPro ) 
+> Before November 2026, a library conflict (Guzzle) with other plugins such as SmartLife/Tuya or NetatmoPro blocked the cron15, with errors like "Call to undefined method GuzzleHttp\Handler\Proxy::wrapTlsFallback()".
+> Please update the plugin: it no longer bundles any third-party library, so this conflict can no longer happen.
  
 
 # Example

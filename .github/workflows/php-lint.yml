@@ -1,0 +1,53 @@
+name: Lint PHP
+
+# Le plugin n'a plus de dépendance Composer : ce contrôle se limite à vérifier que les sources
+# se chargent sur les deux bornes de la plage annoncée (PHP 7.4 et 8.3).
+
+on:
+  pull_request:
+    paths:
+      - '**.php'
+      - '.github/workflows/php-lint.yml'
+  push:
+    branches:
+      - beta
+      - master
+    paths:
+      - '**.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Lint des sources PHP du plugin
+        run: |
+          find core desktop plugin_info -name '*.php' -print0 \
+            | xargs -0 -r -n1 php -l
+
+      - name: Aucune dépendance tierce réintroduite
+        # Un vendor/ embarqué entre en collision avec celui des autres plugins chargés dans le
+        # même processus PHP (Guzzle 6 de SmartLife/Tuya, par exemple).
+        run: |
+          if [ -e vendor ] || [ -e composer.json ] || [ -e plugin_info/packages.json ]; then
+            echo "vendor/, composer.json ou packages.json présent : voir COMPATIBILITE-PHP.md §8." >&2
+            exit 1
+          fi
+          if grep -rnE '(use|new|catch \() *\\?(GuzzleHttp|League)\\' core desktop plugin_info; then
+            echo "Référence à Guzzle ou league/oauth2-client dans les sources." >&2
+            exit 1
+          fi

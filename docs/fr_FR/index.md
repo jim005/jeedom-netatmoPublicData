@@ -88,8 +88,8 @@ Dans le plugin, le bouton `Synchroniser` : permet à votre Jeedom de découvrir 
 > Solution : mettre à jour vos plugins (ex : 'horlogehtc', etc.)
 
 - Les données ne remontent pas automatiquement ? Malgrès l'activation du cron15
-> Il y a un conflit (de chargement de dépendance technique) avec d'autres plugins comme NetatmoPro. 
-> Solution : mettre à jour vos plugins (ex : 'NetatmoPro', etc.). 
+> Avant novembre 2026, un conflit de librairie (Guzzle) avec d'autres plugins comme SmartLife/Tuya ou NetatmoPro bloquait le cron15, avec par exemple l'erreur « Call to undefined method GuzzleHttp\Handler\Proxy::wrapTlsFallback() ».
+> Solution : mettre à jour le plugin. Il n'embarque plus aucune librairie tierce, ce conflit ne peut plus se produire.
  
 
 # Exemple
