@@ -289,7 +289,7 @@ class netatmoPublicData extends eqLogic
             ));
         } catch (\Exception $e) {
             // Network issue, timeout, DNS...
-            log::add('netatmoPublicData', 'error', "Appel API Netatmo en échec : " . $e->getMessage());
+            log::add('netatmoPublicData', 'debug', "Appel API Netatmo en échec : " . $e->getMessage());
             return false;
         }
 
