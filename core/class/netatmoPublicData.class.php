@@ -19,29 +19,17 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
-// Jeedom >= 4.4 installe lui-même les dépendances Composer (voir plugin_info/packages.json)
-// et supprime au passage le vendor/ livré avec le plugin. Sur les socles plus anciens, ou tant
-// que l'installation des dépendances n'a pas été lancée, on retombe sur le vendor/ embarqué.
-// https://community.jeedom.com/t/debut-de-la-migration-vers-composer-en-live/109920/5?u=jim005
-if (!class_exists('League\OAuth2\Client\Provider\GenericProvider')) {
-    // file_exists() plutôt qu'un require_once sec : si l'installation des dépendances a échoué,
-    // le vendor/ est absent et un require fatal empêcherait la déclaration de la classe
-    // netatmoPublicData. Jeedom la cherche ensuite via ReflectionClass et remonte
-    // « Class netatmoPublicData does not exist », qui masque la vraie cause.
-    if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
-        require_once __DIR__ . '/../../vendor/autoload.php';
-    } else {
-        log::add('netatmoPublicData', 'error',
-            __('Dépendances Composer absentes. Relancez l\'installation des dépendances depuis la page du plugin.', __FILE__));
-    }
-}
-
 if (!defined('__ROOT_PLUGIN__')) {
     define('__ROOT_PLUGIN__', dirname(dirname(__FILE__)));
 }
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+// Aucune dépendance Composer : les appels HTTP et OAuth2 passent par curl (voir httpRequest()).
+// Le plugin embarquait auparavant Guzzle et league/oauth2-client. Plusieurs plugins Jeedom
+// tournent dans le même processus PHP (cron15 notamment) et chaque vendor/autoload.php s'insère
+// en tête de la pile d'autoload : un Guzzle 6 livré par un autre plugin (SmartLife/Tuya,
+// NetatmoPro...) fournissait alors une partie des classes GuzzleHttp\* à la place des nôtres.
+// D'où « Call to undefined method GuzzleHttp\Handler\Proxy::wrapTlsFallback() » ou
+// « Undefined class constant MAJOR_VERSION ». Sans bibliothèque tierce, la collision est impossible.
 
 /**
  * Class netatmoPublicData
@@ -85,22 +73,141 @@ class netatmoPublicData extends eqLogic
         }
     }
 
+    const NETATMO_AUTHORIZE_URL = 'https://api.netatmo.com/oauth2/authorize';
+    const NETATMO_TOKEN_URL = 'https://api.netatmo.com/oauth2/token';
+    const NETATMO_STATIONS_URL = 'https://api.netatmo.com/api/getstationsdata';
+    const HOSTED_APP_TOKENS_URL = 'https://gateway.websenso.net/flux/netatmo/getTokens.php';
+    const HTTP_USER_AGENT = 'Jeedom/4 netatmoPublicData';
+
     /**
-     * Build a Guzzle client with an explicit User-Agent.
+     * Requête HTTP minimale, en curl natif.
      *
-     * Le User-Agent est fixé ici, et non plus par un patch dans vendor/guzzlehttp : Jeedom
-     * supprime et réinstalle vendor/ à chaque installation des dépendances, toute modification
-     * de ce répertoire est donc perdue. Le fixer explicitement évite en plus l'appel à
-     * Utils::defaultUserAgent(), qui échoue sur « Undefined class constant MAJOR_VERSION »
-     * lorsqu'un Guzzle antérieur à la 7 est déjà chargé par le core.
+     * Ne lève d'exception qu'en cas d'échec réseau (DNS, timeout, TLS...). Un statut HTTP
+     * d'erreur (4xx, 5xx) est renvoyé tel quel : c'est à l'appelant de le traiter.
      *
-     * @return GuzzleHttp\Client
+     * @param string $method GET ou POST
+     * @param string $url
+     * @param array $query Paramètres ajoutés à l'URL
+     * @param array $headers En-têtes, sous la forme 'Nom' => 'valeur'
+     * @param array|null $form Corps application/x-www-form-urlencoded (POST)
+     * @return array{code: int, body: string}
+     * @throws Exception
      */
-    private static function getHttpClient()
+    private static function httpRequest($method, $url, array $query = array(), array $headers = array(), array $form = null)
     {
-        return new Client([
-            'headers' => array('User-Agent' => 'GuzzleHttp/7 Jeedom/4'),
-        ]);
+        if (!empty($query)) {
+            $url .= (strpos($url, '?') === false ? '?' : '&') . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+        }
+
+        $headerLines = array();
+        foreach ($headers as $name => $value) {
+            $headerLines[] = $name . ': ' . $value;
+        }
+
+        $ch = curl_init();
+        $options = array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 5,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_USERAGENT => self::HTTP_USER_AGENT,
+            CURLOPT_HTTPHEADER => $headerLines,
+        );
+        if (strtoupper($method) === 'POST') {
+            $options[CURLOPT_POST] = true;
+            $options[CURLOPT_POSTFIELDS] = http_build_query($form === null ? array() : $form, '', '&');
+        }
+        curl_setopt_array($ch, $options);
+
+        $body = curl_exec($ch);
+        $error = curl_error($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        if (PHP_VERSION_ID < 80000) {
+            // Sans effet depuis PHP 8.0 et déprécié en 8.5 : la ressource est libérée seule.
+            curl_close($ch);
+        }
+
+        if ($body === false) {
+            throw new Exception('Erreur réseau vers ' . parse_url($url, PHP_URL_HOST) . ' : ' . $error);
+        }
+
+        return array('code' => $code, 'body' => (string)$body);
+    }
+
+    /**
+     * URL de retour OAuth2 déclarée auprès de Netatmo pour la méthode « ownApp ».
+     *
+     * @return string
+     */
+    public static function getOAuthRedirectUri()
+    {
+        return network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php';
+    }
+
+    /**
+     * URL d'autorisation Netatmo (étape 1 du flux « authorization code »).
+     *
+     * @param string $state Valeur anti-CSRF, à conserver pour la vérifier au retour
+     * @return string
+     */
+    public static function getOAuthAuthorizationUrl($state)
+    {
+        return self::NETATMO_AUTHORIZE_URL . '?' . http_build_query(array(
+                'client_id' => config::byKey('npd_client_id', 'netatmoPublicData'),
+                'redirect_uri' => self::getOAuthRedirectUri(),
+                'scope' => 'read_station',
+                'state' => $state,
+                'response_type' => 'code',
+                'approval_prompt' => 'auto',
+            ), '', '&', PHP_QUERY_RFC3986);
+    }
+
+    /**
+     * Appel au point de terminaison oauth2/token de Netatmo.
+     *
+     * @param array $grantParams grant_type et paramètres associés (code, refresh_token)
+     * @return array Réponse décodée, contenant au moins access_token
+     * @throws Exception Si Netatmo refuse la demande ou répond de façon inexploitable
+     */
+    public static function requestOAuthTokens(array $grantParams)
+    {
+        $response = self::httpRequest('POST', self::NETATMO_TOKEN_URL, array(), array('Accept' => 'application/json'), array(
+                'client_id' => config::byKey('npd_client_id', 'netatmoPublicData'),
+                'client_secret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
+                'redirect_uri' => self::getOAuthRedirectUri(),
+            ) + $grantParams);
+
+        $data = json_decode($response['body'], true);
+
+        if (!is_array($data) || !empty($data['error']) || empty($data['access_token'])) {
+            $detail = 'HTTP ' . $response['code'];
+            if (is_array($data) && !empty($data['error'])) {
+                $detail .= ' - ' . (is_string($data['error']) ? $data['error'] : json_encode($data['error']));
+                if (!empty($data['error_description'])) {
+                    $detail .= ' : ' . $data['error_description'];
+                }
+            }
+            throw new Exception('Netatmo a refusé la demande de token (' . $detail . ')');
+        }
+
+        return $data;
+    }
+
+    /**
+     * Enregistre les tokens renvoyés par oauth2/token.
+     *
+     * @param array $tokens
+     */
+    public static function saveOAuthTokens(array $tokens)
+    {
+        config::save('npd_access_token', $tokens['access_token'], 'netatmoPublicData');
+        // Netatmo renvoie normalement un nouveau refresh_token ; à défaut, on garde l'actuel.
+        if (!empty($tokens['refresh_token'])) {
+            config::save('npd_refresh_token', $tokens['refresh_token'], 'netatmoPublicData');
+        }
+        config::save('npd_expires_at', isset($tokens['expires_in']) ? time() + (int)$tokens['expires_in'] : null, 'netatmoPublicData');
     }
 
     /**
@@ -116,22 +223,14 @@ class netatmoPublicData extends eqLogic
 
             log::add('netatmoPublicData', 'debug', 'Récupération nouveaux tokens - ownApp');
 
-            $provider = new League\OAuth2\Client\Provider\GenericProvider([
-                'clientId' => config::byKey('npd_client_id', 'netatmoPublicData'),
-                'clientSecret' => config::byKey('npd_client_secret', 'netatmoPublicData'),
-                'redirectUri' => network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php',
-                'urlAuthorize' => 'https://api.netatmo.com/oauth2/authorize',
-                'urlAccessToken' => 'https://api.netatmo.com/oauth2/token',
-                'urlResourceOwnerDetails' => 'https://service.example.com/resource'
-            ]);
-
-            $newAccessToken = $provider->getAccessToken('refresh_token', [
-                'refresh_token' => config::byKey('npd_refresh_token', 'netatmoPublicData'),
-            ]);
-
-            config::save('npd_access_token', $newAccessToken->getToken(), 'netatmoPublicData');
-            config::save('npd_refresh_token', $newAccessToken->getRefreshToken(), 'netatmoPublicData');
-            config::save('npd_expires_at', $newAccessToken->getExpires(), 'netatmoPublicData');
+            try {
+                self::saveOAuthTokens(self::requestOAuthTokens(array(
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => config::byKey('npd_refresh_token', 'netatmoPublicData'),
+                )));
+            } catch (\Exception $e) {
+                log::add('netatmoPublicData', 'error', 'Renouvellement du token Netatmo en échec : ' . $e->getMessage());
+            }
 
         }
 
@@ -142,19 +241,24 @@ class netatmoPublicData extends eqLogic
             $jeedom_id = crypt(jeedom::getApiKey('netatmoPublicData'), "OnExposePasCetteInfoInterne");
             $npd_local_version = update::byLogicalId('netatmoPublicData')->getLocalVersion();
 
-            $client = self::getHttpClient();
-            $response = $client->request("GET", "https://gateway.websenso.net/flux/netatmo/getTokens.php", [
-                "query" => [
-                    "refresh" => true,
-                    "jeedom_id" => $jeedom_id,
-                ],
-                "headers" => [
-                    "Referer" => "Jeedom/" . $npd_local_version . " " . $jeedom_id,
-                ],
-            ]);
+            try {
+                $response = self::httpRequest('GET', self::HOSTED_APP_TOKENS_URL, array(
+                    'refresh' => 1,
+                    'jeedom_id' => $jeedom_id,
+                ), array(
+                    'Referer' => 'Jeedom/' . $npd_local_version . ' ' . $jeedom_id,
+                ));
+            } catch (\Exception $e) {
+                log::add('netatmoPublicData', 'error', 'Renouvellement du token (application hébergée) en échec : ' . $e->getMessage());
+                return;
+            }
 
-            $body = $response->getBody();
-            $content_array = json_decode($body, true);
+            if ($response['code'] !== 200) {
+                log::add('netatmoPublicData', 'error', 'Renouvellement du token (application hébergée) en échec : HTTP ' . $response['code']);
+                return;
+            }
+
+            $content_array = json_decode($response['body'], true);
 
             if (is_array($content_array) && isset($content_array['state']) && $content_array['state'] === "ok") {
                 config::save('npd_access_token', $content_array['npd_access_token'], 'netatmoPublicData');
@@ -179,33 +283,32 @@ class netatmoPublicData extends eqLogic
     private static function performRequestWithToken($npd_access_token, $retryOn403 = true)
     {
         try {
-            $response = self::getHttpClient()->request("GET", "https://api.netatmo.com/api/getstationsdata", [
-                "query" => [
-                    "get_favorites" => "true",
-                    "access_token" => $npd_access_token,
-                ],
-            ]);
-
-            $content_array = json_decode($response->getBody(), true);
-
-            return is_array($content_array) ? $content_array : false;
-        } catch (ClientException $e) {
-            if ($e->getResponse()->getStatusCode() == 403 && $retryOn403) {
-                // Token refusé : on en demande un nouveau et on rejoue la requête une seule fois.
-                netatmoPublicData::getNetatmoTokens();
-                $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
-
-                // Le return manquait ici : le token renouvelé était obtenu puis perdu.
-                return self::performRequestWithToken($npd_access_token, false);
-            }
-
-            log::add('netatmoPublicData', 'error', "Error Status Code : " . $e->getResponse()->getStatusCode());
+            $response = self::httpRequest('GET', self::NETATMO_STATIONS_URL, array(
+                'get_favorites' => 'true',
+                'access_token' => $npd_access_token,
+            ));
         } catch (\Exception $e) {
             // Network issue, timeout, DNS...
             log::add('netatmoPublicData', 'debug', "Appel API Netatmo en échec : " . $e->getMessage());
+            return false;
         }
 
-        return false;
+        if ($response['code'] == 403 && $retryOn403) {
+            // Token refusé : on en demande un nouveau et on rejoue la requête une seule fois.
+            netatmoPublicData::getNetatmoTokens();
+            $npd_access_token = config::byKey('npd_access_token', 'netatmoPublicData');
+
+            return self::performRequestWithToken($npd_access_token, false);
+        }
+
+        if ($response['code'] >= 400 || $response['code'] === 0) {
+            log::add('netatmoPublicData', 'error', "Error Status Code : " . $response['code']);
+            return false;
+        }
+
+        $content_array = json_decode($response['body'], true);
+
+        return is_array($content_array) ? $content_array : false;
     }
 
     /**

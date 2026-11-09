@@ -16,58 +16,33 @@
 */
 
 require_once __DIR__ . '/../../../../core/php/core.inc.php';
+require_once __DIR__ . '/../class/netatmoPublicData.class.php';
 
-// @@todo : Pour test sur la version 4.4 beta - en attendant la gestion native des lib composer
-// https://community.jeedom.com/t/debut-de-la-migration-vers-composer-en-live/109920/5?u=jim005
-if (!class_exists('League\OAuth2\Client\Provider\GenericProvider')) {
-    require_once __DIR__ . "/../../vendor/autoload.php";
+// Flux OAuth2 « authorization code » de la méthode ownApp, sans bibliothèque tierce :
+// voir netatmoPublicData::getOAuthAuthorizationUrl() et requestOAuthTokens().
+
+if (isset($_GET['error'])) {
+    die(htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8'));
 }
-
-$npd_client_id = config::byKey('npd_client_id', 'netatmoPublicData');
-$npd_client_secret = config::byKey('npd_client_secret', 'netatmoPublicData');
-
-//if (empty($npd_client_id) || empty($npd_client_secret)) {
-//    exit('Client_id or Client_Secret incorrect');
-//}
-
-if (isset($_GET['error']))  {
-    die($_GET['error']);
-}
-
-$provider = new League\OAuth2\Client\Provider\GenericProvider([
-    'clientId' => $npd_client_id,
-    'clientSecret' => $npd_client_secret,
-    'redirectUri' => network::getNetworkAccess('external') . '/plugins/netatmoPublicData/core/php/AuthorizationCodeGrant.php',
-    'urlAuthorize' => 'https://api.netatmo.com/oauth2/authorize',
-    'urlAccessToken' => 'https://api.netatmo.com/oauth2/token',
-    'urlResourceOwnerDetails' => 'https://service.example.com/resource'
-]);
-
 
 $npd_oauth2state = config::byKey('npd_oauth2state', 'netatmoPublicData');
 
 // If we don't have an authorization code then get one
 if (!isset($_GET['code'])) {
 
-    // Fetch the authorization URL from the provider; this returns the
-    // urlAuthorize option and generates and applies any necessary parameters
-    // (e.g. state).
-    $authorizationUrl = $provider->getAuthorizationUrl([
-        'scope' => ['read_station']
-    ]);
-
-    // Get the state generated for you and store it to the session.
-    config::save('npd_oauth2state', $provider->getState(), 'netatmoPublicData');
-    log::add('netatmoPublicData', 'debug', 'oauth2state :' . $provider->getState());
+    // Valeur anti-CSRF, vérifiée au retour de Netatmo.
+    $state = bin2hex(random_bytes(16));
+    config::save('npd_oauth2state', $state, 'netatmoPublicData');
+    log::add('netatmoPublicData', 'debug', 'oauth2state :' . $state);
 
     // Redirect the user to the authorization URL.
-    header('Location: ' . $authorizationUrl);
+    header('Location: ' . netatmoPublicData::getOAuthAuthorizationUrl($state));
     exit;
 
 // Check given state against previously stored one to mitigate CSRF attack
-} elseif (empty($_GET['state']) || empty($npd_oauth2state) || $_GET['state'] !== $npd_oauth2state) {
+} elseif (empty($_GET['state']) || empty($npd_oauth2state) || !is_string($_GET['state']) || !hash_equals((string)$npd_oauth2state, $_GET['state'])) {
 
-    if (isset($npd_oauth2state)) {
+    if (!empty($npd_oauth2state)) {
         config::save('npd_oauth2state', null, 'netatmoPublicData');
     }
 
@@ -75,30 +50,25 @@ if (!isset($_GET['code'])) {
 
 } else {
 
-
-
     try {
 
         // Try to get an access token using the authorization code grant.
-        $accessToken = $provider->getAccessToken('authorization_code', [
-            'code' => $_GET['code']
-        ]);
-
-        // We have an access token, which we may use in authenticated
-        // requests against the service provider's API.
-        config::save('npd_access_token', $accessToken->getToken(), 'netatmoPublicData');
-        config::save('npd_refresh_token', $accessToken->getRefreshToken(), 'netatmoPublicData');
-        config::save('npd_expires_at', $accessToken->getExpires(), 'netatmoPublicData');
+        netatmoPublicData::saveOAuthTokens(netatmoPublicData::requestOAuthTokens(array(
+            'grant_type' => 'authorization_code',
+            'code' => (string)$_GET['code'],
+        )));
         config::save('npd_connection_method', 'ownApp', 'netatmoPublicData');
+        config::save('npd_oauth2state', null, 'netatmoPublicData');
 
         echo "✅";
         echo " - <a href=\"" . network::getNetworkAccess('external') . "/index.php?v=d&p=plugin&id=netatmoPublicData\">retour</a>  => Pensez à rafraichir votre page du plugin";
         echo "<br />";
 
-    } catch (League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+    } catch (\Exception $e) {
 
-        // Failed to get the access token or user details.
-        exit($e->getMessage());
+        // Failed to get the access token.
+        log::add('netatmoPublicData', 'error', $e->getMessage());
+        exit(htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
 
     }
 

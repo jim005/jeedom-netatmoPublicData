@@ -1,8 +1,14 @@
 # Changelog : NetatmoOpenData
 
+# Novembre 2026
+- Correction de l'erreur « Call to undefined method GuzzleHttp\Handler\Proxy::wrapTlsFallback() » (ou « Undefined class constant MAJOR_VERSION ») à chaque cron15, qui bloquait la mise à jour des stations. Elle survenait lorsqu'un autre plugin embarquant une ancienne version de Guzzle était installé (SmartLife/Tuya, par exemple).
+- Le plugin n'a plus aucune dépendance à installer : les librairies Guzzle et OAuth2 sont remplacées par des appels HTTP natifs. Le bouton « Relancer les dépendances » disparaît.
+- Les erreurs de renouvellement du token Netatmo sont désormais journalisées, avec le motif renvoyé par Netatmo, au lieu d'interrompre le cron.
+
 # Septembre 2026
+- La version Jeedom 4.6 est désormais un prérequis. Suppression du support des versions inférieures : le plugin ne peut plus être activé sur un Jeedom antérieur. Les installations existantes ne sont pas désactivées, mais ne pourront plus réactiver le plugin après cette mise à jour.
 - Correction de l'erreur « Class netatmoPublicData does not exist ». Elle survenait lorsque l'installation des dépendances du plugin échouait sous PHP 7.4, laissant le plugin hors service.
-- Compatibilité vérifiée de PHP 7.4 à PHP 8.3, sur Jeedom 4.6 et supérieur.
+- Compatibilité vérifiée de PHP 7.4 à PHP 8.3.
 - Correction de plusieurs erreurs fatales sous PHP 8 : plantage sur une installation neuve ou après un clic sur « Débrancher », et lorsqu'une station est retirée de vos favoris Netatmo.
 - Le plugin ne s'interrompt plus quand l'API Netatmo est momentanément injoignable. L'erreur est journalisée et la récupération des données reprend au cycle suivant.
 - Correction de la taille des widgets, qui pouvait être appliquée à tort à des stations existantes lors d'une synchronisation.

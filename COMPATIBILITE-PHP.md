@@ -1,10 +1,18 @@
 # Compatibilité PHP 7.4 → 8.3 et « Class netatmoPublicData does not exist »
 
+> **Novembre 2026 :** le plugin n'a plus aucune dépendance Composer (§8). Les sections 1, 4 et 7,
+> qui décrivent la gestion du `vendor/`, sont conservées pour l'historique.
+
 Cible de compatibilité retenue : **Jeedom 4.6 minimum**, **PHP 7.4 à 8.3**.
 
 Ces deux contraintes sont cohérentes avec le core : le `composer.json` de Jeedom 4.6.2 déclare
 `"php": ">=7.4"` et épingle `config.platform.php = "7.4"`. Un Jeedom 4.6 peut donc tourner sous
 PHP 7.4 comme sous PHP 8.3, et le plugin doit couvrir toute la plage.
+
+Le socle Jeedom est désormais appliqué : `plugin_info/info.json` déclare `"require": "4.6"`. Jeedom
+lit ce champ dans `plugin::setIsEnable()` et refuse l'activation du plugin sur un core plus ancien,
+avec un message explicite. Les installations en Jeedom 4.2 à 4.5 ne sont pas désactivées
+rétroactivement, mais ne pourront plus réactiver le plugin après cette mise à jour.
 
 ## 1. Cause racine de « Class netatmoPublicData does not exist »
 
@@ -157,18 +165,93 @@ deux clients HTTP. Le comportement survit aux réinstallations et n'appelle plus
   avant correctif, tous propres après.
 - `composer.lock` et `vendor/composer/installed.json` alignés paquet par paquet.
 
-## 7. Point de vigilance restant
+## 7. Garde-fou d'intégrité des dépendances
 
 `vendor/` reste versionné alors que Jeedom le supprime et le reconstruit. Les deux arbres doivent
 donc rester synchronisés : toute mise à jour de `composer.lock` — les montées Dependabot en
-particulier — doit s'accompagner d'une régénération de `vendor/` dans le même commit. C'est
-précisément ce qui avait dérivé (lock en Guzzle 7.15.2, `vendor/` en 7.7.0).
+particulier — doit s'accompagner d'une régénération de `vendor/`. C'est précisément ce qui avait
+dérivé, et Dependabot ne touche jamais au `vendor/`.
 
-Deux options pour supprimer le risque à la source : un workflow GitHub Actions qui régénère et
-commite `vendor/` sur les PR Dependabot, ou l'abandon du `vendor/` versionné maintenant que
-`packages.json` couvre l'installation. Le dépôt n'a aujourd'hui aucun répertoire `.github/`.
+Le workflow `.github/workflows/composer-integrity.yml` ferme cette porte. Il se déclenche sur toute
+PR ou tout push touchant `composer.json`, `composer.lock` ou `vendor/`.
 
-Deux observations annexes tirées des mêmes logs. Un répertoire `3rdparty` est présent sur les
-installations des utilisateurs alors qu'il est absent du dépôt et que `.gitmodules` est vide :
-reliquat d'une version antérieure, que `CLAUDE.md` documente encore. Et `CLAUDE.md` comme
-`notesDev.md` sont livrés en production chez les utilisateurs, alors qu'ils sont internes.
+**`compatibilite`** — matrice PHP 7.4 et 8.3, les deux bornes annoncées dans `plugin_info/info.json`.
+Sur chaque version : `composer validate` (qui contrôle aussi la fraîcheur du lock vis-à-vis de
+`composer.json`), puis `composer install --dry-run`, qui échoue si le lock verrouille un paquet
+incompatible avec ce PHP. C'est exactement le contrôle qui aurait arrêté la panne : sous PHP 7.4,
+`symfony/deprecation-contracts v3.7.1` exige `php >= 8.1`. S'ajoute un `php -l` sur les sources du
+plugin, sur les deux versions.
+
+**`vendor-aligne`** — `.github/scripts/check-vendor-lock.php` compare `vendor/composer/installed.json`
+à `composer.lock`, paquet par paquet. La comparaison porte sur les noms et versions, pas sur le
+contenu des fichiers : selon que Composer installe depuis une archive dist ou depuis les sources,
+les arbres diffèrent légitimement, et un diff octet-à-octet produirait de faux positifs.
+
+Ce contrôle a été éprouvé sur l'état réel de `beta` avant correctif. Il remonte les sept écarts,
+dont celui à l'origine de la panne :
+
+```
+guzzlehttp/guzzle                  vendor/ : 7.7.0    lock : 7.15.2
+symfony/deprecation-contracts      vendor/ : v2.5.2   lock : v3.7.1
+symfony/polyfill-php80             absent de vendor/ (lock : v1.37.0)
+...
+✗ 7 écart(s) détecté(s).
+```
+
+**`synchroniser`** — déclenchement manuel (`workflow_dispatch`), au choix en mode `install`
+(matérialise `vendor/` depuis le lock existant) ou `update` (résout à nouveau). Régénère et commite
+`vendor/` et `composer.lock` ensemble. Le déclenchement est manuel à dessein : les workflows lancés
+par Dependabot reçoivent un jeton en lecture seule et ne peuvent pas pousser de commit.
+
+### Effet attendu au premier lancement de `synchroniser`
+
+Le `vendor/` actuellement versionné a été régénéré depuis des clones **source**, faute d'accès aux
+archives dist au moment du correctif. Il embarque donc les suites de tests, les docs et les
+répertoires `.github/` des dépendances — que les paquets excluent pourtant en dist via
+`export-ignore`. Un `composer install` normal produira un arbre sensiblement plus léger que les
+4,3 Mo actuels.
+
+C'est un gain — le paquet livré aux Jeedom des utilisateurs s'allège d'autant — mais cela produira un
+diff volumineux. Le contrôle `vendor-aligne` n'en est pas affecté, puisqu'il ne compare que les
+versions.
+
+## 8. Observations annexes
+
+Un répertoire `3rdparty` est présent sur les installations des utilisateurs alors qu'il est absent du
+dépôt et que `.gitmodules` est vide : reliquat d'une version antérieure, que `CLAUDE.md` documente
+encore. Et `CLAUDE.md`, `notesDev.md` comme ce rapport sont livrés en production chez les
+utilisateurs alors qu'ils sont internes — un `.gitattributes` avec `export-ignore` les écarterait du
+paquet.
+
+## 8. Suppression des dépendances Composer (novembre 2026)
+
+**Symptôme remonté :** à chaque cron15,
+`Call to undefined method GuzzleHttp\Handler\Proxy::wrapTlsFallback()`, et plus aucune mise à jour
+des stations. La réinstallation des dépendances n'y change rien.
+
+**Cause :** Jeedom exécute le `cron15` de tous les plugins dans le même processus PHP. Chaque
+`vendor/autoload.php` enregistre son autoloader Composer **en tête** de pile (`register(true)`) :
+le dernier plugin chargé fournit toutes les classes pas encore chargées. Les plugins étant chargés
+par ordre alphabétique, le Guzzle 6.5.0 du plugin SmartLife/Tuya passait devant notre Guzzle 7.
+Résultat, un Guzzle hybride : `GuzzleHttp\Utils` (7.x, déjà chargé) appelait
+`Proxy::wrapTlsFallback()` sur un `GuzzleHttp\Handler\Proxy` 6.x qui ne la connaît pas. L'erreur
+« Undefined class constant MAJOR_VERSION » contournée au §4 était un autre visage du même problème.
+
+Reproduit en chargeant notre `vendor/` puis un Guzzle 6.5.0 dans le même script : erreur
+identique. Dans l'ordre inverse, aucune erreur.
+
+**Correctif :** Guzzle et `league/oauth2-client` sont retirés. Le plugin ne s'en servait que pour
+trois GET et deux POST vers `oauth2/token`. Ils sont remplacés par des méthodes en curl natif dans
+`netatmoPublicData` : `httpRequest()`, `getOAuthAuthorizationUrl()`, `requestOAuthTokens()`,
+`saveOAuthTokens()`. Le préfixage des espaces de noms (PHP-Scoper, Strauss) a été écarté : Jeedom
+supprime et réinstalle `vendor/` depuis `packages.json`, il aurait fallu sortir l'arbre préfixé de
+Composer et le régénérer à chaque mise à jour, sans gain par rapport à cinq requêtes HTTP.
+
+Supprimés : `vendor/`, `composer.json`, `composer.lock`, `plugin_info/packages.json`, le workflow
+`composer-integrity.yml` et son script. `info.json` passe à `"hasDependency": false`. Le workflow
+`php-lint.yml` reprend le lint 7.4 / 8.3 et refuse toute réintroduction d'un `vendor/`.
+
+**Vérifié** sur un banc avec core Jeedom simulé et faux serveur Netatmo : renouvellement du token
+(ownApp et application hébergée), relance unique sur 403, erreurs 400 / 500 journalisées, flux
+« authorization code » complet (state, échange du code, state invalide), et fonctionnement
+inchangé quand un Guzzle 6 est chargé avant le plugin.
