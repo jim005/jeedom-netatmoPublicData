@@ -63,7 +63,10 @@ In the plugin, the `Synchronize` button: allows your Jeedom to automatically dis
 > Only from [https://weathermap.netatmo.com](https://weathermap.netatmo.com). Once connected, you can put stations in your * favorites *. Start synchronization, and the devices are created (active + visible).
 
 - If I delete a weather station from my favorites, what happens?
-> The equipment is * deactivated *, but remains present in Jeedom. You can delete it manually.
+> The equipment is * deactivated *, but remains present in Jeedom. You can delete it manually. If it is added back to your favorites, it is re-enabled on the next synchronization.
+
+- Does a synchronization re-enable my disabled equipment?
+> No. Equipment you disabled stays disabled on later synchronizations. Only equipment disabled automatically (station removed from favorites) is re-enabled when it comes back to your favorites.
 
 - Why equipment's name has 'star' ( * ) as prefix ? 
 > Just to highlight that this name come from Netatmo. You could rename it, it won't be override on the next synchronisation.  

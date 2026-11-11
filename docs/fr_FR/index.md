@@ -77,7 +77,10 @@ Dans le plugin, le bouton `Synchroniser` : permet à votre Jeedom de découvrir 
 >Lancer une synchronisation, et les équipements sont crées (actif + visible). 
 
 - Si je supprime une station météo de mes *favoris* sur le site Netatmo, que se passe-t-il ? 
-> Au prochain lancement de la "Synchronisation" (manuelle), l'Équipement est *désactivé*, mais reste présent dans Jeedom. Vous pouvez le supprimer manuellement.   
+> Au prochain lancement de la "Synchronisation" (manuelle), l'Équipement est *désactivé*, mais reste présent dans Jeedom. Vous pouvez le supprimer manuellement. S'il est remis en favori, il est réactivé à la synchronisation suivante.
+
+- Une synchronisation réactive-t-elle mes équipements désactivés ?
+> Non. Un équipement que vous avez désactivé reste désactivé lors des synchronisations suivantes. Seuls les équipements désactivés automatiquement (station retirée des favoris) sont réactivés lorsqu'ils reviennent en favori.   
 
 - Pourquoi il y une "étoile" (*) en préfix du nom de la station ?  
 > Le nom initial de l'Équipement est une concaténation  : 'Nom de la ville' + 'petit nom donné par le propriétaire' + '*' afin d'indiquer que c'est le nom depuis Netatmo. 

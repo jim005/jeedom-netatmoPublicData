@@ -392,11 +392,16 @@ class netatmoPublicData extends eqLogic
                 $eqLogic = new netatmoPublicData();
                 $eqLogic->setName($device['place']['city'] . " : " . $device['station_name'] . " ( " . $device['_id'] . " ) *");
                 $eqLogic->setIsVisible(1);
+                $eqLogic->setIsEnable(1);
 
                 $new_equipment = true;
+            } elseif ($eqLogic->getConfiguration('disabledByUnfavorite', 0) == 1) {
+                // Station remise en favori : on ne réactive que si c'est le plugin qui l'avait désactivée.
+                // Un équipement désactivé par l'utilisateur garde son état.
+                $eqLogic->setIsEnable(1);
+                $eqLogic->setConfiguration('disabledByUnfavorite', 0);
+                log::add('netatmoPublicData', 'debug', "Equipment re-enabled (back in Netatmo favorites) : " . $device['_id']);
             }
-
-            $eqLogic->setIsEnable(1);
 
             // Save Station as an Equipment
             $eqLogic->setEqType_name('netatmoPublicData');
@@ -576,7 +581,12 @@ class netatmoPublicData extends eqLogic
         // Disabled Equipment
         foreach ($npd_equipement_removed_from_favorite as $equipmentLogicalID) {
             $eqLogic = eqLogic::byLogicalId($equipmentLogicalID, 'netatmoPublicData');
+            // Déjà désactivé (par l'utilisateur ou une synchro précédente) : on n'y touche pas
+            if (!is_object($eqLogic) || $eqLogic->getIsEnable() != 1) {
+                continue;
+            }
             $eqLogic->setIsEnable(0);
+            $eqLogic->setConfiguration('disabledByUnfavorite', 1);
             $eqLogic->save();
             log::add('netatmoPublicData', 'debug', "Equipment disabled (because un-star from Netatmo) : $equipmentLogicalID ");
         }

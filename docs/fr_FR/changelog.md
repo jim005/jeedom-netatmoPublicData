@@ -1,6 +1,7 @@
 # Changelog : NetatmoOpenData
 
 # Novembre 2026
+- La synchronisation ne réactive plus les équipements que vous avez désactivés. Seules les stations désactivées automatiquement parce qu'elles avaient été retirées des favoris Netatmo sont réactivées lorsqu'elles y reviennent.
 - Correction de l'erreur « Call to undefined method GuzzleHttp\Handler\Proxy::wrapTlsFallback() » (ou « Undefined class constant MAJOR_VERSION ») à chaque cron15, qui bloquait la mise à jour des stations. Elle survenait lorsqu'un autre plugin embarquant une ancienne version de Guzzle était installé (SmartLife/Tuya, par exemple).
 - Le plugin n'a plus aucune dépendance à installer : les librairies Guzzle et OAuth2 sont remplacées par des appels HTTP natifs. Le bouton « Relancer les dépendances » disparaît.
 - Les erreurs de renouvellement du token Netatmo sont désormais journalisées, avec le motif renvoyé par Netatmo, au lieu d'interrompre le cron.
